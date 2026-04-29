@@ -92,17 +92,18 @@ body::before {
   pointer-events: none;
   z-index: 0;
   mix-blend-mode: screen;
-  opacity: 0.55;
+  opacity: 0.5;
 }
-/* Neo-Gotham streetlight · cobalt + crimson moodlight */
+/* Neo-Gotham wash · large overlapping color fields */
 body::after {
   content: '';
   position: fixed;
-  inset: 0;
+  inset: -10%;
   background:
-    radial-gradient(circle at 8% -5%, rgba(225,29,44,0.14), transparent 42%),
-    radial-gradient(circle at 92% 105%, rgba(56,85,232,0.16), transparent 48%),
-    radial-gradient(circle at 100% 20%, rgba(56,85,232,0.06), transparent 30%);
+    radial-gradient(ellipse 95% 65% at 0% 0%, rgba(225,29,44,0.22), transparent 65%),
+    radial-gradient(ellipse 95% 75% at 100% 100%, rgba(56,85,232,0.28), transparent 70%),
+    radial-gradient(ellipse 70% 55% at 100% 0%, rgba(56,85,232,0.12), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 0% 100%, rgba(225,29,44,0.10), transparent 60%);
   pointer-events: none;
   z-index: 0;
 }
@@ -439,6 +440,124 @@ main {
   text-align: right;
   white-space: nowrap;
   font-weight: 500;
+}
+
+/* ========== INFO LIST (non-interactive) ========== */
+.info-list { padding: 4px 0; }
+.info-row {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--line);
+}
+.info-row:last-child { border-bottom: none; }
+.info-row::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--crimson);
+  margin-right: 6px;
+  align-self: center;
+}
+.info-body { flex: 1; min-width: 0; }
+.info-name {
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  color: var(--text);
+}
+.info-note {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 2px;
+  font-weight: 400;
+}
+.info-spec {
+  flex: 0 0 auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--cobalt-bright);
+  letter-spacing: 0;
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* ========== MULTISTAGE SETS (supersets / drop sets) ========== */
+.ms-sets {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ms-set {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  transition: border-color 0.18s, background 0.18s;
+}
+.ms-set.done {
+  background: rgba(56,85,232,0.08);
+  border-color: var(--cobalt-dim);
+}
+.ms-set-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.ms-set.done .ms-set-label {
+  color: var(--cobalt-bright);
+}
+.ms-stage {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+.ms-stage:first-of-type { border-top: none; padding-top: 0; }
+.ms-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  color: var(--crimson);
+  font-weight: 600;
+  flex: 0 0 86px;
+  letter-spacing: 0.02em;
+}
+.ms-inputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+.ms-inputs input {
+  width: 56px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  outline: none;
+  padding: 6px 0;
+  transition: border-color 0.15s;
+}
+.ms-inputs input::placeholder { color: var(--text-faint); font-weight: 400; }
+.ms-inputs input:focus { border-color: var(--cobalt); }
+.ms-inputs span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
 }
 
 /* ========== SESSION PROGRESS ========== */

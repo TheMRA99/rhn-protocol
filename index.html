@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=8" />
+<link rel="stylesheet" href="styles.css?v=9" />
 </head>
 <body>
 <header class="topbar">
@@ -60,20 +60,12 @@
         <h2><span class="num">01</span>Morning ritual</h2>
         <span class="card-meta">5 min · daily</span>
       </header>
-      <div id="ritualList" class="checklist"></div>
-    </section>
-
-    <section class="card">
-      <header class="card-header">
-        <h2><span class="num">02</span>Daily non-negotiables</h2>
-        <span class="card-meta">Every day</span>
-      </header>
-      <div id="dailyList" class="checklist"></div>
+      <div id="ritualList" class="info-list"></div>
     </section>
 
     <section class="card" id="workoutCard" hidden>
       <header class="card-header">
-        <h2><span class="num">03</span><span id="workoutTitle">Session</span></h2>
+        <h2><span class="num">02</span><span id="workoutTitle">Session</span></h2>
         <span class="card-meta" id="workoutSubtitle"></span>
       </header>
       <div class="session-progress" id="sessionProgress" hidden>
@@ -89,10 +81,18 @@
 
     <section class="card">
       <header class="card-header">
-        <h2><span class="num">04</span>Stamina protocol</h2>
+        <h2><span class="num">03</span>Stamina protocol</h2>
         <span class="card-meta">2 min · AM / PM</span>
       </header>
-      <div id="staminaList" class="checklist"></div>
+      <div id="staminaList" class="info-list"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">04</span>Daily non-negotiables</h2>
+        <span class="card-meta">Every day</span>
+      </header>
+      <div id="dailyList" class="info-list"></div>
     </section>
   </section>
 
@@ -252,7 +252,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=3"></script>
-<script src="app.js?v=8"></script>
+<script src="data.js?v=4"></script>
+<script src="app.js?v=9"></script>
 </body>
 </html>

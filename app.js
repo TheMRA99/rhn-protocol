@@ -57,6 +57,90 @@ function dailyKey() {
   return today();
 }
 
+function findExerciseByKey(workout, exKey) {
+  const sep = exKey.indexOf('::');
+  if (sep < 0) return null;
+  const blockTitle = exKey.slice(0, sep);
+  const idx = +exKey.slice(sep + 2);
+  const block = workout.blocks.find(b => b.title === blockTitle);
+  return block ? block.exercises[idx] : null;
+}
+
+/**
+ * Suggested next-session weight, derived from your last logged session
+ * for this exercise + the program's double-progression rule.
+ * Returns null in the first 4 weeks (the adaptation phase) — the user
+ * picks their own weights until then.
+ */
+function suggestedKgFor(workoutId, exKey, ex, stageIdx) {
+  if (weekNumber() < 5) return null;
+  const dKey = today();
+  const dates = Object.keys(state.setLog || {})
+    .filter(d => d !== dKey)
+    .sort()
+    .reverse();
+  let lastSets = null;
+  for (const d of dates) {
+    const s = state.setLog[d]?.[workoutId]?.[exKey];
+    if (s && s.length) { lastSets = s; break; }
+  }
+  if (!lastSets) return null;
+
+  const isMS = ex.inputMode === 'multistage';
+  const kgList = [], repsList = [];
+  lastSets.forEach(set => {
+    if (!set || !set.done) return;
+    if (isMS && stageIdx != null) {
+      const st = set[`stage${stageIdx}`];
+      if (!st) return;
+      const kg = parseFloat(st.kg);
+      const reps = parseInt(st.reps);
+      if (!isNaN(kg)) kgList.push(kg);
+      if (!isNaN(reps)) repsList.push(reps);
+    } else if (!isMS) {
+      const kg = parseFloat(set.kg);
+      const reps = parseInt(set.reps);
+      if (!isNaN(kg)) kgList.push(kg);
+      if (!isNaN(reps)) repsList.push(reps);
+    }
+  });
+  if (!kgList.length) return null;
+  const lastKg = Math.max(...kgList);
+
+  // Deload week (multiples of 5): 80% of last
+  if (weekNumber() % 5 === 0) {
+    return Math.round(lastKg * 0.8 * 4) / 4;
+  }
+
+  const repMatch = (ex.reps || '').match(/(\d+)\s*[-–]\s*(\d+)/);
+  let minRep = 0, maxRep = 0;
+  if (repMatch) {
+    minRep = +repMatch[1];
+    maxRep = +repMatch[2];
+  } else {
+    const single = (ex.reps || '').match(/(\d+)/);
+    if (single) maxRep = +single[1];
+  }
+  if (!maxRep) return lastKg;
+
+  const allHitTop = repsList.length && repsList.every(r => r >= maxRep);
+  const someBelowMin = minRep && repsList.some(r => r < minRep);
+  const isVolume = maxRep >= 12;
+  const inc = isVolume ? 1.25 : 2.5;
+
+  let suggested = lastKg;
+  if (allHitTop) suggested = lastKg + inc;
+  else if (someBelowMin) suggested = lastKg - inc;
+  return Math.round(suggested * 4) / 4;
+}
+
+function isMultiStageDone(setData, ex) {
+  return ex.stages.every((_, si) => {
+    const s = setData[`stage${si}`];
+    return s && s.kg !== undefined && s.kg !== '' && s.reps !== undefined && s.reps !== '';
+  });
+}
+
 function inputFieldsForMode(mode) {
   switch (mode) {
     case 'bodyweight_reps':
@@ -112,6 +196,12 @@ function formatPrev(set, mode) {
       return `${set.sec || '–'} s`;
     case 'time_speed':
       return `${set.min || '–'} min · ${set.spm || '–'} spm`;
+    case 'multistage': {
+      // pull stage0 as the headline
+      const s0 = set.stage0;
+      if (!s0) return 'logged';
+      return `${s0.kg || '–'} kg × ${s0.reps || '–'}`;
+    }
     default:
       return `${set.kg || '–'} kg × ${set.reps || '–'}`;
   }
@@ -246,31 +336,18 @@ function renderDayPicker() {
   });
 }
 
-// ========== TODAY: CHECKLISTS ==========
-function renderChecklist(elId, items, scope) {
-  const dKey = dailyKey();
-  const checked = state[scope][dKey] || {};
+// ========== TODAY: INFO LISTS (no checkboxes) ==========
+function renderInfoList(elId, items) {
   const el = document.getElementById(elId);
-  el.innerHTML = items.map((it, i) => `
-    <div class="check-item ${checked[i] ? 'done' : ''}" data-i="${i}">
-      <div class="check-box"></div>
-      <div class="check-body">
-        <div class="check-name">${it.name}</div>
-        <div class="check-note">${it.note}</div>
+  el.innerHTML = items.map(it => `
+    <div class="info-row">
+      <div class="info-body">
+        <div class="info-name">${it.name}</div>
+        <div class="info-note">${it.note}</div>
       </div>
-      <div class="check-spec">${it.spec}</div>
+      <div class="info-spec">${it.spec}</div>
     </div>
   `).join('');
-  el.querySelectorAll('.check-item').forEach(row => {
-    row.addEventListener('click', () => {
-      const i = +row.dataset.i;
-      const dKey2 = dailyKey();
-      if (!state[scope][dKey2]) state[scope][dKey2] = {};
-      state[scope][dKey2][i] = !state[scope][dKey2][i];
-      save();
-      row.classList.toggle('done');
-    });
-  });
 }
 
 // ========== TODAY: WORKOUT ==========
@@ -294,27 +371,63 @@ function renderWorkout() {
     ${block.exercises.map((ex, exIdx) => {
       const exKey = `${block.title}::${exIdx}`;
       const exLog = log[exKey] || [];
-      const fields = inputFieldsForMode(ex.inputMode);
       const mode = ex.inputMode || 'weight_reps';
       const prev = findPreviousBest(id, exKey);
       const beating = isCurrentBeating(exLog, prev, mode);
-      let setRows = '';
-      for (let s = 0; s < ex.sets; s++) {
-        totalSets += 1;
-        const setData = exLog[s] || {};
-        const isDone = setData.done;
-        if (isDone) doneSets += 1;
-        const innerHTML = fields.map((f, fi) => {
-          const sep = fi > 0 ? '<span>×</span>' : '';
-          return `${sep}<input type="number" placeholder="${f.label}" value="${setData[f.key] ?? ''}" data-field="${f.key}" inputmode="${f.inputmode}" style="width:${f.width}px" />`;
-        }).join('');
-        setRows += `
-          <div class="set-input ${isDone ? 'done' : ''}" data-ex="${exKey}" data-set="${s}" data-mode="${mode}">
-            <span>S${s + 1}</span>
-            ${innerHTML}
-          </div>
-        `;
+
+      let bodyHTML = '';
+      if (mode === 'multistage') {
+        let setsHTML = '';
+        for (let s = 0; s < ex.sets; s++) {
+          totalSets += 1;
+          const setData = exLog[s] || {};
+          if (setData.done) doneSets += 1;
+          const stagesHTML = ex.stages.map((stage, si) => {
+            const sd = setData[`stage${si}`] || {};
+            const suggKg = suggestedKgFor(id, exKey, ex, si);
+            const kgPh = suggKg != null ? String(suggKg) : 'kg';
+            return `
+              <div class="ms-stage" data-stage="${si}">
+                <span class="ms-label">${stage.label}</span>
+                <div class="ms-inputs">
+                  <input type="number" placeholder="${kgPh}" value="${sd.kg ?? ''}" data-field="kg" inputmode="decimal" />
+                  <span>×</span>
+                  <input type="number" placeholder="rep" value="${sd.reps ?? ''}" data-field="reps" inputmode="numeric" />
+                </div>
+              </div>
+            `;
+          }).join('');
+          setsHTML += `
+            <div class="ms-set ${setData.done ? 'done' : ''}" data-ex="${exKey}" data-set="${s}" data-mode="multistage">
+              <div class="ms-set-label">Set ${s + 1}</div>
+              ${stagesHTML}
+            </div>
+          `;
+        }
+        bodyHTML = `<div class="ms-sets">${setsHTML}</div>`;
+      } else {
+        const fields = inputFieldsForMode(mode);
+        const suggKg = (mode === 'weight_reps') ? suggestedKgFor(id, exKey, ex) : null;
+        let setRows = '';
+        for (let s = 0; s < ex.sets; s++) {
+          totalSets += 1;
+          const setData = exLog[s] || {};
+          if (setData.done) doneSets += 1;
+          const innerHTML = fields.map((f, fi) => {
+            const sep = fi > 0 ? '<span>×</span>' : '';
+            const ph = (f.key === 'kg' && suggKg != null) ? String(suggKg) : f.label;
+            return `${sep}<input type="number" placeholder="${ph}" value="${setData[f.key] ?? ''}" data-field="${f.key}" inputmode="${f.inputmode}" style="width:${f.width}px" />`;
+          }).join('');
+          setRows += `
+            <div class="set-input ${setData.done ? 'done' : ''}" data-ex="${exKey}" data-set="${s}" data-mode="${mode}">
+              <span>S${s + 1}</span>
+              ${innerHTML}
+            </div>
+          `;
+        }
+        bodyHTML = `<div class="set-rows">${setRows}</div>`;
       }
+
       const prevHTML = prev
         ? `<div class="exercise-prev ${beating ? 'beaten' : ''}" title="From ${fmtDate(prev.date)}">last · ${formatPrev(prev.set, mode)}${beating ? ' · beaten' : ''}</div>`
         : '';
@@ -326,7 +439,7 @@ function renderWorkout() {
           </div>
           ${ex.note ? `<div class="exercise-note">${ex.note}</div>` : ''}
           ${prevHTML}
-          <div class="set-rows">${setRows}</div>
+          ${bodyHTML}
         </div>
       `;
     }).join('')}
@@ -334,26 +447,34 @@ function renderWorkout() {
 
   renderSessionProgress(doneSets, totalSets);
 
-  // Set input handlers
-  list.querySelectorAll('.set-input').forEach(row => {
+  // Set input handlers — supports both flat and multistage modes
+  list.querySelectorAll('.set-input, .ms-set').forEach(row => {
     const exKey = row.dataset.ex;
     const setIdx = +row.dataset.set;
     const mode = row.dataset.mode;
-    const fields = inputFieldsForMode(mode);
+    const ex = findExerciseByKey(w, exKey);
     row.querySelectorAll('input').forEach(input => {
       input.addEventListener('input', () => {
         if (!state.setLog[dKey]) state.setLog[dKey] = {};
         if (!state.setLog[dKey][id]) state.setLog[dKey][id] = {};
         if (!state.setLog[dKey][id][exKey]) state.setLog[dKey][id][exKey] = [];
         if (!state.setLog[dKey][id][exKey][setIdx]) state.setLog[dKey][id][exKey][setIdx] = {};
-        state.setLog[dKey][id][exKey][setIdx][input.dataset.field] = input.value;
-        const v = state.setLog[dKey][id][exKey][setIdx];
-        state.setLog[dKey][id][exKey][setIdx].done = fields.every(f => v[f.key] !== undefined && v[f.key] !== '');
-        if (state.setLog[dKey][id][exKey][setIdx].done) {
-          row.classList.add('done');
+        const setData = state.setLog[dKey][id][exKey][setIdx];
+        const field = input.dataset.field;
+        if (mode === 'multistage') {
+          const stageEl = input.closest('.ms-stage');
+          const stageIdx = stageEl ? stageEl.dataset.stage : '0';
+          const stageKey = `stage${stageIdx}`;
+          if (!setData[stageKey]) setData[stageKey] = {};
+          setData[stageKey][field] = input.value;
+          setData.done = isMultiStageDone(setData, ex);
         } else {
-          row.classList.remove('done');
+          const fields = inputFieldsForMode(mode);
+          setData[field] = input.value;
+          setData.done = fields.every(f => setData[f.key] !== undefined && setData[f.key] !== '');
         }
+        if (setData.done) row.classList.add('done');
+        else row.classList.remove('done');
         save();
         refreshSessionProgress();
       });
@@ -377,9 +498,9 @@ function renderWorkout() {
 
 function renderToday() {
   renderDayPicker();
-  renderChecklist('ritualList', DATA.morningRitual, 'ritual');
-  renderChecklist('dailyList', DATA.daily, 'daily');
-  renderChecklist('staminaList', DATA.stamina, 'stamina');
+  renderInfoList('ritualList', DATA.morningRitual);
+  renderInfoList('dailyList', DATA.daily);
+  renderInfoList('staminaList', DATA.stamina);
   renderWorkout();
 
   const w = DATA.workouts.find(x => x.id === state.selectedWorkout);

@@ -87,7 +87,19 @@ const DATA = {
             { name: "Flat DB Press", sets: 3, reps: "8–10", note: "Mid-chest thickness" },
             { name: "Cable Chest Fly (high-to-low)", sets: 3, reps: "10–12", note: "Lower pec line" },
             { name: "Seated DB Shoulder Press", sets: 3, reps: "8–10", note: "Front + side delts" },
-            { name: "Cable Lateral Raise", sets: 4, reps: "15", note: "Second weekly hit" }
+            {
+              name: "Cable Lateral Raise · drop superset",
+              sets: 3,
+              reps: "R+L heavy → R+L drop · 10 each",
+              note: "Heavy R, heavy L, immediately drop weight, drop R, drop L",
+              inputMode: "multistage",
+              stages: [
+                { label: "R · heavy" },
+                { label: "L · heavy" },
+                { label: "R · drop" },
+                { label: "L · drop" }
+              ]
+            }
           ]
         },
         {
@@ -103,7 +115,19 @@ const DATA = {
         {
           title: "Triceps",
           exercises: [
-            { name: "Single-Arm Cable Side Pushdown", sets: 3, reps: "12/arm", note: "Lateral head — horseshoe" }
+            {
+              name: "Single-Arm Cable Pushdown · superset",
+              sets: 2,
+              reps: "10 ea standard → 10 ea sideways",
+              note: "Both arms standard, then both arms sideways · lateral head",
+              inputMode: "multistage",
+              stages: [
+                { label: "R · standard" },
+                { label: "L · standard" },
+                { label: "R · sideways" },
+                { label: "L · sideways" }
+              ]
+            }
           ]
         },
         {
