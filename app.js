@@ -7,10 +7,22 @@ const defaultState = {
   weights: [],
   sessions: [],
   selectedWorkout: null,
+  workoutByDate: {},   // { "2026-04-29": "day3", ... }
   setLog: {},
   daily: {},
   ritual: {},
   stamina: {}
+};
+
+// Default workout per weekday from the protocol
+const DEFAULT_WEEKDAY_WORKOUT = {
+  1: 'day1',     // Mon — back width
+  2: 'day2',     // Tue — lower posterior
+  3: 'homecore', // Wed — rest / home core
+  4: 'homecore', // Thu — rest / home core
+  5: 'day3',     // Fri — chest+shoulders
+  6: 'day4',     // Sat — power
+  0: 'homecore'  // Sun — rest / home core
 };
 
 let state = load();
@@ -55,6 +67,21 @@ function weekNumber() {
 
 function dailyKey() {
   return today();
+}
+
+function getSelectedWorkoutForToday() {
+  const dKey = today();
+  if (state.workoutByDate && state.workoutByDate[dKey]) {
+    return state.workoutByDate[dKey];
+  }
+  const dow = new Date().getDay();
+  return DEFAULT_WEEKDAY_WORKOUT[dow] || 'homecore';
+}
+
+function setSelectedWorkoutForToday(id) {
+  state.workoutByDate = state.workoutByDate || {};
+  state.workoutByDate[today()] = id;
+  state.selectedWorkout = id;
 }
 
 function findExerciseByKey(workout, exKey) {
@@ -259,6 +286,129 @@ function isCurrentBeating(currentSets, prev, mode) {
   return bestNow > bestPrev;
 }
 
+// ========== REST TIMER ==========
+let _restHandle = null;
+let _restRemaining = 0;
+let _restTotal = 0;
+
+function restDurationFor(ex) {
+  if (!ex) return 60;
+  const mode = ex.inputMode;
+  if (mode === 'time' || mode === 'time_speed' || mode === 'bodyweight_reps') return 60;
+  const m = (ex.reps || '').match(/(\d+)\s*[-–]\s*(\d+)/);
+  if (m) {
+    const max = +m[2];
+    if (max <= 8) return 120;
+    if (max <= 12) return 90;
+    return 60;
+  }
+  const single = (ex.reps || '').match(/(\d+)/);
+  if (single) {
+    const n = +single[1];
+    if (n <= 5) return 120;
+    if (n <= 8) return 90;
+  }
+  return 60;
+}
+
+function startRestTimer(seconds) {
+  cancelRestTimer();
+  _restTotal = seconds;
+  _restRemaining = seconds;
+  const bar = document.getElementById('restBar');
+  if (!bar) return;
+  bar.hidden = false;
+  bar.classList.remove('done');
+  document.body.classList.add('rest-active');
+  updateRestBar();
+  _restHandle = setInterval(() => {
+    _restRemaining -= 1;
+    updateRestBar();
+    if (_restRemaining <= 0) finishRestTimer();
+  }, 1000);
+}
+
+function cancelRestTimer() {
+  if (_restHandle) clearInterval(_restHandle);
+  _restHandle = null;
+  const bar = document.getElementById('restBar');
+  if (bar) bar.hidden = true;
+  document.body.classList.remove('rest-active');
+}
+
+function finishRestTimer() {
+  if (_restHandle) clearInterval(_restHandle);
+  _restHandle = null;
+  if (navigator.vibrate) try { navigator.vibrate([120, 60, 120]); } catch (e) {}
+  const bar = document.getElementById('restBar');
+  if (!bar) return;
+  bar.classList.add('done');
+  document.getElementById('restRemaining').textContent = 'Go';
+  setTimeout(() => {
+    if (bar) bar.hidden = true;
+    document.body.classList.remove('rest-active');
+  }, 2400);
+}
+
+function adjustRestTimer(delta) {
+  if (!_restHandle) return;
+  _restRemaining = Math.max(0, _restRemaining + delta);
+  _restTotal = Math.max(_restTotal, _restRemaining);
+  updateRestBar();
+}
+
+function updateRestBar() {
+  const m = Math.floor(Math.max(0, _restRemaining) / 60);
+  const s = (Math.max(0, _restRemaining) % 60).toString().padStart(2, '0');
+  const el = document.getElementById('restRemaining');
+  if (el) el.textContent = `${m}:${s}`;
+  const fill = document.getElementById('restFill');
+  if (fill) {
+    const pct = _restTotal > 0 ? Math.max(0, Math.min(100, (_restRemaining / _restTotal) * 100)) : 0;
+    fill.style.width = pct + '%';
+  }
+}
+
+// ========== ACTIVE EXERCISE EMPHASIS ==========
+function refreshActiveExercise() {
+  const list = document.getElementById('exerciseList');
+  if (!list) return;
+  const exercises = list.querySelectorAll('.exercise');
+  let activeFound = false;
+  exercises.forEach(el => {
+    el.classList.remove('active', 'completed');
+    const setRows = el.querySelectorAll('.set-input, .ms-set');
+    if (!setRows.length) return;
+    const allDone = [...setRows].every(r => r.classList.contains('done'));
+    if (allDone) {
+      el.classList.add('completed');
+    } else if (!activeFound) {
+      el.classList.add('active');
+      activeFound = true;
+    }
+  });
+}
+
+// ========== PR FLASH ==========
+function maybeFlashPR(row, exKey, ex, mode) {
+  const id = state.selectedWorkout;
+  const dKey = today();
+  const exLog = state.setLog[dKey]?.[id]?.[exKey] || [];
+  const prev = findPreviousBest(id, exKey);
+  if (!prev) return;
+  if (!isCurrentBeating(exLog, prev, mode)) return;
+  // Update prev-chip in the parent exercise card
+  const exCard = row.closest('.exercise');
+  const chip = exCard?.querySelector('.exercise-prev');
+  if (chip && !chip.classList.contains('beaten')) {
+    chip.classList.add('beaten');
+    chip.innerHTML = chip.innerHTML.replace(/^[^l]*last/, '↑ last') + ' · beaten';
+  }
+  // Flash the row briefly
+  row.classList.add('pr-flash');
+  setTimeout(() => row.classList.remove('pr-flash'), 1400);
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -324,7 +474,7 @@ function renderDayPicker() {
   `).join('');
   wrap.querySelectorAll('.day-pill').forEach(b => {
     b.addEventListener('click', () => {
-      state.selectedWorkout = b.dataset.id;
+      setSelectedWorkoutForToday(b.dataset.id);
       save();
       renderToday();
       renderHeader();
@@ -447,7 +597,7 @@ function renderWorkout() {
 
   renderSessionProgress(doneSets, totalSets);
 
-  // Set input handlers — supports both flat and multistage modes
+  // Set input handlers — input event saves state, change event auto-fills
   list.querySelectorAll('.set-input, .ms-set').forEach(row => {
     const exKey = row.dataset.ex;
     const setIdx = +row.dataset.set;
@@ -460,6 +610,7 @@ function renderWorkout() {
         if (!state.setLog[dKey][id][exKey]) state.setLog[dKey][id][exKey] = [];
         if (!state.setLog[dKey][id][exKey][setIdx]) state.setLog[dKey][id][exKey][setIdx] = {};
         const setData = state.setLog[dKey][id][exKey][setIdx];
+        const wasDone = !!setData.done;
         const field = input.dataset.field;
         if (mode === 'multistage') {
           const stageEl = input.closest('.ms-stage');
@@ -477,9 +628,53 @@ function renderWorkout() {
         else row.classList.remove('done');
         save();
         refreshSessionProgress();
+        refreshActiveExercise();
+
+        // Set transitioned to done — start rest timer + check for PR
+        if (!wasDone && setData.done) {
+          startRestTimer(restDurationFor(ex));
+          maybeFlashPR(row, exKey, ex, mode);
+        }
+      });
+
+      // On blur (change), auto-fill kg from S1 to subsequent empty sets
+      input.addEventListener('change', () => {
+        const field = input.dataset.field;
+        if (field !== 'kg' || setIdx !== 0 || !input.value) return;
+        const exLog = state.setLog[dKey]?.[id]?.[exKey];
+        if (!exLog) return;
+        if (mode === 'multistage') {
+          const stageEl = input.closest('.ms-stage');
+          if (!stageEl) return;
+          const stageIdx = stageEl.dataset.stage;
+          const stageKey = `stage${stageIdx}`;
+          for (let s = 1; s < ex.sets; s++) {
+            if (!exLog[s]) exLog[s] = {};
+            if (!exLog[s][stageKey]) exLog[s][stageKey] = {};
+            if (!exLog[s][stageKey].kg) {
+              exLog[s][stageKey].kg = input.value;
+              const tRow = list.querySelector(`.ms-set[data-ex="${CSS.escape(exKey)}"][data-set="${s}"]`);
+              const tIn = tRow?.querySelector(`.ms-stage[data-stage="${stageIdx}"] input[data-field="kg"]`);
+              if (tIn && !tIn.value) tIn.value = input.value;
+            }
+          }
+        } else {
+          for (let s = 1; s < ex.sets; s++) {
+            if (!exLog[s]) exLog[s] = {};
+            if (!exLog[s].kg) {
+              exLog[s].kg = input.value;
+              const tRow = list.querySelector(`.set-input[data-ex="${CSS.escape(exKey)}"][data-set="${s}"]`);
+              const tIn = tRow?.querySelector('input[data-field="kg"]');
+              if (tIn && !tIn.value) tIn.value = input.value;
+            }
+          }
+        }
+        save();
       });
     });
   });
+
+  refreshActiveExercise();
 
   const btn = document.getElementById('finishWorkoutBtn');
   const isLogged = state.sessions.some(s => s.date === dKey && s.workoutId === id);
@@ -622,6 +817,44 @@ function renderWeekGrid() {
   }
 }
 
+function buildHistoryDetail(session) {
+  const w = DATA.workouts.find(x => x.id === session.workoutId);
+  if (!w) return '';
+  const dayLog = state.setLog?.[session.date]?.[session.workoutId] || {};
+  const blocks = w.blocks.map(block => {
+    const exHTML = block.exercises.map((ex, exIdx) => {
+      const exKey = `${block.title}::${exIdx}`;
+      const sets = dayLog[exKey] || [];
+      const done = sets.filter(s => s && s.done);
+      if (!done.length) return '';
+      const summary = done.map(s => {
+        const mode = ex.inputMode || 'weight_reps';
+        if (mode === 'multistage') {
+          const stages = ex.stages.map((_, si) => {
+            const st = s[`stage${si}`] || {};
+            return `${st.kg || '–'}×${st.reps || '–'}`;
+          }).join(' › ');
+          return stages;
+        }
+        if (mode === 'bodyweight_reps') return `${s.reps || '–'} reps`;
+        if (mode === 'time') return `${s.sec || '–'}s`;
+        if (mode === 'time_speed') return `${s.min || '–'}min·${s.spm || '–'}spm`;
+        return `${s.kg || '–'}kg × ${s.reps || '–'}`;
+      }).join('  ·  ');
+      return `<div class="det-ex">
+        <div class="det-ex-name">${ex.name}</div>
+        <div class="det-sets">${summary}</div>
+      </div>`;
+    }).filter(Boolean).join('');
+    if (!exHTML) return '';
+    return `<div class="det-block">
+      <div class="det-block-title">${block.title}</div>
+      ${exHTML}
+    </div>`;
+  }).filter(Boolean).join('');
+  return blocks || '<div class="det-ex"><div class="det-sets">No sets logged.</div></div>';
+}
+
 function renderHistory() {
   const el = document.getElementById('sessionHistory');
   if (!state.sessions.length) {
@@ -629,12 +862,17 @@ function renderHistory() {
     return;
   }
   const recent = state.sessions.slice(-12).reverse();
-  el.innerHTML = recent.map(s => `
-    <div class="history-row">
+  el.innerHTML = recent.map((s, i) => `
+    <div class="history-row" data-i="${i}">
       <span class="history-date">${fmtDate(s.date)}</span>
       <span class="history-name">${s.name}</span>
+      <span class="history-toggle">›</span>
+      <div class="history-detail">${buildHistoryDetail(s)}</div>
     </div>
   `).join('');
+  el.querySelectorAll('.history-row').forEach(row => {
+    row.addEventListener('click', () => row.classList.toggle('open'));
+  });
 }
 
 function renderPhases() {
@@ -755,5 +993,14 @@ function renderAll() {
   renderNutrition();
   renderProtocol();
 }
+
+// Sync today's workout pick from per-date map (auto-default if first visit today)
+state.selectedWorkout = getSelectedWorkoutForToday();
+save();
+
+// Rest-timer button wiring
+document.getElementById('restSkip')?.addEventListener('click', cancelRestTimer);
+document.getElementById('restPlus')?.addEventListener('click', () => adjustRestTimer(15));
+document.getElementById('restMinus')?.addEventListener('click', () => adjustRestTimer(-15));
 
 renderAll();

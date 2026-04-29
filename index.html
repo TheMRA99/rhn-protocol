@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=9" />
+<link rel="stylesheet" href="styles.css?v=10" />
 </head>
 <body>
 <header class="topbar">
@@ -250,9 +250,20 @@
   <span>167 cm · 27 · started <span id="startDate">—</span></span>
 </footer>
 
+<div class="rest-bar" id="restBar" hidden>
+  <div class="rest-bar-fill" id="restFill"></div>
+  <div class="rest-bar-content">
+    <span class="rest-bar-label">Rest</span>
+    <span class="rest-bar-time" id="restRemaining">0:00</span>
+    <button class="rest-bar-adj" id="restMinus">−15</button>
+    <button class="rest-bar-adj" id="restPlus">+15</button>
+    <button class="rest-bar-skip" id="restSkip">Skip</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=4"></script>
-<script src="app.js?v=9"></script>
+<script src="data.js?v=5"></script>
+<script src="app.js?v=10"></script>
 </body>
 </html>

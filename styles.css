@@ -85,14 +85,11 @@ body::before {
   position: fixed;
   inset: 0;
   background-image:
-    radial-gradient(rgba(225,29,44,0.05) 1px, transparent 1.4px),
-    radial-gradient(rgba(56,85,232,0.05) 1px, transparent 1.4px);
-  background-size: 22px 22px, 22px 22px;
-  background-position: 0 0, 11px 11px;
+    radial-gradient(rgba(225,29,44,0.05) 1px, transparent 1.4px);
+  background-size: 26px 26px;
   pointer-events: none;
   z-index: 0;
-  mix-blend-mode: screen;
-  opacity: 0.5;
+  opacity: 0.4;
 }
 /* Neo-Gotham wash · large overlapping color fields */
 body::after {
@@ -1139,6 +1136,174 @@ main {
   font-weight: 400;
   border-top: 1px solid var(--line);
 }
+
+/* ========== REST TIMER ========== */
+.rest-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 90;
+  background: rgba(8,12,28,0.92);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  border-top: 1px solid var(--cobalt-dim);
+  box-shadow: 0 -10px 40px rgba(56,85,232,0.18);
+  padding-bottom: env(safe-area-inset-bottom);
+  transition: opacity 0.25s, transform 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
+  animation: restBarSlide 0.32s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+@keyframes restBarSlide {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.rest-bar.done {
+  border-top-color: var(--crimson);
+  background: rgba(28,8,12,0.94);
+  box-shadow: 0 -10px 40px rgba(225,29,44,0.32);
+}
+.rest-bar-fill {
+  position: absolute;
+  top: 0; left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cobalt-bright), var(--crimson));
+  transition: width 1s linear;
+  box-shadow: 0 0 10px rgba(56,85,232,0.6);
+}
+.rest-bar.done .rest-bar-fill {
+  background: var(--crimson);
+  box-shadow: 0 0 12px rgba(225,29,44,0.6);
+}
+.rest-bar-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.rest-bar-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--cobalt-bright);
+  text-transform: uppercase;
+}
+.rest-bar.done .rest-bar-label { color: var(--crimson-bright); }
+.rest-bar-time {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: 26px;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  flex: 1;
+  font-variation-settings: "opsz" 60;
+  font-variant-numeric: tabular-nums;
+}
+.rest-bar.done .rest-bar-time { color: var(--crimson-bright); }
+.rest-bar-adj, .rest-bar-skip {
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--bg-2);
+  border: 1px solid var(--line-bright);
+  color: var(--text-dim);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.rest-bar-adj:hover, .rest-bar-skip:hover {
+  background: var(--bg-3);
+  color: var(--text);
+  border-color: var(--cobalt);
+}
+.rest-bar-skip { color: var(--crimson); border-color: var(--crimson-dim); }
+.rest-bar-skip:hover { background: rgba(225,29,44,0.10); color: var(--crimson-bright); border-color: var(--crimson); }
+
+/* ========== ACTIVE / COMPLETED EXERCISE ========== */
+.exercise {
+  position: relative;
+  transition: opacity 0.3s ease, background 0.3s ease;
+}
+.exercise.completed { opacity: 0.42; }
+.exercise.active {
+  background: linear-gradient(90deg, rgba(56,85,232,0.06), transparent 60%);
+}
+.exercise.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: var(--cobalt-bright);
+  border-radius: 2px;
+  box-shadow: 0 0 12px rgba(85,119,255,0.55);
+}
+
+/* PR flash */
+@keyframes prFlash {
+  0%   { box-shadow: 0 0 0 0 rgba(225,29,44,0.6); transform: scale(1); }
+  35%  { box-shadow: 0 0 0 6px rgba(225,29,44,0.35); transform: scale(1.02); }
+  100% { box-shadow: 0 0 0 0 rgba(225,29,44,0); transform: scale(1); }
+}
+.set-input.pr-flash, .ms-set.pr-flash {
+  animation: prFlash 1.4s cubic-bezier(0.2, 0.9, 0.2, 1);
+  border-color: var(--crimson) !important;
+}
+
+/* ========== HISTORY EXPAND ========== */
+.history-row {
+  cursor: pointer;
+  flex-wrap: wrap;
+}
+.history-row .history-toggle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-faint);
+  margin-left: 8px;
+  transition: transform 0.2s ease;
+}
+.history-row.open .history-toggle { transform: rotate(90deg); color: var(--cobalt-bright); }
+.history-detail {
+  flex: 0 0 100%;
+  padding: 10px 0 4px;
+  display: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  border-top: 1px dashed var(--line);
+  margin-top: 10px;
+}
+.history-row.open .history-detail { display: block; }
+.history-detail .det-block-title {
+  color: var(--crimson);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 10px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+.history-detail .det-ex {
+  margin-bottom: 6px;
+}
+.history-detail .det-ex-name {
+  color: var(--text);
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: -0.005em;
+}
+.history-detail .det-sets {
+  color: var(--cobalt-bright);
+  margin-top: 3px;
+}
+
+/* Add a bit of padding-bottom when rest bar is showing so content isn't hidden */
+body.rest-active main { padding-bottom: 180px; }
 
 /* ========== TOAST ========== */
 .toast {

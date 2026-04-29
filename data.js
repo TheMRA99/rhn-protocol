@@ -131,11 +131,11 @@ const DATA = {
           ]
         },
         {
-          title: "Forearms",
+          title: "Forearms + Traps",
           exercises: [
             { name: "Wrist Curl (palms up)", sets: 3, reps: "15", note: "Flexor mass" },
             { name: "Reverse Wrist Curl", sets: 3, reps: "12", note: "Extensor width" },
-            { name: "Farmer's Carry", sets: 2, reps: "30 sec heavy", note: "Endurance + traps" }
+            { name: "DB Shrugs", sets: 3, reps: "12–15", note: "1-sec hold at top · trap shelf for V-taper" }
           ]
         },
         {
