@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="96" fill="#0F0B11"/>
   <text x="180" y="320" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="600" font-size="240" fill="#EFE6D8" letter-spacing="-8">R</text>
-  <text x="256" y="248" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="500" font-size="92" fill="#D4B589">×</text>
+  <text x="256" y="248" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-style="italic" font-weight="500" font-size="92" fill="#B58D52">×</text>
   <text x="338" y="320" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-weight="600" font-size="240" fill="#A0455A" letter-spacing="-8">N</text>
 </svg>

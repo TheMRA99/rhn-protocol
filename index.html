@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=4" />
+<link rel="stylesheet" href="styles.css?v=5" />
 </head>
 <body>
 <header class="topbar">
@@ -76,6 +76,13 @@
         <h2><span class="num">03</span><span id="workoutTitle">Session</span></h2>
         <span class="card-meta" id="workoutSubtitle"></span>
       </header>
+      <div class="session-progress" id="sessionProgress" hidden>
+        <div class="session-progress-row">
+          <span class="session-progress-label" id="sessionProgressLabel">Today</span>
+          <span class="session-progress-stat" id="sessionProgressStat">0 / 0</span>
+        </div>
+        <div class="session-progress-bar"><div class="session-progress-fill" id="sessionProgressFill" style="width:0%"></div></div>
+      </div>
       <div id="exerciseList" class="exercises"></div>
       <button class="btn-primary" id="finishWorkoutBtn">Mark session complete</button>
     </section>
@@ -246,6 +253,6 @@
 <div class="toast" id="toast"></div>
 
 <script src="data.js?v=3"></script>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>

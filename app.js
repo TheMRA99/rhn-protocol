@@ -66,7 +66,7 @@ function inputFieldsForMode(mode) {
     case 'time_speed':
       return [
         { key: 'min', label: 'min', width: 50, inputmode: 'decimal' },
-        { key: 'spd', label: 'spd', width: 50, inputmode: 'decimal' }
+        { key: 'spm', label: 'spm', width: 56, inputmode: 'numeric' }
       ];
     case 'weight_reps':
     default:
@@ -75,6 +75,98 @@ function inputFieldsForMode(mode) {
         { key: 'reps', label: 'rep', width: 48, inputmode: 'numeric' }
       ];
   }
+}
+
+/**
+ * Find the most recent prior session's best set for an exercise.
+ * Returns { kg, reps, sec, min, spm } from the heaviest/longest entry, or null.
+ */
+function findPreviousBest(workoutId, exKey) {
+  const dKey = today();
+  const dates = Object.keys(state.setLog || {})
+    .filter(d => d !== dKey)
+    .sort()
+    .reverse();
+  for (const d of dates) {
+    const sets = state.setLog[d]?.[workoutId]?.[exKey];
+    if (!sets || !sets.length) continue;
+    const valid = sets.filter(s => s && s.done);
+    if (!valid.length) continue;
+    // Pick best by kg first, else reps, else sec, else min
+    const best = valid.reduce((a, b) => {
+      const aw = parseFloat(a.kg || a.sec || a.min || a.reps || 0);
+      const bw = parseFloat(b.kg || b.sec || b.min || b.reps || 0);
+      return bw > aw ? b : a;
+    });
+    return { date: d, set: best };
+  }
+  return null;
+}
+
+function formatPrev(set, mode) {
+  if (!set) return '';
+  switch (mode) {
+    case 'bodyweight_reps':
+      return `${set.reps || '–'} reps`;
+    case 'time':
+      return `${set.sec || '–'} s`;
+    case 'time_speed':
+      return `${set.min || '–'} min · ${set.spm || '–'} spm`;
+    default:
+      return `${set.kg || '–'} kg × ${set.reps || '–'}`;
+  }
+}
+
+function renderSessionProgress(done, total) {
+  const wrap = document.getElementById('sessionProgress');
+  const fill = document.getElementById('sessionProgressFill');
+  const stat = document.getElementById('sessionProgressStat');
+  const label = document.getElementById('sessionProgressLabel');
+  if (!wrap || !fill || !stat) return;
+  if (!total) { wrap.hidden = true; return; }
+  wrap.hidden = false;
+  const pct = Math.round((done / total) * 100);
+  fill.style.width = pct + '%';
+  fill.classList.toggle('complete', pct >= 100);
+  stat.textContent = `${done} / ${total} sets · ${pct}%`;
+  label.textContent = pct >= 100 ? 'Session complete' : (done === 0 ? 'Today' : 'In progress');
+}
+
+function refreshSessionProgress() {
+  const id = state.selectedWorkout;
+  if (!id) return;
+  const w = DATA.workouts.find(x => x.id === id);
+  if (!w) return;
+  const dKey = dailyKey();
+  const log = state.setLog[dKey] && state.setLog[dKey][id] ? state.setLog[dKey][id] : {};
+  let total = 0, done = 0;
+  w.blocks.forEach(block => {
+    block.exercises.forEach((ex, exIdx) => {
+      const exKey = `${block.title}::${exIdx}`;
+      const sets = log[exKey] || [];
+      total += ex.sets;
+      for (let s = 0; s < ex.sets; s++) {
+        if (sets[s] && sets[s].done) done += 1;
+      }
+    });
+  });
+  renderSessionProgress(done, total);
+}
+
+function isCurrentBeating(currentSets, prev, mode) {
+  if (!prev || !currentSets || !currentSets.length) return false;
+  const current = currentSets.filter(s => s && s.done);
+  if (!current.length) return false;
+  const score = (s) => {
+    if (mode === 'bodyweight_reps') return parseFloat(s.reps || 0);
+    if (mode === 'time') return parseFloat(s.sec || 0);
+    if (mode === 'time_speed') return parseFloat(s.min || 0) * (parseFloat(s.spm || 0) || 1);
+    // weight_reps: tonnage proxy
+    return parseFloat(s.kg || 0) * (parseFloat(s.reps || 0) || 1);
+  };
+  const bestNow = Math.max(...current.map(score));
+  const bestPrev = score(prev.set);
+  return bestNow > bestPrev;
 }
 
 function showToast(msg) {
@@ -146,6 +238,10 @@ function renderDayPicker() {
       save();
       renderToday();
       renderHeader();
+      requestAnimationFrame(() => {
+        const card = document.getElementById('workoutCard');
+        if (card && !card.hidden) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     });
   });
 }
@@ -192,27 +288,36 @@ function renderWorkout() {
   const log = state.setLog[dKey] && state.setLog[dKey][id] ? state.setLog[dKey][id] : {};
 
   const list = document.getElementById('exerciseList');
+  let totalSets = 0, doneSets = 0;
   list.innerHTML = w.blocks.map(block => `
     <div class="block-title">${block.title}</div>
     ${block.exercises.map((ex, exIdx) => {
       const exKey = `${block.title}::${exIdx}`;
       const exLog = log[exKey] || [];
       const fields = inputFieldsForMode(ex.inputMode);
+      const mode = ex.inputMode || 'weight_reps';
+      const prev = findPreviousBest(id, exKey);
+      const beating = isCurrentBeating(exLog, prev, mode);
       let setRows = '';
       for (let s = 0; s < ex.sets; s++) {
+        totalSets += 1;
         const setData = exLog[s] || {};
         const isDone = setData.done;
+        if (isDone) doneSets += 1;
         const innerHTML = fields.map((f, fi) => {
           const sep = fi > 0 ? '<span>×</span>' : '';
           return `${sep}<input type="number" placeholder="${f.label}" value="${setData[f.key] ?? ''}" data-field="${f.key}" inputmode="${f.inputmode}" style="width:${f.width}px" />`;
         }).join('');
         setRows += `
-          <div class="set-input ${isDone ? 'done' : ''}" data-ex="${exKey}" data-set="${s}" data-mode="${ex.inputMode || 'weight_reps'}">
+          <div class="set-input ${isDone ? 'done' : ''}" data-ex="${exKey}" data-set="${s}" data-mode="${mode}">
             <span>S${s + 1}</span>
             ${innerHTML}
           </div>
         `;
       }
+      const prevHTML = prev
+        ? `<div class="exercise-prev ${beating ? 'beaten' : ''}" title="From ${fmtDate(prev.date)}">last · ${formatPrev(prev.set, mode)}${beating ? ' · beaten' : ''}</div>`
+        : '';
       return `
         <div class="exercise">
           <div class="exercise-head">
@@ -220,11 +325,14 @@ function renderWorkout() {
             <div class="exercise-spec">${ex.sets} × ${ex.reps}</div>
           </div>
           ${ex.note ? `<div class="exercise-note">${ex.note}</div>` : ''}
+          ${prevHTML}
           <div class="set-rows">${setRows}</div>
         </div>
       `;
     }).join('')}
   `).join('');
+
+  renderSessionProgress(doneSets, totalSets);
 
   // Set input handlers
   list.querySelectorAll('.set-input').forEach(row => {
@@ -247,6 +355,7 @@ function renderWorkout() {
           row.classList.remove('done');
         }
         save();
+        refreshSessionProgress();
       });
     });
   });
