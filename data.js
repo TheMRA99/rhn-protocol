@@ -45,9 +45,9 @@ const DATA = {
             { name: "Cable Lateral Raise", sets: 5, reps: "12–15", note: "THE lift. 3-sec eccentric" },
             { name: "Rear Delt DB Fly", sets: 4, reps: "12–15", note: "3D shoulders + posture" },
             { name: "Face Pulls", sets: 3, reps: "15", note: "Rear delts + cuff health" },
-            { name: "Hanging Leg Raise", sets: 3, reps: "12", note: "No swinging" },
+            { name: "Hanging Leg Raise", sets: 3, reps: "12", note: "No swinging", inputMode: "bodyweight_reps" },
             { name: "Standing KB Russian Twist", sets: 3, reps: "10/side", note: "Rotational core" },
-            { name: "Dead Hang", sets: 2, reps: "max hold", note: "Decompresses spine, grip" }
+            { name: "Dead Hang", sets: 2, reps: "max hold", note: "Decompresses spine, grip", inputMode: "time" }
           ]
         }
       ]
@@ -66,10 +66,10 @@ const DATA = {
             { name: "Barbell Hip Thrust (off bench)", sets: 3, reps: "8–10", note: "Glute thickness" },
             { name: "Bulgarian Split Squat", sets: 3, reps: "8/leg", note: "Single-leg strength" },
             { name: "Hip Abduction & Adduction", sets: 4, reps: "15", note: "Glute medius + adductors" },
-            { name: "Single-Leg Calf Raise", sets: 3, reps: "12/side", note: "Achilles prehab" },
-            { name: "Dead Bug", sets: 3, reps: "12", note: "Slow, anti-extension" },
-            { name: "Side Plank", sets: 3, reps: "30 sec/side", note: "Obliques" },
-            { name: "Incline Walk", sets: 1, reps: "15 min", note: "Easy pace, recovery" }
+            { name: "Single-Leg Calf Raise", sets: 3, reps: "12/side", note: "Achilles prehab", inputMode: "bodyweight_reps" },
+            { name: "Dead Bug", sets: 3, reps: "12", note: "Slow, anti-extension", inputMode: "bodyweight_reps" },
+            { name: "Side Plank", sets: 3, reps: "30 sec/side", note: "Obliques", inputMode: "time" },
+            { name: "Incline Walk", sets: 1, reps: "15 min", note: "Easy pace, recovery", inputMode: "time_speed" }
           ]
         }
       ]
@@ -118,8 +118,8 @@ const DATA = {
           title: "Core",
           exercises: [
             { name: "Cable Crunch", sets: 3, reps: "12", note: "Controlled, round spine" },
-            { name: "Decline Sit-Ups", sets: 3, reps: "12", note: "Upper abs detail" },
-            { name: "Stairmaster", sets: 1, reps: "10 min", note: "Steady" }
+            { name: "Decline Sit-Ups", sets: 3, reps: "12", note: "Upper abs detail", inputMode: "bodyweight_reps" },
+            { name: "Stairmaster", sets: 1, reps: "10 min", note: "Steady", inputMode: "time_speed" }
           ]
         }
       ]
@@ -143,9 +143,9 @@ const DATA = {
           title: "Conditioning · 3 rounds, minimal rest",
           exercises: [
             { name: "KB Swings", sets: 3, reps: "15", note: "Hinge, not squat" },
-            { name: "Explosive Push-Ups", sets: 3, reps: "10", note: "" },
-            { name: "Jump Squats", sets: 3, reps: "10", note: "" },
-            { name: "Hanging Knee Raises", sets: 3, reps: "12", note: "" }
+            { name: "Explosive Push-Ups", sets: 3, reps: "10", note: "", inputMode: "bodyweight_reps" },
+            { name: "Jump Squats", sets: 3, reps: "10", note: "", inputMode: "bodyweight_reps" },
+            { name: "Hanging Knee Raises", sets: 3, reps: "12", note: "", inputMode: "bodyweight_reps" }
           ]
         },
         {
@@ -181,7 +181,7 @@ const DATA = {
         {
           title: "Finish",
           exercises: [
-            { name: "Stairmaster · moderate", sets: 1, reps: "8 min", note: "Cool down" }
+            { name: "Stairmaster · moderate", sets: 1, reps: "8 min", note: "Cool down", inputMode: "time_speed" }
           ]
         }
       ]
@@ -195,12 +195,12 @@ const DATA = {
         {
           title: "Circuit",
           exercises: [
-            { name: "Hollow Hold", sets: 3, reps: "20 sec", note: "Arms over, legs straight" },
-            { name: "Dead Bug", sets: 3, reps: "12", note: "Opposite arm/leg" },
-            { name: "Side Plank", sets: 3, reps: "30 sec/side", note: "Hips high" },
-            { name: "Plank Reach-Out", sets: 3, reps: "8/side", note: "Don't rotate hips" },
-            { name: "Superman Hold", sets: 3, reps: "20 sec", note: "Lower back + glutes" },
-            { name: "Push-Ups", sets: 3, reps: "20", note: "" }
+            { name: "Hollow Hold", sets: 3, reps: "20 sec", note: "Arms over, legs straight", inputMode: "time" },
+            { name: "Dead Bug", sets: 3, reps: "12", note: "Opposite arm/leg", inputMode: "bodyweight_reps" },
+            { name: "Side Plank", sets: 3, reps: "30 sec/side", note: "Hips high", inputMode: "time" },
+            { name: "Plank Reach-Out", sets: 3, reps: "8/side", note: "Don't rotate hips", inputMode: "bodyweight_reps" },
+            { name: "Superman Hold", sets: 3, reps: "20 sec", note: "Lower back + glutes", inputMode: "time" },
+            { name: "Push-Ups", sets: 3, reps: "20", note: "", inputMode: "bodyweight_reps" }
           ]
         }
       ]

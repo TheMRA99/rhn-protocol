@@ -57,6 +57,26 @@ function dailyKey() {
   return today();
 }
 
+function inputFieldsForMode(mode) {
+  switch (mode) {
+    case 'bodyweight_reps':
+      return [{ key: 'reps', label: 'reps', width: 60, inputmode: 'numeric' }];
+    case 'time':
+      return [{ key: 'sec', label: 'sec', width: 60, inputmode: 'numeric' }];
+    case 'time_speed':
+      return [
+        { key: 'min', label: 'min', width: 50, inputmode: 'decimal' },
+        { key: 'spd', label: 'spd', width: 50, inputmode: 'decimal' }
+      ];
+    case 'weight_reps':
+    default:
+      return [
+        { key: 'kg', label: 'kg', width: 48, inputmode: 'decimal' },
+        { key: 'reps', label: 'rep', width: 48, inputmode: 'numeric' }
+      ];
+  }
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -177,16 +197,19 @@ function renderWorkout() {
     ${block.exercises.map((ex, exIdx) => {
       const exKey = `${block.title}::${exIdx}`;
       const exLog = log[exKey] || [];
+      const fields = inputFieldsForMode(ex.inputMode);
       let setRows = '';
       for (let s = 0; s < ex.sets; s++) {
         const setData = exLog[s] || {};
         const isDone = setData.done;
+        const innerHTML = fields.map((f, fi) => {
+          const sep = fi > 0 ? '<span>×</span>' : '';
+          return `${sep}<input type="number" placeholder="${f.label}" value="${setData[f.key] ?? ''}" data-field="${f.key}" inputmode="${f.inputmode}" style="width:${f.width}px" />`;
+        }).join('');
         setRows += `
-          <div class="set-input ${isDone ? 'done' : ''}" data-ex="${exKey}" data-set="${s}">
+          <div class="set-input ${isDone ? 'done' : ''}" data-ex="${exKey}" data-set="${s}" data-mode="${ex.inputMode || 'weight_reps'}">
             <span>S${s + 1}</span>
-            <input type="number" placeholder="kg" value="${setData.kg ?? ''}" data-field="kg" inputmode="decimal" />
-            <span>×</span>
-            <input type="number" placeholder="rep" value="${setData.reps ?? ''}" data-field="reps" inputmode="numeric" />
+            ${innerHTML}
           </div>
         `;
       }
@@ -207,6 +230,8 @@ function renderWorkout() {
   list.querySelectorAll('.set-input').forEach(row => {
     const exKey = row.dataset.ex;
     const setIdx = +row.dataset.set;
+    const mode = row.dataset.mode;
+    const fields = inputFieldsForMode(mode);
     row.querySelectorAll('input').forEach(input => {
       input.addEventListener('input', () => {
         if (!state.setLog[dKey]) state.setLog[dKey] = {};
@@ -215,7 +240,7 @@ function renderWorkout() {
         if (!state.setLog[dKey][id][exKey][setIdx]) state.setLog[dKey][id][exKey][setIdx] = {};
         state.setLog[dKey][id][exKey][setIdx][input.dataset.field] = input.value;
         const v = state.setLog[dKey][id][exKey][setIdx];
-        state.setLog[dKey][id][exKey][setIdx].done = !!(v.kg && v.reps);
+        state.setLog[dKey][id][exKey][setIdx].done = fields.every(f => v[f.key] !== undefined && v[f.key] !== '');
         if (state.setLog[dKey][id][exKey][setIdx].done) {
           row.classList.add('done');
         } else {
@@ -313,15 +338,15 @@ function renderWeightChart() {
     <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
       <defs>
         <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#be123c" stop-opacity="0.45"/>
-          <stop offset="100%" stop-color="#be123c" stop-opacity="0"/>
+          <stop offset="0%" stop-color="#B5BAC1" stop-opacity="0.30"/>
+          <stop offset="100%" stop-color="#B5BAC1" stop-opacity="0"/>
         </linearGradient>
       </defs>
-      <line x1="${P}" y1="${targetY}" x2="${W - P}" y2="${targetY}" stroke="#3d2a47" stroke-dasharray="4 6" />
-      <text x="${W - P - 4}" y="${targetY - 6}" text-anchor="end" fill="#8E867A" font-family="JetBrains Mono" font-size="11">target ${target}</text>
+      <line x1="${P}" y1="${targetY}" x2="${W - P}" y2="${targetY}" stroke="#3F3F49" stroke-dasharray="4 6" />
+      <text x="${W - P - 4}" y="${targetY - 6}" text-anchor="end" fill="#8C857A" font-family="JetBrains Mono" font-size="11">target ${target}</text>
       <path d="${area}" fill="url(#grad)" />
-      <path d="${path}" stroke="#be123c" stroke-width="2.5" fill="none" />
-      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#be123c" stroke="#06020a" stroke-width="2"/>`).join('')}
+      <path d="${path}" stroke="#ECE8DE" stroke-width="2" fill="none" />
+      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#ECE8DE" stroke="#0A0A0B" stroke-width="2"/>`).join('')}
     </svg>
   `;
 }

@@ -1,25 +1,25 @@
 /* RHN Protocol — refined */
 :root {
-  --accent: #E8C979;
-  --accent-bright: #F4D88B;
-  --accent-dim: #B89A4F;
-  --bg: #0B0B0C;
-  --bg-1: #131316;
-  --bg-2: #1A1A1E;
-  --bg-3: #222227;
-  --line: #26262B;
-  --line-bright: #34343B;
-  --text: #F5F0E1;
-  --text-dim: #8E867A;
-  --text-faint: #524C44;
-  --shadow: 0 12px 40px rgba(0,0,0,0.5);
+  --accent: #B5BAC1;
+  --accent-bright: #DDE0E5;
+  --accent-dim: #6E737A;
+  --bg: #0A0A0B;
+  --bg-1: #131318;
+  --bg-2: #1B1B22;
+  --bg-3: #25252D;
+  --line: #2D2D36;
+  --line-bright: #3F3F49;
+  --text: #ECE8DE;
+  --text-dim: #8C857A;
+  --text-faint: #534D45;
+  --shadow: 0 12px 40px rgba(0,0,0,0.55);
 
   /* legacy aliases used by JS */
   --papaya: var(--accent);
   --papaya-bright: var(--accent-bright);
   --papaya-dim: var(--accent-dim);
   --green: var(--accent);
-  --red: #E5483A;
+  --red: #C76B5B;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,7 +27,7 @@
 html, body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
   font-size: 15px;
   line-height: 1.55;
   letter-spacing: -0.005em;
@@ -35,7 +35,6 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   overflow-x: hidden;
-  font-feature-settings: "ss01", "cv11";
 }
 
 button, input { font-family: inherit; }
@@ -66,19 +65,20 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   line-height: 1;
 }
 .logo-mark {
-  font-family: 'Sora', sans-serif;
-  font-size: 17px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.005em;
   color: var(--text);
 }
 .logo-mark .accent {
   color: var(--accent);
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Fraunces', Georgia, serif;
   font-style: italic;
   font-weight: 500;
-  margin: 0 4px;
-  font-size: 19px;
+  margin: 0 5px;
+  font-size: 18px;
+  font-variation-settings: "opsz" 32;
 }
 .logo-sub {
   font-family: 'JetBrains Mono', monospace;
@@ -96,7 +96,7 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   line-height: 1;
 }
 .stat-label {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -105,11 +105,12 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   margin-bottom: 5px;
 }
 .stat-value {
-  font-family: 'Sora', sans-serif;
-  font-size: 18px;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 20px;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
   color: var(--text);
+  font-variation-settings: "opsz" 36;
 }
 .stat:last-child .stat-value { color: var(--accent); }
 
@@ -134,7 +135,7 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
 .tab {
   flex: 0 0 auto;
   padding: 16px 14px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-weight: 500;
   font-size: 13px;
   letter-spacing: 0.01em;
@@ -178,7 +179,7 @@ main {
   margin-bottom: 14px;
 }
 .hero-eyebrow {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.18em;
@@ -186,22 +187,24 @@ main {
   text-transform: uppercase;
 }
 .hero-tag {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Fraunces', Georgia, serif;
   font-style: italic;
-  font-weight: 500;
-  font-size: 15px;
+  font-weight: 400;
+  font-size: 16px;
   color: var(--text-dim);
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
+  font-variation-settings: "opsz" 18;
 }
 .hero-title {
-  font-family: 'Sora', sans-serif;
-  font-weight: 700;
-  font-size: clamp(34px, 6.5vw, 64px);
-  line-height: 1.02;
-  letter-spacing: -0.035em;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(38px, 7.2vw, 72px);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
   color: var(--text);
   text-transform: none;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
+  font-variation-settings: "opsz" 96, "SOFT" 30;
 }
 .hero-sub {
   color: var(--text-dim);
@@ -245,12 +248,12 @@ main {
   font-weight: 500;
 }
 .day-pill-name {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-weight: 600;
   font-size: 15px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.005em;
   margin-top: 6px;
-  line-height: 1.15;
+  line-height: 1.2;
   color: var(--text);
   text-transform: none;
 }
@@ -272,10 +275,10 @@ main {
   gap: 12px;
 }
 .card-header h2 {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-size: 16px;
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--text);
   display: flex;
   align-items: center;
@@ -288,12 +291,12 @@ main {
   color: var(--accent);
   letter-spacing: 0.05em;
   font-weight: 500;
-  background: rgba(232,201,121,0.08);
+  background: rgba(181,186,193,0.08);
   padding: 3px 7px;
   border-radius: 4px;
 }
 .card-meta {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-size: 10px;
   font-weight: 500;
   color: var(--text-faint);
@@ -368,7 +371,7 @@ main {
 /* ========== EXERCISES ========== */
 .exercises { padding: 0; }
 .block-title {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-weight: 600;
   font-size: 11px;
   letter-spacing: 0.16em;
@@ -389,10 +392,10 @@ main {
   gap: 14px;
 }
 .exercise-name {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-weight: 600;
   font-size: 15px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.005em;
   color: var(--text);
 }
 .exercise-spec {
@@ -445,7 +448,7 @@ main {
 }
 .set-input input::placeholder { color: var(--text-faint); font-weight: 400; }
 .set-input.done {
-  background: rgba(232,201,121,0.12);
+  background: rgba(181,186,193,0.10);
   border-color: var(--accent);
 }
 .set-input.done span { color: var(--accent); }
@@ -459,7 +462,7 @@ main {
   background: var(--accent);
   color: var(--bg);
   border-radius: 10px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-weight: 600;
   font-size: 13px;
   letter-spacing: 0.04em;
@@ -483,7 +486,7 @@ main {
   color: var(--red);
   border: 1px solid rgba(229,72,58,0.4);
   border-radius: 10px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-weight: 600;
   font-size: 12px;
   letter-spacing: 0.05em;
@@ -510,14 +513,15 @@ main {
   font-weight: 500;
 }
 .workout-block-name {
-  font-family: 'Sora', sans-serif;
-  font-weight: 700;
-  font-size: 22px;
-  letter-spacing: -0.025em;
-  margin: 8px 0;
-  line-height: 1.1;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: 26px;
+  letter-spacing: -0.015em;
+  margin: 8px 0 6px;
+  line-height: 1.05;
   color: var(--text);
   text-transform: none;
+  font-variation-settings: "opsz" 60, "SOFT" 30;
 }
 .workout-block-blurb {
   color: var(--text-dim);
@@ -552,7 +556,7 @@ main {
 .weight-input .unit {
   display: flex;
   align-items: center;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-size: 11px;
   font-weight: 600;
   color: var(--text-dim);
@@ -579,11 +583,13 @@ main {
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: var(--text-faint);
-  font-family: 'Cormorant Garamond', serif;
+  color: var(--text-dim);
+  font-family: 'Fraunces', Georgia, serif;
   font-style: italic;
-  font-size: 16px;
-  letter-spacing: 0.01em;
+  font-weight: 400;
+  font-size: 18px;
+  letter-spacing: 0;
+  font-variation-settings: "opsz" 18;
 }
 
 .progress-stats {
@@ -597,7 +603,7 @@ main {
 }
 .progress-stat:last-child { border-right: none; }
 .progress-stat-label {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-size: 10px;
   font-weight: 500;
   color: var(--text-dim);
@@ -606,11 +612,12 @@ main {
   margin-bottom: 6px;
 }
 .progress-stat-value {
-  font-family: 'Sora', sans-serif;
-  font-size: 26px;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 30px;
   font-weight: 600;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   color: var(--text);
+  font-variation-settings: "opsz" 60;
 }
 .progress-stat-value.green { color: var(--accent); }
 
@@ -648,7 +655,7 @@ main {
 .week-cell.current {
   border-color: var(--accent);
   color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(232,201,121,0.15);
+  box-shadow: 0 0 0 2px rgba(181,186,193,0.15);
 }
 
 /* ========== HISTORY ========== */
@@ -668,21 +675,23 @@ main {
   font-weight: 500;
 }
 .history-name {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-weight: 500;
   font-size: 14px;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.005em;
   flex: 1;
   margin-left: 18px;
   color: var(--text);
 }
 .history-empty {
-  padding: 36px;
+  padding: 40px;
   text-align: center;
-  color: var(--text-faint);
-  font-family: 'Cormorant Garamond', serif;
+  color: var(--text-dim);
+  font-family: 'Fraunces', Georgia, serif;
   font-style: italic;
-  font-size: 16px;
+  font-weight: 400;
+  font-size: 18px;
+  font-variation-settings: "opsz" 18;
 }
 
 /* ========== PHASES ========== */
@@ -695,24 +704,25 @@ main {
 }
 .phase:last-child { border-bottom: none; }
 .phase-weeks {
-  font-family: 'Sora', sans-serif;
-  font-weight: 700;
-  font-size: 22px;
-  color: var(--accent);
-  letter-spacing: -0.03em;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: 26px;
+  color: var(--text);
+  letter-spacing: -0.02em;
   flex: 0 0 auto;
-  width: 70px;
+  width: 80px;
   line-height: 1;
+  font-variation-settings: "opsz" 60;
 }
 .phase-body { flex: 1; }
 .phase-title {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-weight: 600;
-  font-size: 14px;
-  letter-spacing: 0.04em;
+  font-size: 13px;
+  letter-spacing: 0.08em;
   margin-bottom: 6px;
   text-transform: uppercase;
-  color: var(--text);
+  color: var(--accent);
 }
 .phase-text {
   font-size: 14px;
@@ -732,7 +742,7 @@ main {
   padding: 18px;
 }
 .target-label {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-size: 10px;
   font-weight: 500;
   color: var(--text-dim);
@@ -741,12 +751,13 @@ main {
   margin-bottom: 8px;
 }
 .target-value {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Fraunces', Georgia, serif;
   font-weight: 600;
-  font-size: 22px;
+  font-size: 24px;
   color: var(--text);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.015em;
   line-height: 1;
+  font-variation-settings: "opsz" 48;
 }
 .target-note {
   font-size: 12px;
@@ -772,7 +783,7 @@ main {
   letter-spacing: -0.005em;
 }
 .row-meta {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-size: 12px;
   color: var(--text-dim);
   text-align: right;
@@ -809,7 +820,7 @@ main {
   color: var(--text);
 }
 .rule-title {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Fraunces', Georgia, serif;
   font-weight: 600;
   letter-spacing: -0.01em;
   font-size: 14px;
@@ -827,10 +838,11 @@ main {
 .warn {
   padding: 16px 22px;
   color: var(--text-dim);
-  font-size: 13px;
+  font-size: 14px;
   font-style: italic;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 15px;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 400;
+  font-variation-settings: "opsz" 18;
 }
 
 /* ========== FOOTER ========== */
@@ -860,7 +872,7 @@ main {
   color: var(--bg);
   padding: 12px 22px;
   border-radius: 10px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', system-ui, sans-serif;
   font-weight: 600;
   font-size: 13px;
   letter-spacing: 0.02em;
