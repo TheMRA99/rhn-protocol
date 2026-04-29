@@ -447,15 +447,15 @@ function renderWeightChart() {
     <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
       <defs>
         <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#D04A60" stop-opacity="0.38"/>
-          <stop offset="100%" stop-color="#D04A60" stop-opacity="0"/>
+          <stop offset="0%" stop-color="#E03A60" stop-opacity="0.40"/>
+          <stop offset="100%" stop-color="#E03A60" stop-opacity="0"/>
         </linearGradient>
       </defs>
-      <line x1="${P}" y1="${targetY}" x2="${W - P}" y2="${targetY}" stroke="#3D2D4F" stroke-dasharray="4 6" />
-      <text x="${W - P - 4}" y="${targetY - 6}" text-anchor="end" fill="#EC4899" font-family="JetBrains Mono" font-size="11">target ${target}</text>
+      <line x1="${P}" y1="${targetY}" x2="${W - P}" y2="${targetY}" stroke="#3D4258" stroke-dasharray="4 6" />
+      <text x="${W - P - 4}" y="${targetY - 6}" text-anchor="end" fill="#FF2D7E" font-family="JetBrains Mono" font-size="11">target ${target}</text>
       <path d="${area}" fill="url(#grad)" />
-      <path d="${path}" stroke="#D04A60" stroke-width="2.2" fill="none" filter="drop-shadow(0 0 6px rgba(208,74,96,0.5))" />
-      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#EC4899" stroke="#08050C" stroke-width="2"/>`).join('')}
+      <path d="${path}" stroke="#E03A60" stroke-width="2.2" fill="none" filter="drop-shadow(0 0 7px rgba(224,58,96,0.55))" />
+      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#FF2D7E" stroke="#060710" stroke-width="2"/>`).join('')}
     </svg>
   `;
 }
