@@ -1,12 +1,12 @@
 /* RHN Protocol — refined */
 :root {
-  /* canvas — Bat Cave: cool inky black with a hint of cobalt */
-  --bg: #060710;
-  --bg-1: #0D0F1C;
-  --bg-2: #151829;
-  --bg-3: #1E2236;
-  --line: #2A2E45;
-  --line-bright: #3D4258;
+  /* canvas — Batman Beyond / 2099 black-suit, cobalt undertone */
+  --bg: #04050D;
+  --bg-1: #0A0C18;
+  --bg-2: #121626;
+  --bg-3: #1C2034;
+  --line: #292D43;
+  --line-bright: #3C4156;
 
   /* text */
   --text: #EAEBF2;
@@ -22,9 +22,14 @@
   --cobalt-bright: #5577FF;
   --cobalt-dim: #1E3CC0;
 
-  --pink: #FF2D7E;          /* numerals · Spider-Gwen halftone pink */
-  --pink-bright: #FF5BA0;
-  --pink-dim: #B01D5C;
+  --crimson: #E11D2C;       /* numerals · Miguel O'Hara suit-crimson */
+  --crimson-bright: #FF3848;
+  --crimson-dim: #9A1422;
+
+  /* legacy pink alias */
+  --pink: var(--crimson);
+  --pink-bright: var(--crimson-bright);
+  --pink-dim: var(--crimson-dim);
 
   --slate: #5A5E72;         /* secondary · cold cave slate */
   --rust: #FF3838;          /* danger only */
@@ -74,29 +79,30 @@ html, body {
   overflow-x: hidden;
 }
 
-/* Halftone dot texture · Spider-Verse */
+/* Halftone dot texture · 2099 / Beyond */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background-image:
-    radial-gradient(rgba(255,45,126,0.05) 1px, transparent 1.4px),
-    radial-gradient(rgba(56,85,232,0.04) 1px, transparent 1.4px);
+    radial-gradient(rgba(225,29,44,0.05) 1px, transparent 1.4px),
+    radial-gradient(rgba(56,85,232,0.05) 1px, transparent 1.4px);
   background-size: 22px 22px, 22px 22px;
   background-position: 0 0, 11px 11px;
   pointer-events: none;
   z-index: 0;
   mix-blend-mode: screen;
-  opacity: 0.6;
+  opacity: 0.55;
 }
-/* Bat-Cave corner glows */
+/* Neo-Gotham streetlight · cobalt + crimson moodlight */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(circle at 12% 0%, rgba(176,49,74,0.10), transparent 45%),
-    radial-gradient(circle at 88% 100%, rgba(56,85,232,0.10), transparent 50%);
+    radial-gradient(circle at 8% -5%, rgba(225,29,44,0.14), transparent 42%),
+    radial-gradient(circle at 92% 105%, rgba(56,85,232,0.16), transparent 48%),
+    radial-gradient(circle at 100% 20%, rgba(56,85,232,0.06), transparent 30%);
   pointer-events: none;
   z-index: 0;
 }
@@ -358,7 +364,7 @@ main {
   color: var(--cream);
   letter-spacing: 0.05em;
   font-weight: 500;
-  background: rgba(255,45,126,0.14);
+  background: rgba(225,29,44,0.14);
   padding: 3px 7px;
   border-radius: 4px;
 }
@@ -504,7 +510,7 @@ main {
 .exercise-prev.beaten {
   color: var(--brass-bright);
   border-color: var(--brass-dim);
-  background: rgba(255,45,126,0.18);
+  background: rgba(225,29,44,0.20);
 }
 .exercise-prev.beaten::before {
   content: '↑';
@@ -801,7 +807,7 @@ main {
 .week-cell.deload {
   background: var(--bg-3);
   color: var(--cream);
-  border-color: rgba(255,45,126,0.55);
+  border-color: rgba(225,29,44,0.55);
 }
 .week-cell.current {
   border-color: var(--wine);

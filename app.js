@@ -452,10 +452,10 @@ function renderWeightChart() {
         </linearGradient>
       </defs>
       <line x1="${P}" y1="${targetY}" x2="${W - P}" y2="${targetY}" stroke="#3D4258" stroke-dasharray="4 6" />
-      <text x="${W - P - 4}" y="${targetY - 6}" text-anchor="end" fill="#FF2D7E" font-family="JetBrains Mono" font-size="11">target ${target}</text>
+      <text x="${W - P - 4}" y="${targetY - 6}" text-anchor="end" fill="#E11D2C" font-family="JetBrains Mono" font-size="11">target ${target}</text>
       <path d="${area}" fill="url(#grad)" />
-      <path d="${path}" stroke="#E03A60" stroke-width="2.2" fill="none" filter="drop-shadow(0 0 7px rgba(224,58,96,0.55))" />
-      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#FF2D7E" stroke="#060710" stroke-width="2"/>`).join('')}
+      <path d="${path}" stroke="#E03A60" stroke-width="2.2" fill="none" filter="drop-shadow(0 0 7px rgba(225,29,44,0.6))" />
+      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#E11D2C" stroke="#04050D" stroke-width="2"/>`).join('')}
     </svg>
   `;
 }
