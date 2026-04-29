@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#06020a" />
+<title>RHN Protocol · Muneer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=2" />
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">
+      <span class="logo-mark">Red Hood<span class="accent">×</span>Nightwing</span>
+      <span class="logo-sub">Protocol · Week <span id="currentWeek">1</span> of 16</span>
+    </div>
+    <div class="header-stats">
+      <div class="stat"><span class="stat-label">Day</span><span class="stat-value" id="dayBadge">—</span></div>
+      <div class="stat"><span class="stat-label">Weight</span><span class="stat-value" id="weightBadge">75.0</span></div>
+      <div class="stat"><span class="stat-label">Streak</span><span class="stat-value" id="streakBadge">0</span></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="today">Today</button>
+  <button class="tab" data-tab="workouts">Workouts</button>
+  <button class="tab" data-tab="progress">Progress</button>
+  <button class="tab" data-tab="nutrition">Fuel</button>
+  <button class="tab" data-tab="protocol">Protocol</button>
+</nav>
+
+<main id="app">
+  <!-- TODAY -->
+  <section class="view active" id="view-today">
+    <div class="hero">
+      <div class="hero-meta">
+        <span class="hero-eyebrow" id="todayDate">--</span>
+        <span class="hero-tag" id="todayTag">Show up</span>
+      </div>
+      <h1 class="hero-title" id="todayTitle">Today's session</h1>
+      <p class="hero-sub" id="todaySub">Pick what fits your week. Don't stack delts back-to-back.</p>
+      <div class="day-picker" id="dayPicker"></div>
+    </div>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">01</span>Morning ritual</h2>
+        <span class="card-meta">5 min · daily</span>
+      </header>
+      <div id="ritualList" class="checklist"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">02</span>Daily non-negotiables</h2>
+        <span class="card-meta">Every day</span>
+      </header>
+      <div id="dailyList" class="checklist"></div>
+    </section>
+
+    <section class="card" id="workoutCard" hidden>
+      <header class="card-header">
+        <h2><span class="num">03</span><span id="workoutTitle">Session</span></h2>
+        <span class="card-meta" id="workoutSubtitle"></span>
+      </header>
+      <div id="exerciseList" class="exercises"></div>
+      <button class="btn-primary" id="finishWorkoutBtn">Mark session complete</button>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">04</span>Stamina protocol</h2>
+        <span class="card-meta">2 min · AM / PM</span>
+      </header>
+      <div id="staminaList" class="checklist"></div>
+    </section>
+  </section>
+
+  <!-- WORKOUTS -->
+  <section class="view" id="view-workouts">
+    <div class="hero">
+      <span class="hero-eyebrow">Four sessions</span>
+      <h1 class="hero-title">The split</h1>
+      <p class="hero-sub">Don't train the same group two days in a row. Alternate upper / lower. Miss a day, skip it.</p>
+    </div>
+    <div id="workoutsAll"></div>
+  </section>
+
+  <!-- PROGRESS -->
+  <section class="view" id="view-progress">
+    <div class="hero">
+      <span class="hero-eyebrow">16-week arc</span>
+      <h1 class="hero-title">Trajectory</h1>
+      <p class="hero-sub">75kg → 68–70kg · 20–24% → 12–14% body fat · Trust the process.</p>
+    </div>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">01</span>Weight log</h2>
+        <span class="card-meta">Daily · morning</span>
+      </header>
+      <div class="weight-input">
+        <input type="number" step="0.1" id="weightInput" placeholder="75.0" />
+        <span class="unit">kg</span>
+        <button class="btn-primary" id="logWeightBtn">Log</button>
+      </div>
+      <div class="chart" id="weightChart"></div>
+      <div class="progress-stats" id="weightStats"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">02</span>Week map</h2>
+        <span class="card-meta">16 weeks</span>
+      </header>
+      <div class="week-grid" id="weekGrid"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">03</span>Session history</h2>
+        <span class="card-meta">Recent</span>
+      </header>
+      <div id="sessionHistory" class="history"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">04</span>Timeline</h2>
+        <span class="card-meta">What to expect</span>
+      </header>
+      <div class="phases" id="phases"></div>
+    </section>
+  </section>
+
+  <!-- NUTRITION -->
+  <section class="view" id="view-nutrition">
+    <div class="hero">
+      <span class="hero-eyebrow">Fuel</span>
+      <h1 class="hero-title">Eat the work</h1>
+      <p class="hero-sub">80% of the result is here. Protein and vegetables first. Rice last.</p>
+    </div>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">01</span>Daily targets</h2>
+        <span class="card-meta">Non-negotiable</span>
+      </header>
+      <div class="targets" id="targetsGrid"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">02</span>Protein builders</h2>
+        <span class="card-meta">135–150 g / day</span>
+      </header>
+      <div id="proteinList" class="rows"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">03</span>Go-to meals</h2>
+        <span class="card-meta">Singapore · Indian</span>
+      </header>
+      <div id="goToList" class="rows"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">04</span>Limit</h2>
+        <span class="card-meta">Don't ghost your deficit</span>
+      </header>
+      <div id="limitList" class="rows"></div>
+    </section>
+  </section>
+
+  <!-- PROTOCOL -->
+  <section class="view" id="view-protocol">
+    <div class="hero">
+      <span class="hero-eyebrow">Rules of engagement</span>
+      <h1 class="hero-title">Protocol</h1>
+      <p class="hero-sub">Read these on the bad days.</p>
+    </div>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">01</span>Execution rules</h2>
+        <span class="card-meta">Non-negotiable</span>
+      </header>
+      <div id="executionRules" class="rules"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">02</span>South Asian realities</h2>
+        <span class="card-meta">Program is built for this</span>
+      </header>
+      <div id="geneticsList" class="rules"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">03</span>Virility · real levers</h2>
+        <span class="card-meta">Ranked</span>
+      </header>
+      <div id="virilityList" class="rules"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">04</span>Progression system</h2>
+        <span class="card-meta">Double progression</span>
+      </header>
+      <div id="progressionList" class="rules"></div>
+    </section>
+
+    <section class="card danger-zone">
+      <header class="card-header">
+        <h2><span class="num">05</span>Reset</h2>
+        <span class="card-meta">Starts a new 16-week block</span>
+      </header>
+      <p class="warn">This wipes the weight log, session history, and start date. Cannot undo.</p>
+      <button class="btn-ghost" id="resetBtn">Reset all data</button>
+    </section>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>Built for Muneer</span>
+  <span>167 cm · 27 · started <span id="startDate">—</span></span>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="data.js?v=2"></script>
+<script src="app.js?v=2"></script>
+</body>
+</html>
