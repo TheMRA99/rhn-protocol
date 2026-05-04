@@ -1,12 +1,12 @@
 /* RHN Protocol — refined */
 :root {
-  /* canvas — lifted for legibility, still cool dark blue */
-  --bg: #131A2E;
-  --bg-1: #1F2740;
-  --bg-2: #2A3354;
-  --bg-3: #353E63;
-  --line: #404A70;
-  --line-bright: #52608A;
+  /* canvas — neutral dark with faint purple lean, not blue */
+  --bg: #18181F;
+  --bg-1: #23232E;
+  --bg-2: #2D2D3A;
+  --bg-3: #383846;
+  --line: #424256;
+  --line-bright: #555570;
 
   /* text */
   --text: #F2F4FA;
@@ -14,13 +14,13 @@
   --text-faint: #5F6885;
 
   /* Spider-Verse / Bat Cave neon set */
-  --wine: #B0314A;          /* primary · Miles-red wine (kept, punchier) */
-  --wine-bright: #E03A60;
-  --wine-dim: #75162A;
+  --wine: #C8334B;          /* primary · saturated wine, pops on neutral bg */
+  --wine-bright: #E84966;
+  --wine-dim: #80152B;
 
-  --cobalt: #3855E8;        /* completion · Bat Cave cold-glow + Spider blue */
-  --cobalt-bright: #5577FF;
-  --cobalt-dim: #1E3CC0;
+  --cobalt: #5A5F75;        /* dim cool slate · only for quiet accents */
+  --cobalt-bright: #828699;
+  --cobalt-dim: #3A3F50;
 
   --crimson: #E11D2C;       /* numerals · Miguel O'Hara suit-crimson */
   --crimson-bright: #FF3848;
@@ -91,14 +91,14 @@ body::before {
   z-index: 0;
   opacity: 0.4;
 }
-/* Neo-Gotham wash · subtle, doesn't drown the lifted canvas */
+/* Crimson moodlight · the only chromatic wash */
 body::after {
   content: '';
   position: fixed;
   inset: -10%;
   background:
-    radial-gradient(ellipse 90% 60% at 0% 0%, rgba(225,29,44,0.16), transparent 65%),
-    radial-gradient(ellipse 90% 70% at 100% 100%, rgba(56,85,232,0.20), transparent 70%);
+    radial-gradient(ellipse 95% 70% at 0% 0%, rgba(225,29,44,0.20), transparent 65%),
+    radial-gradient(ellipse 70% 60% at 100% 100%, rgba(160,69,90,0.10), transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -178,8 +178,8 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   color: var(--text);
   font-variation-settings: "opsz" 36;
 }
-.stat:last-child .stat-value { color: var(--cream); }
-.stat:nth-child(2) .stat-value { color: var(--mauve); }
+.stat:last-child .stat-value { color: var(--crimson); }
+.stat:nth-child(2) .stat-value { color: var(--text); }
 
 /* ========== TABS ========== */
 .tabs {
@@ -402,8 +402,8 @@ main {
   transition: all 0.18s;
 }
 .check-item.done .check-box {
-  background: var(--mauve);
-  border-color: var(--mauve);
+  background: var(--wine-bright);
+  border-color: var(--wine-bright);
 }
 .check-item.done .check-box::after {
   content: '✓';
@@ -474,7 +474,7 @@ main {
   flex: 0 0 auto;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: var(--cobalt-bright);
+  color: var(--crimson);
   letter-spacing: 0;
   text-align: right;
   white-space: nowrap;
@@ -496,8 +496,8 @@ main {
   transition: border-color 0.18s, background 0.18s;
 }
 .ms-set.done {
-  background: rgba(56,85,232,0.08);
-  border-color: var(--cobalt-dim);
+  background: rgba(232,73,102,0.08);
+  border-color: var(--wine-dim);
 }
 .ms-set-label {
   font-family: 'JetBrains Mono', monospace;
@@ -509,7 +509,7 @@ main {
   text-transform: uppercase;
 }
 .ms-set.done .ms-set-label {
-  color: var(--cobalt-bright);
+  color: var(--wine-bright);
 }
 .ms-stage {
   display: flex;
@@ -548,7 +548,7 @@ main {
   transition: border-color 0.15s;
 }
 .ms-inputs input::placeholder { color: var(--text-faint); font-weight: 400; }
-.ms-inputs input:focus { border-color: var(--cobalt); }
+.ms-inputs input:focus { border-color: var(--wine); }
 .ms-inputs span {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
@@ -711,11 +711,11 @@ main {
 }
 .set-input input::placeholder { color: var(--text-faint); font-weight: 400; }
 .set-input.done {
-  background: rgba(56,85,232,0.18);
-  border-color: var(--mauve);
+  background: rgba(232,73,102,0.14);
+  border-color: var(--wine-bright);
 }
-.set-input.done span { color: var(--mauve); }
-.set-input.done input { color: var(--mauve); }
+.set-input.done span { color: var(--wine-bright); }
+.set-input.done input { color: var(--wine-bright); }
 
 .btn-primary {
   display: block;
@@ -913,9 +913,9 @@ main {
   color: var(--text-dim);
 }
 .week-cell.done {
-  background: var(--mauve);
-  color: var(--bg);
-  border-color: var(--mauve);
+  background: var(--wine);
+  color: var(--text);
+  border-color: var(--wine-bright);
   font-weight: 600;
 }
 .week-cell.deload {
@@ -1030,7 +1030,7 @@ main {
   line-height: 1;
   font-variation-settings: "opsz" 48;
 }
-.target-cell:nth-child(3n+2) .target-value { color: var(--mauve); }
+.target-cell:nth-child(3n+2) .target-value { color: var(--wine-bright); }
 .target-cell:nth-child(3n+3) .target-value { color: var(--text); }
 .target-note {
   font-size: 12px;
@@ -1080,7 +1080,7 @@ main {
 .rule-num {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: var(--mauve);
+  color: var(--wine-bright);
   letter-spacing: 0;
   font-weight: 500;
   flex: 0 0 26px;
@@ -1142,11 +1142,11 @@ main {
   right: 0;
   bottom: 0;
   z-index: 90;
-  background: rgba(19,26,46,0.92);
+  background: rgba(24,24,31,0.93);
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
-  border-top: 1px solid var(--cobalt-dim);
-  box-shadow: 0 -10px 40px rgba(56,85,232,0.18);
+  border-top: 1px solid var(--wine-dim);
+  box-shadow: 0 -10px 40px rgba(200,51,75,0.20);
   padding-bottom: env(safe-area-inset-bottom);
   transition: opacity 0.25s, transform 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
   animation: restBarSlide 0.32s cubic-bezier(0.2, 0.9, 0.2, 1);
@@ -1164,9 +1164,9 @@ main {
   position: absolute;
   top: 0; left: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--cobalt-bright), var(--crimson));
+  background: linear-gradient(90deg, var(--wine), var(--crimson-bright));
   transition: width 1s linear;
-  box-shadow: 0 0 10px rgba(56,85,232,0.6);
+  box-shadow: 0 0 10px rgba(200,51,75,0.55);
 }
 .rest-bar.done .rest-bar-fill {
   background: var(--crimson);
@@ -1185,7 +1185,7 @@ main {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.18em;
-  color: var(--cobalt-bright);
+  color: var(--wine-bright);
   text-transform: uppercase;
 }
 .rest-bar.done .rest-bar-label { color: var(--crimson-bright); }
@@ -1215,7 +1215,7 @@ main {
 .rest-bar-adj:hover, .rest-bar-skip:hover {
   background: var(--bg-3);
   color: var(--text);
-  border-color: var(--cobalt);
+  border-color: var(--wine);
 }
 .rest-bar-skip { color: var(--crimson); border-color: var(--crimson-dim); }
 .rest-bar-skip:hover { background: rgba(225,29,44,0.10); color: var(--crimson-bright); border-color: var(--crimson); }
@@ -1227,7 +1227,7 @@ main {
 }
 .exercise.completed { opacity: 0.42; }
 .exercise.active {
-  background: linear-gradient(90deg, rgba(56,85,232,0.06), transparent 60%);
+  background: linear-gradient(90deg, rgba(225,29,44,0.07), transparent 60%);
 }
 .exercise.active::before {
   content: '';
@@ -1236,9 +1236,9 @@ main {
   top: 12px;
   bottom: 12px;
   width: 2px;
-  background: var(--cobalt-bright);
+  background: var(--crimson);
   border-radius: 2px;
-  box-shadow: 0 0 12px rgba(85,119,255,0.55);
+  box-shadow: 0 0 12px rgba(225,29,44,0.55);
 }
 
 /* PR flash */
