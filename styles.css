@@ -1,17 +1,17 @@
 /* RHN Protocol — refined */
 :root {
-  /* canvas — Batman Beyond / 2099 black-suit, cobalt undertone */
-  --bg: #04050D;
-  --bg-1: #0A0C18;
-  --bg-2: #121626;
-  --bg-3: #1C2034;
-  --line: #292D43;
-  --line-bright: #3C4156;
+  /* canvas — lifted for legibility, still cool dark blue */
+  --bg: #131A2E;
+  --bg-1: #1F2740;
+  --bg-2: #2A3354;
+  --bg-3: #353E63;
+  --line: #404A70;
+  --line-bright: #52608A;
 
   /* text */
-  --text: #EAEBF2;
-  --text-dim: #7E8294;
-  --text-faint: #474A5C;
+  --text: #F2F4FA;
+  --text-dim: #9098AC;
+  --text-faint: #5F6885;
 
   /* Spider-Verse / Bat Cave neon set */
   --wine: #B0314A;          /* primary · Miles-red wine (kept, punchier) */
@@ -91,16 +91,14 @@ body::before {
   z-index: 0;
   opacity: 0.4;
 }
-/* Neo-Gotham wash · large overlapping color fields */
+/* Neo-Gotham wash · subtle, doesn't drown the lifted canvas */
 body::after {
   content: '';
   position: fixed;
   inset: -10%;
   background:
-    radial-gradient(ellipse 95% 65% at 0% 0%, rgba(225,29,44,0.22), transparent 65%),
-    radial-gradient(ellipse 95% 75% at 100% 100%, rgba(56,85,232,0.28), transparent 70%),
-    radial-gradient(ellipse 70% 55% at 100% 0%, rgba(56,85,232,0.12), transparent 55%),
-    radial-gradient(ellipse 60% 50% at 0% 100%, rgba(225,29,44,0.10), transparent 60%);
+    radial-gradient(ellipse 90% 60% at 0% 0%, rgba(225,29,44,0.16), transparent 65%),
+    radial-gradient(ellipse 90% 70% at 100% 100%, rgba(56,85,232,0.20), transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -1144,7 +1142,7 @@ main {
   right: 0;
   bottom: 0;
   z-index: 90;
-  background: rgba(8,12,28,0.92);
+  background: rgba(19,26,46,0.92);
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
   border-top: 1px solid var(--cobalt-dim);

@@ -771,7 +771,7 @@ function renderWeightChart() {
       <text x="${W - P - 4}" y="${targetY - 6}" text-anchor="end" fill="#E11D2C" font-family="JetBrains Mono" font-size="11">target ${target}</text>
       <path d="${area}" fill="url(#grad)" />
       <path d="${path}" stroke="#E03A60" stroke-width="2.2" fill="none" filter="drop-shadow(0 0 7px rgba(225,29,44,0.6))" />
-      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#E11D2C" stroke="#04050D" stroke-width="2"/>`).join('')}
+      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#E11D2C" stroke="#131A2E" stroke-width="2"/>`).join('')}
     </svg>
   `;
 }

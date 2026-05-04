@@ -39,11 +39,23 @@ const DATA = {
         {
           title: "Lifts",
           exercises: [
-            { name: "Assisted Pull-Up (wide grip)", sets: 4, reps: "6–8", note: "1–2 reps in tank" },
-            { name: "Chest-Supported Row", sets: 4, reps: "8–10", note: "Drive elbows back" },
+            { name: "Assisted Pull-Up (wide grip)", sets: 3, reps: "6–8", note: "1–2 reps in tank" },
+            { name: "Chest-Supported Row", sets: 3, reps: "8–10", note: "Drive elbows back" },
             { name: "Wide-Grip Lat Pulldown", sets: 3, reps: "10–12", note: "Lats, not arms" },
-            { name: "Cable Lateral Raise", sets: 5, reps: "12–15", note: "THE lift. 3-sec eccentric" },
-            { name: "Rear Delt DB Fly", sets: 4, reps: "12–15", note: "3D shoulders + posture" },
+            {
+              name: "Cable Lateral Raise · drop superset",
+              sets: 3,
+              reps: "R+L heavy → R+L drop · 10 each",
+              note: "Heavy R, heavy L, immediately drop weight, drop R, drop L",
+              inputMode: "multistage",
+              stages: [
+                { label: "R · heavy" },
+                { label: "L · heavy" },
+                { label: "R · drop" },
+                { label: "L · drop" }
+              ]
+            },
+            { name: "Rear Delt DB Fly", sets: 3, reps: "12–15", note: "3D shoulders + posture" },
             { name: "Face Pulls", sets: 3, reps: "15", note: "Rear delts + cuff health" },
             { name: "Hanging Leg Raise", sets: 3, reps: "12", note: "No swinging", inputMode: "bodyweight_reps" },
             { name: "Standing KB Russian Twist", sets: 3, reps: "10/side", note: "Rotational core" },
@@ -61,11 +73,11 @@ const DATA = {
         {
           title: "Lifts",
           exercises: [
-            { name: "Romanian Deadlift", sets: 4, reps: "6–8", note: "Hinge. Feel the stretch" },
+            { name: "Romanian Deadlift", sets: 3, reps: "6–8", note: "Hinge. Feel the stretch" },
             { name: "Back Squat", sets: 3, reps: "6–8", note: "Depth over weight" },
             { name: "Barbell Hip Thrust (off bench)", sets: 3, reps: "8–10", note: "Glute thickness" },
             { name: "Bulgarian Split Squat", sets: 3, reps: "8/leg", note: "Single-leg strength" },
-            { name: "Hip Abduction & Adduction", sets: 4, reps: "15", note: "Glute medius + adductors" },
+            { name: "Hip Abduction & Adduction", sets: 3, reps: "15", note: "Glute medius + adductors" },
             { name: "Single-Leg Calf Raise", sets: 3, reps: "12/side", note: "Achilles prehab", inputMode: "bodyweight_reps" },
             { name: "Dead Bug", sets: 3, reps: "12", note: "Slow, anti-extension", inputMode: "bodyweight_reps" },
             { name: "Side Plank", sets: 3, reps: "30 sec/side", note: "Obliques", inputMode: "time" },
@@ -83,7 +95,7 @@ const DATA = {
         {
           title: "Push",
           exercises: [
-            { name: "Incline DB Press", sets: 4, reps: "6–8", note: "Upper chest = lifted look" },
+            { name: "Incline DB Press", sets: 3, reps: "6–8", note: "Upper chest = lifted look" },
             { name: "Flat DB Press", sets: 3, reps: "8–10", note: "Mid-chest thickness" },
             { name: "Cable Chest Fly (high-to-low)", sets: 3, reps: "10–12", note: "Lower pec line" },
             { name: "Seated DB Shoulder Press", sets: 3, reps: "8–10", note: "Front + side delts" },
@@ -157,7 +169,7 @@ const DATA = {
         {
           title: "Strength",
           exercises: [
-            { name: "Barbell Deadlift", sets: 4, reps: "5", note: "Brace hard, stay tight" },
+            { name: "Barbell Deadlift", sets: 3, reps: "5", note: "Brace hard, stay tight" },
             { name: "Front Squat (or Goblet)", sets: 3, reps: "6–8", note: "Upright torso" },
             { name: "Walking DB Lunge", sets: 3, reps: "10/leg", note: "Long strides" },
             { name: "Hamstring Curl", sets: 3, reps: "12", note: "Slow negative" }
@@ -179,6 +191,20 @@ const DATA = {
           ]
         },
         {
+          title: "Finish",
+          exercises: [
+            { name: "Stairmaster · moderate", sets: 1, reps: "8 min", note: "Cool down", inputMode: "time_speed" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "day5",
+      name: "Pump · upper volume",
+      tagline: "Failure sets. Full sleeves.",
+      blurb: "Failure-set volume across pull, push, and arms. Last day before recovery.",
+      blocks: [
+        {
           title: "Lat Pulldown · failure triset",
           exercises: [
             { name: "Wide Grip Pulldown", sets: 2, reps: "to failure", note: "Outer lats" },
@@ -190,7 +216,19 @@ const DATA = {
           title: "Shoulders · failure",
           exercises: [
             { name: "Shoulder Press", sets: 2, reps: "to failure", note: "Heavy then drop" },
-            { name: "Lateral Raise", sets: 2, reps: "to failure", note: "Slow eccentric" },
+            {
+              name: "Cable Lateral Raise · drop superset",
+              sets: 2,
+              reps: "R+L heavy → R+L drop",
+              note: "Same drop superset as Day 1/3 — heavy R+L then immediately drop",
+              inputMode: "multistage",
+              stages: [
+                { label: "R · heavy" },
+                { label: "L · heavy" },
+                { label: "R · drop" },
+                { label: "L · drop" }
+              ]
+            },
             { name: "Reverse Delt Fly", sets: 2, reps: "to failure", note: "Squeeze rear delts" }
           ]
         },
@@ -200,12 +238,6 @@ const DATA = {
             { name: "Straight Bar Pushdown", sets: 3, reps: "10–12", note: "Overall tricep mass" },
             { name: "Seated Bicep Curl · mid hold", sets: 2, reps: "to failure", note: "Hold at 90° before each rep" },
             { name: "Seated Hammer Curl · mid hold", sets: 2, reps: "to failure", note: "Brachialis · forearm" }
-          ]
-        },
-        {
-          title: "Finish",
-          exercises: [
-            { name: "Stairmaster · moderate", sets: 1, reps: "8 min", note: "Cool down", inputMode: "time_speed" }
           ]
         }
       ]
