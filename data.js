@@ -39,7 +39,7 @@ const DATA = {
         {
           title: "Lifts",
           exercises: [
-            { name: "Assisted Pull-Up (wide grip)", sets: 3, reps: "6–8", note: "1–2 reps in tank" },
+            { name: "Assisted Pull-Up (wide grip)", sets: 2, reps: "6–8", note: "1–2 reps in tank" },
             { name: "Chest-Supported Row", sets: 3, reps: "8–10", note: "Drive elbows back" },
             { name: "Wide-Grip Lat Pulldown", sets: 3, reps: "10–12", note: "Lats, not arms" },
             {
@@ -55,8 +55,8 @@ const DATA = {
                 { label: "L · drop" }
               ]
             },
-            { name: "Rear Delt DB Fly", sets: 3, reps: "12–15", note: "3D shoulders + posture" },
-            { name: "Face Pulls", sets: 3, reps: "15", note: "Rear delts + cuff health" },
+            { name: "Rear Delt DB Fly", sets: 2, reps: "12–15", note: "3D shoulders + posture" },
+            { name: "Face Pulls", sets: 2, reps: "15", note: "Rear delts + cuff health" },
             { name: "Hanging Leg Raise", sets: 3, reps: "12", note: "No swinging", inputMode: "bodyweight_reps" },
             { name: "Standing KB Russian Twist", sets: 3, reps: "10/side", note: "Rotational core" },
             { name: "Dead Hang", sets: 2, reps: "max hold", note: "Decompresses spine, grip", inputMode: "time" }
@@ -76,11 +76,10 @@ const DATA = {
             { name: "Romanian Deadlift", sets: 3, reps: "6–8", note: "Hinge. Feel the stretch" },
             { name: "Back Squat", sets: 3, reps: "6–8", note: "Depth over weight" },
             { name: "Barbell Hip Thrust (off bench)", sets: 3, reps: "8–10", note: "Glute thickness" },
-            { name: "Bulgarian Split Squat", sets: 3, reps: "8/leg", note: "Single-leg strength" },
             { name: "Hip Abduction & Adduction", sets: 3, reps: "15", note: "Glute medius + adductors" },
             { name: "Single-Leg Calf Raise", sets: 3, reps: "12/side", note: "Achilles prehab", inputMode: "bodyweight_reps" },
             { name: "Dead Bug", sets: 3, reps: "12", note: "Slow, anti-extension", inputMode: "bodyweight_reps" },
-            { name: "Side Plank", sets: 3, reps: "30 sec/side", note: "Obliques", inputMode: "time" },
+            { name: "Side Plank", sets: 2, reps: "30 sec/side", note: "Obliques", inputMode: "time" },
             { name: "Incline Walk", sets: 1, reps: "15 min", note: "Easy pace, recovery", inputMode: "time_speed" }
           ]
         }
@@ -145,16 +144,15 @@ const DATA = {
         {
           title: "Forearms + Traps",
           exercises: [
-            { name: "Wrist Curl (palms up)", sets: 3, reps: "15", note: "Flexor mass" },
-            { name: "Reverse Wrist Curl", sets: 3, reps: "12", note: "Extensor width" },
+            { name: "Wrist Curl (palms up)", sets: 2, reps: "15", note: "Flexor mass" },
+            { name: "Reverse Wrist Curl", sets: 2, reps: "12", note: "Extensor width" },
             { name: "DB Shrugs", sets: 3, reps: "12–15", note: "1-sec hold at top · trap shelf for V-taper" }
           ]
         },
         {
           title: "Core",
           exercises: [
-            { name: "Cable Crunch", sets: 3, reps: "12", note: "Controlled, round spine" },
-            { name: "Decline Sit-Ups", sets: 3, reps: "12", note: "Upper abs detail", inputMode: "bodyweight_reps" },
+            { name: "Cable Crunch", sets: 2, reps: "12", note: "Controlled, round spine" },
             { name: "Stairmaster", sets: 1, reps: "10 min", note: "Steady", inputMode: "time_speed" }
           ]
         }
@@ -171,7 +169,6 @@ const DATA = {
           exercises: [
             { name: "Barbell Deadlift", sets: 3, reps: "5", note: "Brace hard, stay tight" },
             { name: "Front Squat (or Goblet)", sets: 3, reps: "6–8", note: "Upright torso" },
-            { name: "Walking DB Lunge", sets: 3, reps: "10/leg", note: "Long strides" },
             { name: "Hamstring Curl", sets: 3, reps: "12", note: "Slow negative" }
           ]
         },
@@ -187,7 +184,7 @@ const DATA = {
         {
           title: "Core",
           exercises: [
-            { name: "Pallof Press", sets: 3, reps: "12/side", note: "Anti-rotation core" }
+            { name: "Pallof Press", sets: 2, reps: "12/side", note: "Anti-rotation core" }
           ]
         },
         {
