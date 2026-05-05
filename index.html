@@ -10,7 +10,7 @@
 <title>RHN Protocol · Muneer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400;1,9..144,500&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400;1,9..144,500&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="icon.svg" />
@@ -246,9 +246,31 @@
 </main>
 
 <footer class="footer">
-  <span>Built for Muneer</span>
   <span>167 cm · 27 · started <span id="startDate">—</span></span>
 </footer>
+
+<!-- ===== MAKER'S MARK — Muneer Ahmed (official, shared across all my apps) ===== -->
+<div class="makers-mark" style="max-width:280px;margin:24px auto 32px;padding:24px;text-align:center;border-radius:4px;background:linear-gradient(180deg,#0a0a0a,#0f0a06);border:1px solid rgba(212,175,55,0.18);box-shadow:0 8px 32px rgba(0,0,0,0.5),inset 0 1px 0 rgba(212,175,55,0.08);">
+  <svg width="80" height="100" viewBox="0 0 120 150" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto 16px;">
+    <defs>
+      <linearGradient id="rhn-mm-gold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#e6c97a"/>
+        <stop offset="50%" stop-color="#d4af37"/>
+        <stop offset="100%" stop-color="#a8862a"/>
+      </linearGradient>
+    </defs>
+    <path d="M60 4 L106 30 L106 120 L60 146 L14 120 L14 30 Z" stroke="url(#rhn-mm-gold)" stroke-width="1.6" stroke-linejoin="miter"/>
+    <text x="60" y="98" text-anchor="middle" font-family="'Cinzel','Fraunces','Times New Roman',serif" font-weight="600" font-size="62" letter-spacing="-3" fill="url(#rhn-mm-gold)">MA</text>
+  </svg>
+  <p style="font-family:'Cinzel','Fraunces',serif;font-size:13px;font-weight:600;letter-spacing:0.32em;color:#d4af37;margin:0;">MUNEER AHMED</p>
+  <svg width="160" height="8" viewBox="0 0 160 8" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:10px auto;">
+    <line x1="10" y1="4" x2="72" y2="4" stroke="rgba(212,175,55,0.55)" stroke-width="0.6"/>
+    <path d="M80 1 L83 4 L80 7 L77 4 Z" fill="#d4af37"/>
+    <line x1="88" y1="4" x2="150" y2="4" stroke="rgba(212,175,55,0.55)" stroke-width="0.6"/>
+  </svg>
+  <p style="font-family:'Cinzel','Fraunces',serif;font-size:9px;font-weight:500;letter-spacing:0.45em;color:rgba(212,175,55,0.7);margin:0;">AHMED KHAANDAAN</p>
+  <p style="font-size:8px;text-transform:uppercase;letter-spacing:0.3em;color:rgba(212,175,55,0.3);margin:16px 0 0;">RHN PROTOCOL</p>
+</div>
 
 <div class="rest-bar" id="restBar" hidden>
   <div class="rest-bar-fill" id="restFill"></div>
