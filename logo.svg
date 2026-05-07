@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E8C979"/>
+      <stop offset="50%" stop-color="#C9A961"/>
+      <stop offset="100%" stop-color="#9A8246"/>
+    </linearGradient>
+    <linearGradient id="goldShine" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F0D58E"/>
+      <stop offset="35%" stop-color="#D4B26A"/>
+      <stop offset="65%" stop-color="#B89544"/>
+      <stop offset="100%" stop-color="#7A6332"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1024" height="1024" fill="#0A0A0A"/>
+
+  <!-- Hexagonal mark · centered top -->
+  <g>
+    <!-- Outer hexagon -->
+    <polygon points="512,200 660,310 660,490 512,600 364,490 364,310"
+             fill="none" stroke="url(#gold)" stroke-width="4.5" stroke-linejoin="miter"/>
+    <!-- Inner hexagon · subtle inset -->
+    <polygon points="512,222 644,318 644,482 512,578 380,482 380,318"
+             fill="none" stroke="url(#gold)" stroke-width="1.5" stroke-linejoin="miter"
+             opacity="0.55"/>
+
+    <!-- MA monogram -->
+    <g fill="url(#goldShine)">
+      <text x="430" y="495" font-family="'Cormorant Garamond', 'Cinzel', Georgia, serif"
+            font-weight="600" font-size="260" letter-spacing="-8">M</text>
+      <text x="498" y="495" font-family="'Cormorant Garamond', 'Cinzel', Georgia, serif"
+            font-weight="600" font-size="260" letter-spacing="-8">A</text>
+    </g>
+  </g>
+
+  <!-- MUNEER AHMED · primary wordmark -->
+  <text x="512" y="730" font-family="'Cinzel', 'Cormorant Garamond', Georgia, serif"
+        font-weight="500" font-size="64" letter-spacing="14" fill="url(#goldShine)"
+        text-anchor="middle">MUNEER AHMED</text>
+
+  <!-- Divider · line · diamond · line -->
+  <g stroke="url(#gold)" stroke-width="1.5">
+    <line x1="200" y1="790" x2="492" y2="790"/>
+    <line x1="532" y1="790" x2="824" y2="790"/>
+  </g>
+  <polygon points="512,778 522,790 512,802 502,790" fill="url(#gold)"/>
+
+  <!-- AHMED KHAANDAAN · sub wordmark -->
+  <text x="512" y="850" font-family="'Cinzel', 'Cormorant Garamond', Georgia, serif"
+        font-weight="400" font-size="38" letter-spacing="22" fill="url(#gold)"
+        text-anchor="middle" opacity="0.92">AHMED KHAANDAAN</text>
+</svg>
