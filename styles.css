@@ -160,18 +160,23 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   font-weight: 400;
 }
 
-/* Maker's mark — Ahmed Khaandaan logo, footer of every page */
-.footer-mark {
+/* Maker's mark — Ahmed Khaandaan logo, bottom of Protocol tab only */
+.makers-mark {
+  display: flex;
+  justify-content: center;
+  margin: 32px 0 8px;
+  padding: 0;
+}
+.makers-mark img {
   display: block;
   width: 100%;
-  max-width: 360px;
+  max-width: 480px;
   height: auto;
-  margin: 0 auto;
-  opacity: 0.65;
-  border-radius: 8px;
+  border-radius: 10px;
+  opacity: 0.85;
   transition: opacity 0.2s ease;
 }
-.footer-mark:hover { opacity: 0.9; }
+.makers-mark img:hover { opacity: 1; }
 .header-stats { display: flex; gap: 20px; }
 .stat {
   display: flex;
@@ -1142,9 +1147,14 @@ main {
   z-index: 1;
   max-width: 1100px;
   margin: 0 auto;
-  padding: 36px 22px 56px;
+  padding: 28px 22px 48px;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0;
+  font-weight: 400;
   border-top: 1px solid var(--line);
 }
 
