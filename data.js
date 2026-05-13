@@ -40,7 +40,7 @@ const DATA = {
           title: "Lifts",
           exercises: [
             { name: "Assisted Pull-Up (wide grip)", sets: 2, reps: "6–8", note: "1–2 reps in tank" },
-            { name: "Chest-Supported Row", sets: 3, reps: "8–10", note: "Drive elbows back" },
+            { name: "Chest-Supported Row", sets: 2, reps: "8–10", note: "Drive elbows back" },
             { name: "Wide-Grip Lat Pulldown", sets: 3, reps: "10–12", note: "Lats, not arms" },
             {
               name: "Cable Lateral Raise · drop superset",
@@ -55,10 +55,9 @@ const DATA = {
                 { label: "L · drop" }
               ]
             },
-            { name: "Rear Delt DB Fly", sets: 2, reps: "12–15", note: "3D shoulders + posture" },
             { name: "Face Pulls", sets: 2, reps: "15", note: "Rear delts + cuff health" },
-            { name: "Hanging Leg Raise", sets: 3, reps: "12", note: "No swinging", inputMode: "bodyweight_reps" },
-            { name: "Standing KB Russian Twist", sets: 3, reps: "10/side", note: "Rotational core" },
+            { name: "Hanging Leg Raise", sets: 2, reps: "12", note: "No swinging", inputMode: "bodyweight_reps" },
+            { name: "Standing KB Russian Twist", sets: 1, reps: "10/side", note: "Rotational core" },
             { name: "Dead Hang", sets: 2, reps: "max hold", note: "Decompresses spine, grip", inputMode: "time" }
           ]
         }
@@ -75,11 +74,10 @@ const DATA = {
           exercises: [
             { name: "Romanian Deadlift", sets: 3, reps: "6–8", note: "Hinge. Feel the stretch" },
             { name: "Back Squat", sets: 3, reps: "6–8", note: "Depth over weight" },
-            { name: "Barbell Hip Thrust (off bench)", sets: 3, reps: "8–10", note: "Glute thickness" },
-            { name: "Hip Abduction & Adduction", sets: 3, reps: "15", note: "Glute medius + adductors" },
-            { name: "Single-Leg Calf Raise", sets: 3, reps: "12/side", note: "Achilles prehab", inputMode: "bodyweight_reps" },
-            { name: "Dead Bug", sets: 3, reps: "12", note: "Slow, anti-extension", inputMode: "bodyweight_reps" },
-            { name: "Side Plank", sets: 2, reps: "30 sec/side", note: "Obliques", inputMode: "time" },
+            { name: "Barbell Hip Thrust (off bench)", sets: 2, reps: "8–10", note: "Glute thickness" },
+            { name: "Hip Abduction & Adduction", sets: 2, reps: "15", note: "Glute medius + adductors" },
+            { name: "Single-Leg Calf Raise", sets: 2, reps: "12/side", note: "Achilles prehab", inputMode: "bodyweight_reps" },
+            { name: "Dead Bug", sets: 2, reps: "12", note: "Slow, anti-extension", inputMode: "bodyweight_reps" },
             { name: "Incline Walk", sets: 1, reps: "15 min", note: "Easy pace, recovery", inputMode: "time_speed" }
           ]
         }
@@ -96,11 +94,11 @@ const DATA = {
           exercises: [
             { name: "Incline DB Press", sets: 3, reps: "6–8", note: "Upper chest = lifted look" },
             { name: "Flat DB Press", sets: 3, reps: "8–10", note: "Mid-chest thickness" },
-            { name: "Cable Chest Fly (high-to-low)", sets: 3, reps: "10–12", note: "Lower pec line" },
+            { name: "Cable Chest Fly (high-to-low)", sets: 2, reps: "10–12", note: "Lower pec line" },
             { name: "Seated DB Shoulder Press", sets: 3, reps: "8–10", note: "Front + side delts" },
             {
               name: "Cable Lateral Raise · drop superset",
-              sets: 3,
+              sets: 2,
               reps: "R+L heavy → R+L drop · 10 each",
               note: "Heavy R, heavy L, immediately drop weight, drop R, drop L",
               inputMode: "multistage",
@@ -118,8 +116,6 @@ const DATA = {
           exercises: [
             { name: "DB Wide Curl", sets: 1, reps: "1 min", note: "" },
             { name: "Hammer Curl", sets: 1, reps: "1 min", note: "" },
-            { name: "Drag Curl", sets: 1, reps: "1 min", note: "" },
-            { name: "Reverse Curl", sets: 1, reps: "1 min", note: "" },
             { name: "Straight Curl", sets: 1, reps: "1 min", note: "" }
           ]
         },
@@ -146,7 +142,7 @@ const DATA = {
           exercises: [
             { name: "Wrist Curl (palms up)", sets: 2, reps: "15", note: "Flexor mass" },
             { name: "Reverse Wrist Curl", sets: 2, reps: "12", note: "Extensor width" },
-            { name: "DB Shrugs", sets: 3, reps: "12–15", note: "1-sec hold at top · trap shelf for V-taper" }
+            { name: "DB Shrugs", sets: 2, reps: "12–15", note: "1-sec hold at top · trap shelf for V-taper" }
           ]
         },
         {
@@ -173,12 +169,12 @@ const DATA = {
           ]
         },
         {
-          title: "Conditioning · 3 rounds, minimal rest",
+          title: "Conditioning · 2 rounds, minimal rest",
           exercises: [
-            { name: "KB Swings", sets: 3, reps: "15", note: "Hinge, not squat" },
-            { name: "Explosive Push-Ups", sets: 3, reps: "10", note: "", inputMode: "bodyweight_reps" },
-            { name: "Jump Squats", sets: 3, reps: "10", note: "", inputMode: "bodyweight_reps" },
-            { name: "Hanging Knee Raises", sets: 3, reps: "12", note: "", inputMode: "bodyweight_reps" }
+            { name: "KB Swings", sets: 2, reps: "15", note: "Hinge, not squat" },
+            { name: "Explosive Push-Ups", sets: 2, reps: "10", note: "", inputMode: "bodyweight_reps" },
+            { name: "Jump Squats", sets: 2, reps: "10", note: "", inputMode: "bodyweight_reps" },
+            { name: "Hanging Knee Raises", sets: 2, reps: "12", note: "", inputMode: "bodyweight_reps" }
           ]
         },
         {
@@ -232,7 +228,7 @@ const DATA = {
         {
           title: "Arms",
           exercises: [
-            { name: "Straight Bar Pushdown", sets: 3, reps: "10–12", note: "Overall tricep mass" },
+            { name: "Straight Bar Pushdown", sets: 2, reps: "10–12", note: "Overall tricep mass" },
             { name: "Seated Bicep Curl · mid hold", sets: 2, reps: "to failure", note: "Hold at 90° before each rep" },
             { name: "Seated Hammer Curl · mid hold", sets: 2, reps: "to failure", note: "Brachialis · forearm" }
           ]
