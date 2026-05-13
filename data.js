@@ -94,7 +94,6 @@ const DATA = {
           exercises: [
             { name: "Incline DB Press", sets: 3, reps: "6–8", note: "Upper chest = lifted look" },
             { name: "Flat DB Press", sets: 3, reps: "8–10", note: "Mid-chest thickness" },
-            { name: "Cable Chest Fly (high-to-low)", sets: 2, reps: "10–12", note: "Lower pec line" },
             { name: "Seated DB Shoulder Press", sets: 3, reps: "8–10", note: "Front + side delts" },
             {
               name: "Cable Lateral Raise · drop superset",
@@ -203,6 +202,14 @@ const DATA = {
             { name: "Wide Grip Pulldown", sets: 2, reps: "to failure", note: "Outer lats" },
             { name: "Narrow Grip Pulldown", sets: 2, reps: "to failure", note: "Inner back, biceps" },
             { name: "Reverse Grip Pulldown", sets: 2, reps: "to failure", note: "Lower lats + biceps" }
+          ]
+        },
+        {
+          title: "Chest · cable fly triset",
+          exercises: [
+            { name: "Cable Fly · high-to-low", sets: 2, reps: "10–12", note: "Lower pec line · pull down and across" },
+            { name: "Cable Fly · mid", sets: 2, reps: "10–12", note: "Mid pec · pull straight across" },
+            { name: "Cable Fly · low-to-high", sets: 2, reps: "10–12", note: "Upper pec · pull up and across" }
           ]
         },
         {
