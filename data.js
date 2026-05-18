@@ -55,10 +55,18 @@ const DATA = {
                 { label: "L · drop" }
               ]
             },
-            { name: "Face Pulls", sets: 2, reps: "15", note: "Rear delts + cuff health" },
+            { name: "Face Pulls", sets: 3, reps: "15", note: "Rear delts + cuff health" },
             { name: "Hanging Leg Raise", sets: 2, reps: "12", note: "No swinging", inputMode: "bodyweight_reps" },
             { name: "Standing KB Russian Twist", sets: 1, reps: "10/side", note: "Rotational core" },
             { name: "Dead Hang", sets: 2, reps: "max hold", note: "Decompresses spine, grip", inputMode: "time" }
+          ]
+        },
+        {
+          title: "Forearms + Traps",
+          exercises: [
+            { name: "Wrist Curl (palms up)", sets: 2, reps: "15", note: "Flexor mass" },
+            { name: "Reverse Wrist Curl", sets: 2, reps: "12", note: "Extensor width" },
+            { name: "DB Shrugs", sets: 2, reps: "12–15", note: "1-sec hold at top · trap shelf for V-taper" }
           ]
         }
       ]
@@ -133,15 +141,8 @@ const DATA = {
                 { label: "R · sideways" },
                 { label: "L · sideways" }
               ]
-            }
-          ]
-        },
-        {
-          title: "Forearms + Traps",
-          exercises: [
-            { name: "Wrist Curl (palms up)", sets: 2, reps: "15", note: "Flexor mass" },
-            { name: "Reverse Wrist Curl", sets: 2, reps: "12", note: "Extensor width" },
-            { name: "DB Shrugs", sets: 2, reps: "12–15", note: "1-sec hold at top · trap shelf for V-taper" }
+            },
+            { name: "Overhead Cable Extension", sets: 2, reps: "10–12", note: "Long head — the part that fills the sleeve" }
           ]
         },
         {
