@@ -733,6 +733,16 @@ main {
   padding: 5px 0;
 }
 .set-input input::placeholder { color: var(--text-faint); font-weight: 400; }
+.set-bar-total {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  margin: 0 6px 0 -2px;
+  white-space: nowrap;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+.set-input.done .set-bar-total { color: var(--wine-bright); }
 .set-input.done {
   background: rgba(232,73,102,0.14);
   border-color: var(--wine-bright);

@@ -214,7 +214,7 @@ function findPreviousBest(workoutId, exKey) {
   return null;
 }
 
-function formatPrev(set, mode) {
+function formatPrev(set, mode, ex) {
   if (!set) return '';
   switch (mode) {
     case 'bodyweight_reps':
@@ -230,8 +230,19 @@ function formatPrev(set, mode) {
       return `${s0.kg || '–'} kg × ${s0.reps || '–'}`;
     }
     default:
+      if (ex?.barbell) {
+        const side = parseFloat(set.kg);
+        const total = !isNaN(side) ? (20 + 2 * side) : null;
+        return `${set.kg || '–'} /side × ${set.reps || '–'}${total != null ? ` (${total} total)` : ''}`;
+      }
       return `${set.kg || '–'} kg × ${set.reps || '–'}`;
   }
+}
+
+function barTotalText(kgPerSide, barWeight) {
+  const v = parseFloat(kgPerSide);
+  if (isNaN(v)) return '';
+  return '= ' + (barWeight + 2 * v) + ' kg';
 }
 
 function renderSessionProgress(done, total) {
@@ -558,6 +569,8 @@ function renderWorkout() {
       } else {
         const fields = inputFieldsForMode(mode);
         const suggKg = (mode === 'weight_reps') ? suggestedKgFor(id, exKey, ex) : null;
+        const isBarbell = ex.barbell === true;
+        const barWeight = ex.bar || 20;
         let setRows = '';
         for (let s = 0; s < ex.sets; s++) {
           totalSets += 1;
@@ -565,11 +578,20 @@ function renderWorkout() {
           if (setData.done) doneSets += 1;
           const innerHTML = fields.map((f, fi) => {
             const sep = fi > 0 ? '<span>×</span>' : '';
-            const ph = (f.key === 'kg' && suggKg != null) ? String(suggKg) : f.label;
-            return `${sep}<input type="number" placeholder="${ph}" value="${setData[f.key] ?? ''}" data-field="${f.key}" inputmode="${f.inputmode}" style="width:${f.width}px" />`;
+            let ph = f.label;
+            if (f.key === 'kg') {
+              if (suggKg != null) ph = String(suggKg);
+              else if (isBarbell) ph = 'side';
+            }
+            const valStr = setData[f.key] ?? '';
+            let extra = '';
+            if (isBarbell && f.key === 'kg') {
+              extra = `<span class="set-bar-total" data-bar-total>${barTotalText(valStr, barWeight)}</span>`;
+            }
+            return `${sep}<input type="number" placeholder="${ph}" value="${valStr}" data-field="${f.key}" inputmode="${f.inputmode}" style="width:${f.width}px" />${extra}`;
           }).join('');
           setRows += `
-            <div class="set-input ${setData.done ? 'done' : ''}" data-ex="${exKey}" data-set="${s}" data-mode="${mode}">
+            <div class="set-input ${setData.done ? 'done' : ''}" data-ex="${exKey}" data-set="${s}" data-mode="${mode}"${isBarbell ? ` data-barbell="1" data-bar="${barWeight}"` : ''}>
               <span>S${s + 1}</span>
               ${innerHTML}
             </div>
@@ -579,7 +601,7 @@ function renderWorkout() {
       }
 
       const prevHTML = prev
-        ? `<div class="exercise-prev ${beating ? 'beaten' : ''}" title="From ${fmtDate(prev.date)}">last · ${formatPrev(prev.set, mode)}${beating ? ' · beaten' : ''}</div>`
+        ? `<div class="exercise-prev ${beating ? 'beaten' : ''}" title="From ${fmtDate(prev.date)}">last · ${formatPrev(prev.set, mode, ex)}${beating ? ' · beaten' : ''}</div>`
         : '';
       return `
         <div class="exercise">
@@ -623,6 +645,11 @@ function renderWorkout() {
           const fields = inputFieldsForMode(mode);
           setData[field] = input.value;
           setData.done = fields.every(f => setData[f.key] !== undefined && setData[f.key] !== '');
+          // Live update of the bar total next to this kg input
+          if (ex.barbell && field === 'kg') {
+            const tot = row.querySelector('[data-bar-total]');
+            if (tot) tot.textContent = barTotalText(input.value, ex.bar || 20);
+          }
         }
         if (setData.done) row.classList.add('done');
         else row.classList.remove('done');
@@ -666,6 +693,10 @@ function renderWorkout() {
               const tRow = list.querySelector(`.set-input[data-ex="${CSS.escape(exKey)}"][data-set="${s}"]`);
               const tIn = tRow?.querySelector('input[data-field="kg"]');
               if (tIn && !tIn.value) tIn.value = input.value;
+              if (ex.barbell) {
+                const tot = tRow?.querySelector('[data-bar-total]');
+                if (tot) tot.textContent = barTotalText(input.value, ex.bar || 20);
+              }
             }
           }
         }
