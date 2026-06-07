@@ -6,9 +6,11 @@ const DATA = {
 
   morningRitual: [
     { name: "Stomach Vacuum", spec: "3 × 30 sec", note: "Inner core, waist control" },
-    { name: "Glute Bridge", spec: "2 × 15", note: "Activates glutes, fights desk-sit" },
     { name: "Cat-Cow", spec: "10 reps", note: "Spine mobility" },
+    { name: "Couch Stretch", spec: "30 sec / side", note: "Hip flexor release · fixes the desk-sit pain at the front of your hip" },
     { name: "Deep Squat Hold", spec: "30 sec", note: "Hip mobility" },
+    { name: "Single-Leg Glute Bridge", spec: "10 / side", note: "Wakes lazy glutes from sitting" },
+    { name: "Bird Dog", spec: "10 / side · slow", note: "Anti-extension core + glute coordination — built for desk-bound" },
     { name: "Thoracic Opener", spec: "30 sec / side", note: "Doorway. Opens chest, fights hunch" }
   ],
 
