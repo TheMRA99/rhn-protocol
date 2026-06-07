@@ -244,19 +244,13 @@ const DATA = {
             { name: "Seated Hammer Curl · mid hold", sets: 2, reps: "to failure", note: "Brachialis · forearm" }
           ]
         },
-        {
-          title: "Fat-burn finisher",
-          exercises: [
-            { name: "KB Swings · intervals", sets: 6, reps: "30s on / 30s off", note: "20kg max at your gym — push for max reps each round (aim 22+). When it gets easy, switch to single-arm alternating for the second 3 rounds." }
-          ]
-        }
       ]
     },
     {
       id: "homecore",
       name: "Home core",
-      tagline: "Rest day · 12 min",
-      blurb: "Optional, high ROI for the goal. Do on rest days.",
+      tagline: "Rest day · 18 min",
+      blurb: "Optional, high ROI for the goal. Do on rest days. Skip the KB finisher if zonked.",
       blocks: [
         {
           title: "Core circuit",
@@ -274,6 +268,12 @@ const DATA = {
           exercises: [
             { name: "Explosive Push-Ups", sets: 2, reps: "10", note: "Drive hands off the floor", inputMode: "bodyweight_reps" },
             { name: "Jump Squats", sets: 2, reps: "10", note: "Land soft, reset, jump", inputMode: "bodyweight_reps" }
+          ]
+        },
+        {
+          title: "Fat-burn finisher · optional",
+          exercises: [
+            { name: "KB Swings · intervals", sets: 6, reps: "30s on / 30s off", note: "20kg max — push max reps per round (aim 22+). Rounds 4–6 single-arm alternating for harder progression. Skip on tired days." }
           ]
         }
       ]
