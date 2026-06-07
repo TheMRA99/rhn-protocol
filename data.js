@@ -43,6 +43,7 @@ const DATA = {
           exercises: [
             { name: "Assisted Pull-Up (wide grip)", sets: 2, reps: "6–8", note: "1–2 reps in tank" },
             { name: "Chest-Supported Row", sets: 2, reps: "8–10", note: "Drive elbows back" },
+            { name: "Pendlay Row", sets: 2, reps: "5", note: "Dead-stop on floor each rep · pull explosive to lower chest", barbell: true },
             { name: "Wide-Grip Lat Pulldown", sets: 3, reps: "10–12", note: "Lats, not arms" },
             {
               name: "Cable Lateral Raise · drop superset",
@@ -165,8 +166,10 @@ const DATA = {
         {
           title: "Strength",
           exercises: [
+            { name: "Power Clean", sets: 3, reps: "3", note: "Floor → shoulders, explosive · the carry-prep lift", barbell: true },
             { name: "Barbell Deadlift", sets: 3, reps: "5", note: "Brace hard, stay tight", barbell: true },
             { name: "Front Squat (or Goblet)", sets: 3, reps: "6–8", note: "Upright torso" },
+            { name: "Push Press", sets: 3, reps: "5", note: "Leg dip → drive overhead", barbell: true },
             { name: "Hamstring Curl", sets: 3, reps: "12", note: "Slow negative" }
           ]
         },
