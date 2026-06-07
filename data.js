@@ -17,7 +17,7 @@ const DATA = {
   daily: [
     { name: "Protein", spec: "135–150 g", note: "1.8–2 g per kg bodyweight" },
     { name: "Water", spec: "3 L+", note: "More in SG humidity" },
-    { name: "Steps", spec: "8,000–10,000", note: "Non-negotiable for fat loss" },
+    { name: "Steps", spec: "10,000–12,000", note: "NEAT — biggest fat loss lever after the deficit" },
     { name: "Sleep", spec: "7+ hrs", note: "The #1 lever for results" },
     { name: "Creatine", spec: "5 g", note: "2 scoops CreAMP, any time" },
     { name: "Vitamin D3", spec: "2,000–4,000 IU", note: "With a fatty meal" },
@@ -60,7 +60,7 @@ const DATA = {
             },
             { name: "Face Pulls", sets: 3, reps: "15", note: "Rear delts + cuff health" },
             { name: "Hanging Leg Raise", sets: 2, reps: "12", note: "No swinging", inputMode: "bodyweight_reps" },
-            { name: "Standing KB Russian Twist", sets: 1, reps: "10/side", note: "Rotational core" },
+            { name: "Cable Woodchop", sets: 2, reps: "10/side", note: "Lateral obliques · the V-cut angle (low-to-high or high-to-low)" },
             { name: "Dead Hang", sets: 2, reps: "max hold", note: "Decompresses spine, grip", inputMode: "time" }
           ]
         },
@@ -152,7 +152,7 @@ const DATA = {
           title: "Core",
           exercises: [
             { name: "Cable Crunch", sets: 2, reps: "12", note: "Controlled, round spine" },
-            { name: "Stairmaster", sets: 1, reps: "10 min", note: "Steady", inputMode: "time_speed" }
+            { name: "Stairmaster · intervals", sets: 1, reps: "10 min", note: "30s hard / 60s easy × 6 rounds · same time, way more burn", inputMode: "time_speed" }
           ]
         }
       ]
@@ -176,7 +176,7 @@ const DATA = {
         {
           title: "Conditioning",
           exercises: [
-            { name: "KB Swings", sets: 2, reps: "15", note: "Hinge, not squat" },
+            { name: "KB Swings", sets: 3, reps: "15", note: "Hinge, not squat · explosive hips" },
             { name: "Hanging Knee Raises", sets: 2, reps: "12", note: "Spine-loaded core", inputMode: "bodyweight_reps" }
           ]
         },
@@ -243,6 +243,12 @@ const DATA = {
             { name: "Seated Bicep Curl · mid hold", sets: 2, reps: "to failure", note: "Hold at 90° before each rep" },
             { name: "Seated Hammer Curl · mid hold", sets: 2, reps: "to failure", note: "Brachialis · forearm" }
           ]
+        },
+        {
+          title: "Fat-burn finisher",
+          exercises: [
+            { name: "Assault Bike · intervals", sets: 1, reps: "5 min", note: "30s hard / 30s easy × 5 · sub KB swings or rower if no bike", inputMode: "time_speed" }
+          ]
         }
       ]
     },
@@ -278,7 +284,7 @@ const DATA = {
     { label: "Calories", value: "2,000–2,200", note: "300–400 deficit" },
     { label: "Protein", value: "135–150 g", note: "1.8–2 g/kg" },
     { label: "Water", value: "3 L+", note: "Singapore humidity" },
-    { label: "Steps", value: "8–10K", note: "Daily" },
+    { label: "Steps", value: "10–12K", note: "Daily" },
     { label: "Sleep", value: "7+ hrs", note: "#1 lever" },
     { label: "Creatine", value: "5 g", note: "Daily" }
   ],
@@ -312,7 +318,7 @@ const DATA = {
   executionRules: [
     "Leave 1–2 reps in reserve on heavy lifts. Ego-lifting = torn tendon.",
     "Slow 3-sec eccentrics on laterals and core.",
-    "8,000–10,000 steps daily — non-negotiable for fat loss.",
+    "10,000–12,000 steps daily — biggest fat-loss lever after the deficit.",
     "90–120 sec rest on heavy compounds. 45–60 sec on volume work.",
     "No phone between sets. Log, rest, lift.",
     "Morning lifts preferred. Nothing interrupts 6am.",
