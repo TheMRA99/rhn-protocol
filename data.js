@@ -171,12 +171,10 @@ const DATA = {
           ]
         },
         {
-          title: "Conditioning · 2 rounds, minimal rest",
+          title: "Conditioning",
           exercises: [
             { name: "KB Swings", sets: 2, reps: "15", note: "Hinge, not squat" },
-            { name: "Explosive Push-Ups", sets: 2, reps: "10", note: "", inputMode: "bodyweight_reps" },
-            { name: "Jump Squats", sets: 2, reps: "10", note: "", inputMode: "bodyweight_reps" },
-            { name: "Hanging Knee Raises", sets: 2, reps: "12", note: "", inputMode: "bodyweight_reps" }
+            { name: "Hanging Knee Raises", sets: 2, reps: "12", note: "Spine-loaded core", inputMode: "bodyweight_reps" }
           ]
         },
         {
@@ -248,11 +246,11 @@ const DATA = {
     {
       id: "homecore",
       name: "Home core",
-      tagline: "Rest day · 10 min",
+      tagline: "Rest day · 12 min",
       blurb: "Optional, high ROI for the goal. Do on rest days.",
       blocks: [
         {
-          title: "Circuit",
+          title: "Core circuit",
           exercises: [
             { name: "Hollow Hold", sets: 3, reps: "20 sec", note: "Arms over, legs straight", inputMode: "time" },
             { name: "Dead Bug", sets: 3, reps: "12", note: "Opposite arm/leg", inputMode: "bodyweight_reps" },
@@ -260,6 +258,13 @@ const DATA = {
             { name: "Plank Reach-Out", sets: 3, reps: "8/side", note: "Don't rotate hips", inputMode: "bodyweight_reps" },
             { name: "Superman Hold", sets: 3, reps: "20 sec", note: "Lower back + glutes", inputMode: "time" },
             { name: "Push-Ups", sets: 3, reps: "20", note: "", inputMode: "bodyweight_reps" }
+          ]
+        },
+        {
+          title: "Power · explosive",
+          exercises: [
+            { name: "Explosive Push-Ups", sets: 2, reps: "10", note: "Drive hands off the floor", inputMode: "bodyweight_reps" },
+            { name: "Jump Squats", sets: 2, reps: "10", note: "Land soft, reset, jump", inputMode: "bodyweight_reps" }
           ]
         }
       ]
