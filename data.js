@@ -249,8 +249,8 @@ const DATA = {
     {
       id: "homecore",
       name: "Home core",
-      tagline: "Rest day · 18 min",
-      blurb: "Optional, high ROI for the goal. Do on rest days. Skip the KB finisher if zonked.",
+      tagline: "Compulsory · 18 min",
+      blurb: "Mandatory rest-day work. Core circuit + power at home; KB Swings at the gym. No skipping.",
       blocks: [
         {
           title: "Core circuit",
@@ -271,9 +271,9 @@ const DATA = {
           ]
         },
         {
-          title: "Fat-burn finisher · optional",
+          title: "Gym · KB finisher",
           exercises: [
-            { name: "KB Swings · intervals", sets: 6, reps: "30s on / 30s off", note: "20kg max — push max reps per round (aim 22+). Rounds 4–6 single-arm alternating for harder progression. Skip on tired days." }
+            { name: "KB Swings · intervals", sets: 6, reps: "30s on / 30s off", note: "Do this at the gym · 20kg max. Push max reps per round (aim 22+). Rounds 4–6 single-arm alternating." }
           ]
         }
       ]
