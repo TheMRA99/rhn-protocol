@@ -247,7 +247,7 @@ const DATA = {
         {
           title: "Fat-burn finisher",
           exercises: [
-            { name: "Assault Bike · intervals", sets: 1, reps: "5 min", note: "30s hard / 30s easy × 5 · sub KB swings or rower if no bike", inputMode: "time_speed" }
+            { name: "Rower · intervals", sets: 1, reps: "5 min", note: "30s hard / 30s easy × 5 · sub heavy KB swings or treadmill sprints if no rower", inputMode: "time_speed" }
           ]
         }
       ]
