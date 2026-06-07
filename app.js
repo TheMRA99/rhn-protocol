@@ -14,15 +14,15 @@ const defaultState = {
   stamina: {}
 };
 
-// Default workout per weekday from the protocol
+// Default workout per weekday — Sat is Day 1, then forward through the week
 const DEFAULT_WEEKDAY_WORKOUT = {
-  1: 'day1',     // Mon — back width
-  2: 'day2',     // Tue — lower posterior
-  3: 'homecore', // Wed — rest / home core
+  6: 'day1',     // Sat — back width + side delts
+  0: 'day2',     // Sun — lower posterior + core
+  1: 'day3',     // Mon — chest + shoulders + arms
+  2: 'day4',     // Tue — power + conditioning
+  3: 'day5',     // Wed — pump upper volume
   4: 'homecore', // Thu — rest / home core
-  5: 'day3',     // Fri — chest+shoulders
-  6: 'day4',     // Sat — power
-  0: 'homecore'  // Sun — rest / home core
+  5: 'homecore'  // Fri — rest / home core
 };
 
 let state = load();
