@@ -247,7 +247,7 @@ const DATA = {
         {
           title: "Fat-burn finisher",
           exercises: [
-            { name: "Heavy KB Swings · intervals", sets: 5, reps: "30s on / 30s off", note: "Heaviest KB you can hinge clean · explosive hips, no quarter-squatting" }
+            { name: "KB Swings · intervals", sets: 6, reps: "30s on / 30s off", note: "20kg max at your gym — push for max reps each round (aim 22+). When it gets easy, switch to single-arm alternating for the second 3 rounds." }
           ]
         }
       ]
