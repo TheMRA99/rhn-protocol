@@ -8,10 +8,10 @@
   --line: #424256;
   --line-bright: #555570;
 
-  /* text */
-  --text: #F2F4FA;
-  --text-dim: #9098AC;
-  --text-faint: #5F6885;
+  /* text — high contrast so it reads at LOW screen brightness */
+  --text: #FCFDFF;
+  --text-dim: #C2C7D4;
+  --text-faint: #888FA3;
 
   /* Spider-Verse / Bat Cave neon set */
   --wine: #C8334B;          /* primary · saturated wine, pops on neutral bg */
@@ -504,7 +504,7 @@ main {
   font-size: 13px;
   color: var(--text-dim);
   margin-top: 2px;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0;
 }
 .check-spec {
@@ -549,7 +549,7 @@ main {
   font-size: 13px;
   color: var(--text-dim);
   margin-top: 2px;
-  font-weight: 400;
+  font-weight: 500;
 }
 .info-spec {
   flex: 0 0 auto;
@@ -836,7 +836,7 @@ main {
   font-size: 13px;
   color: var(--text-dim);
   margin-top: 4px;
-  font-weight: 400;
+  font-weight: 500;
 }
 .set-rows {
   display: flex;

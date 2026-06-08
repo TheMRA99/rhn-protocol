@@ -1164,7 +1164,7 @@ function applyTheme(theme) {
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute('content', isLight ? '#ECEAE3' : '#18181F');
 }
-applyTheme(localStorage.getItem(THEME_KEY) || 'light');
+applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
 document.getElementById('themeToggle')?.addEventListener('click', () => {
   const next = document.documentElement.classList.contains('light') ? 'dark' : 'light';
   localStorage.setItem(THEME_KEY, next);
