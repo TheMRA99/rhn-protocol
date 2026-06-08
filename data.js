@@ -151,7 +151,7 @@ const DATA = {
         {
           title: "Core",
           exercises: [
-            { name: "Cable Crunch", sets: 2, reps: "12", note: "Controlled, round spine" },
+            { name: "Cable Crunch", sets: 2, reps: "15–20", note: "Lighter load, higher reps. Breathe OUT on the way down — never hold your breath (that's the cramp). Stop if it seizes." },
             { name: "Stairmaster · intervals", sets: 1, reps: "30s hard / 60s easy × 6", note: "Log the level you held on the hard bouts + rounds done", inputMode: "interval" }
           ]
         }
