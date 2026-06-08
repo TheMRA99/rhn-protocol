@@ -737,6 +737,18 @@ main {
   box-shadow: 0 0 18px rgba(224,73,102,0.45);
 }
 .timed-go:active { transform: scale(0.97); }
+
+/* Per-set note indicator (long-press / right-click to add) */
+.set-input, .ms-set { position: relative; }
+.set-input.has-note::after, .ms-set.has-note::after {
+  content: '✎';
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  font-size: 10px;
+  color: var(--wine-bright);
+  line-height: 1;
+}
 .exercise {
   padding: 16px 22px;
   border-bottom: 1px solid var(--line);
@@ -1401,6 +1413,11 @@ main {
 .history-detail .det-sets {
   color: var(--cobalt-bright);
   margin-top: 3px;
+}
+.history-detail .det-note {
+  color: var(--wine-bright);
+  margin-top: 3px;
+  font-style: italic;
 }
 
 /* Add a bit of padding-bottom when rest bar is showing so content isn't hidden */

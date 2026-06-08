@@ -781,6 +781,42 @@ function renderWorkout() {
 
   refreshActiveExercise();
 
+  // Per-set notes — long-press (mobile) or right-click (desktop), zero clutter
+  list.querySelectorAll('.set-input, .ms-set').forEach(row => {
+    const exKey = row.dataset.ex;
+    const setIdx = +row.dataset.set;
+    const openNote = (e) => {
+      e.preventDefault();
+      const sd = state.setLog[dKey]?.[id]?.[exKey]?.[setIdx];
+      const current = sd?.note || '';
+      const note = window.prompt('Note for this set (e.g. felt strong, form broke):', current);
+      if (note === null) return;
+      if (!state.setLog[dKey]) state.setLog[dKey] = {};
+      if (!state.setLog[dKey][id]) state.setLog[dKey][id] = {};
+      if (!state.setLog[dKey][id][exKey]) state.setLog[dKey][id][exKey] = [];
+      if (!state.setLog[dKey][id][exKey][setIdx]) state.setLog[dKey][id][exKey][setIdx] = {};
+      const trimmed = note.trim();
+      state.setLog[dKey][id][exKey][setIdx].note = trimmed;
+      row.classList.toggle('has-note', !!trimmed);
+      row.title = trimmed || '';
+      save();
+    };
+    // right-click (desktop)
+    row.addEventListener('contextmenu', openNote);
+    // long-press (mobile)
+    let pressTimer = null;
+    row.addEventListener('touchstart', (e) => {
+      if (e.target.tagName === 'INPUT') return; // don't hijack typing
+      pressTimer = setTimeout(() => openNote(e), 550);
+    }, { passive: true });
+    ['touchend', 'touchmove', 'touchcancel'].forEach(evt =>
+      row.addEventListener(evt, () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } }, { passive: true })
+    );
+    // initial dot state
+    const sd = state.setLog[dKey]?.[id]?.[exKey]?.[setIdx];
+    if (sd?.note) { row.classList.add('has-note'); row.title = sd.note; }
+  });
+
   // Timed-set buttons (1-min arm finisher, etc.)
   list.querySelectorAll('.timed-go').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -955,11 +991,15 @@ function buildHistoryDetail(session) {
         if (mode === 'time_speed') return `${s.min || '–'}min·${s.spm || '–'}spm`;
         if (mode === 'treadmill') return `${s.min || '–'}min·${s.kmh || '–'}km/h·${s.incline || '–'}%`;
         if (mode === 'interval') return `lvl ${s.level || '–'} · ${s.rounds || '–'} rds`;
+        if (mode === 'cardio') return `${s.min || '–'}min · lvl ${s.level || '–'}`;
         return `${s.kg || '–'}kg × ${s.reps || '–'}`;
       }).join('  ·  ');
+      const notes = done.filter(s => s.note).map(s => s.note);
+      const noteHTML = notes.length ? `<div class="det-note">✎ ${notes.join(' · ')}</div>` : '';
       return `<div class="det-ex">
         <div class="det-ex-name">${ex.name}</div>
         <div class="det-sets">${summary}</div>
+        ${noteHTML}
       </div>`;
     }).filter(Boolean).join('');
     if (!exHTML) return '';
