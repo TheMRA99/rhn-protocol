@@ -179,6 +179,12 @@ function inputFieldsForMode(mode) {
         { key: 'min', label: 'min', width: 50, inputmode: 'decimal' },
         { key: 'spm', label: 'spm', width: 56, inputmode: 'numeric' }
       ];
+    case 'treadmill':
+      return [
+        { key: 'min', label: 'min', width: 44, inputmode: 'decimal' },
+        { key: 'kmh', label: 'km/h', width: 48, inputmode: 'decimal' },
+        { key: 'incline', label: '%inc', width: 44, inputmode: 'decimal' }
+      ];
     case 'weight_reps':
     default:
       return [
@@ -186,6 +192,19 @@ function inputFieldsForMode(mode) {
         { key: 'reps', label: 'rep', width: 48, inputmode: 'numeric' }
       ];
   }
+}
+
+function placeholderFor(field, ex, mode) {
+  const repsSpec = (ex.reps || '').toLowerCase();
+  const isPerSide = /\/side/.test(repsSpec);
+  const isFailure = /failure/i.test(repsSpec);
+  if (field.key === 'reps') {
+    if (isFailure) return 'max';
+    if (isPerSide) return 'r/side';
+    return field.label;
+  }
+  if (field.key === 'sec' && isPerSide) return 's/side';
+  return field.label;
 }
 
 /**
@@ -322,7 +341,7 @@ function restDurationFor(ex) {
   return 60;
 }
 
-function startRestTimer(seconds) {
+function startRestTimer(seconds, label = 'Rest') {
   cancelRestTimer();
   _restTotal = seconds;
   _restRemaining = seconds;
@@ -331,6 +350,8 @@ function startRestTimer(seconds) {
   bar.hidden = false;
   bar.classList.remove('done');
   document.body.classList.add('rest-active');
+  const labelEl = document.querySelector('.rest-bar-label');
+  if (labelEl) labelEl.textContent = label;
   updateRestBar();
   _restHandle = setInterval(() => {
     _restRemaining -= 1;
@@ -528,7 +549,12 @@ function renderWorkout() {
   const list = document.getElementById('exerciseList');
   let totalSets = 0, doneSets = 0;
   list.innerHTML = w.blocks.map(block => `
-    <div class="block-title">${block.title}</div>
+    <section class="exercise-block">
+      <button type="button" class="block-title">
+        <span class="block-title-text">${block.title}</span>
+        <span class="block-toggle" aria-hidden="true"></span>
+      </button>
+      <div class="exercise-block-body">
     ${block.exercises.map((ex, exIdx) => {
       const exKey = `${block.title}::${exIdx}`;
       const exLog = log[exKey] || [];
@@ -578,10 +604,13 @@ function renderWorkout() {
           if (setData.done) doneSets += 1;
           const innerHTML = fields.map((f, fi) => {
             const sep = fi > 0 ? '<span>×</span>' : '';
-            let ph = f.label;
+            let ph;
             if (f.key === 'kg') {
               if (suggKg != null) ph = String(suggKg);
               else if (isBarbell) ph = 'side';
+              else ph = f.label;
+            } else {
+              ph = placeholderFor(f, ex, mode);
             }
             const valStr = setData[f.key] ?? '';
             let extra = '';
@@ -590,10 +619,12 @@ function renderWorkout() {
             }
             return `${sep}<input type="number" placeholder="${ph}" value="${valStr}" data-field="${f.key}" inputmode="${f.inputmode}" style="width:${f.width}px" />${extra}`;
           }).join('');
+          const timedBtn = ex.timed ? `<button class="timed-go" type="button" data-secs="${ex.timed}">▶ ${ex.timed}s</button>` : '';
           setRows += `
             <div class="set-input ${setData.done ? 'done' : ''}" data-ex="${exKey}" data-set="${s}" data-mode="${mode}"${isBarbell ? ` data-barbell="1" data-bar="${barWeight}"` : ''}>
               <span>S${s + 1}</span>
               ${innerHTML}
+              ${timedBtn}
             </div>
           `;
         }
@@ -615,7 +646,16 @@ function renderWorkout() {
         </div>
       `;
     }).join('')}
+      </div>
+    </section>
   `).join('');
+
+  // Block collapse/expand toggle
+  list.querySelectorAll('.exercise-block .block-title').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.closest('.exercise-block').classList.toggle('collapsed');
+    });
+  });
 
   renderSessionProgress(doneSets, totalSets);
 
@@ -664,28 +704,46 @@ function renderWorkout() {
         }
       });
 
-      // On blur (change), auto-fill kg from S1 to subsequent empty sets
+      // On blur (change), auto-fill kg into related fields
       input.addEventListener('change', () => {
         const field = input.dataset.field;
-        if (field !== 'kg' || setIdx !== 0 || !input.value) return;
+        if (field !== 'kg' || !input.value) return;
         const exLog = state.setLog[dKey]?.[id]?.[exKey];
         if (!exLog) return;
         if (mode === 'multistage') {
           const stageEl = input.closest('.ms-stage');
           if (!stageEl) return;
-          const stageIdx = stageEl.dataset.stage;
+          const stageIdx = +stageEl.dataset.stage;
           const stageKey = `stage${stageIdx}`;
-          for (let s = 1; s < ex.sets; s++) {
-            if (!exLog[s]) exLog[s] = {};
-            if (!exLog[s][stageKey]) exLog[s][stageKey] = {};
-            if (!exLog[s][stageKey].kg) {
-              exLog[s][stageKey].kg = input.value;
-              const tRow = list.querySelector(`.ms-set[data-ex="${CSS.escape(exKey)}"][data-set="${s}"]`);
-              const tIn = tRow?.querySelector(`.ms-stage[data-stage="${stageIdx}"] input[data-field="kg"]`);
-              if (tIn && !tIn.value) tIn.value = input.value;
+
+          // Within-set R→L autofill: even stage → next (odd) stage in same set
+          if (stageIdx % 2 === 0 && ex.stages && ex.stages[stageIdx + 1]) {
+            const nextKey = `stage${stageIdx + 1}`;
+            if (!exLog[setIdx]) exLog[setIdx] = {};
+            if (!exLog[setIdx][nextKey]) exLog[setIdx][nextKey] = {};
+            if (!exLog[setIdx][nextKey].kg) {
+              exLog[setIdx][nextKey].kg = input.value;
+              const nextEl = row.querySelector(`.ms-stage[data-stage="${stageIdx + 1}"]`);
+              const nextIn = nextEl?.querySelector('input[data-field="kg"]');
+              if (nextIn && !nextIn.value) nextIn.value = input.value;
+            }
+          }
+
+          // Cross-set autofill: only triggered from S0
+          if (setIdx === 0) {
+            for (let s = 1; s < ex.sets; s++) {
+              if (!exLog[s]) exLog[s] = {};
+              if (!exLog[s][stageKey]) exLog[s][stageKey] = {};
+              if (!exLog[s][stageKey].kg) {
+                exLog[s][stageKey].kg = input.value;
+                const tRow = list.querySelector(`.ms-set[data-ex="${CSS.escape(exKey)}"][data-set="${s}"]`);
+                const tIn = tRow?.querySelector(`.ms-stage[data-stage="${stageIdx}"] input[data-field="kg"]`);
+                if (tIn && !tIn.value) tIn.value = input.value;
+              }
             }
           }
         } else {
+          if (setIdx !== 0) return;
           for (let s = 1; s < ex.sets; s++) {
             if (!exLog[s]) exLog[s] = {};
             if (!exLog[s].kg) {
@@ -706,6 +764,15 @@ function renderWorkout() {
   });
 
   refreshActiveExercise();
+
+  // Timed-set buttons (1-min arm finisher, etc.)
+  list.querySelectorAll('.timed-go').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const secs = +btn.dataset.secs;
+      startRestTimer(secs, 'Go');
+    });
+  });
 
   const btn = document.getElementById('finishWorkoutBtn');
   const isLogged = state.sessions.some(s => s.date === dKey && s.workoutId === id);

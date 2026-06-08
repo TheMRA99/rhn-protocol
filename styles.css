@@ -666,7 +666,54 @@ main {
   text-transform: uppercase;
   border-bottom: 1px solid var(--line);
   background: var(--bg-2);
+  /* button-as-block-header */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  cursor: pointer;
+  text-align: left;
+  user-select: none;
+  font-family: 'Manrope', system-ui, sans-serif;
 }
+.block-title:hover { background: var(--bg-3); }
+.block-title-text { flex: 1; }
+.block-toggle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: var(--wine);
+  font-weight: 700;
+  margin-left: 12px;
+  transition: transform 0.2s ease;
+}
+.block-toggle::before { content: '−'; }
+.exercise-block.collapsed .block-toggle::before { content: '+'; }
+.exercise-block.collapsed .exercise-block-body { display: none; }
+
+/* Timed-set button (1-min arm finisher) */
+.timed-go {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 6px 12px;
+  margin-left: 8px;
+  background: var(--wine);
+  color: var(--text);
+  border-radius: 8px;
+  border: 1px solid var(--wine-bright);
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(200,51,75,0.25);
+  transition: background 0.18s, box-shadow 0.18s;
+}
+.timed-go:hover {
+  background: var(--wine-bright);
+  box-shadow: 0 0 18px rgba(224,73,102,0.45);
+}
+.timed-go:active { transform: scale(0.97); }
 .exercise {
   padding: 16px 22px;
   border-bottom: 1px solid var(--line);

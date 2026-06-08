@@ -41,7 +41,7 @@ const DATA = {
         {
           title: "Lifts",
           exercises: [
-            { name: "Assisted Pull-Up (wide grip)", sets: 2, reps: "6–8", note: "1–2 reps in tank" },
+            { name: "Assisted Pull-Up (wide grip)", sets: 2, reps: "6–8", note: "1–2 reps in tank · log reps achieved", inputMode: "bodyweight_reps" },
             { name: "Chest-Supported Row", sets: 2, reps: "8–10", note: "Drive elbows back" },
             { name: "Pendlay Row", sets: 2, reps: "5", note: "Dead-stop on floor each rep · pull explosive to lower chest", barbell: true },
             { name: "Wide-Grip Lat Pulldown", sets: 3, reps: "10–12", note: "Lats, not arms" },
@@ -89,7 +89,7 @@ const DATA = {
             { name: "Hip Abduction & Adduction", sets: 2, reps: "15", note: "Glute medius + adductors" },
             { name: "Single-Leg Calf Raise", sets: 2, reps: "12/side", note: "Achilles prehab", inputMode: "bodyweight_reps" },
             { name: "Dead Bug", sets: 2, reps: "12", note: "Slow, anti-extension", inputMode: "bodyweight_reps" },
-            { name: "Incline Walk", sets: 1, reps: "15 min", note: "Easy pace, recovery", inputMode: "time_speed" }
+            { name: "Incline Walk", sets: 1, reps: "15 min", note: "Easy pace · log min, km/h, incline%", inputMode: "treadmill" }
           ]
         }
       ]
@@ -122,11 +122,11 @@ const DATA = {
           ]
         },
         {
-          title: "5-Min Arm Finisher · 1 min each, no rest",
+          title: "Arm Finisher · 1 min each, no rest",
           exercises: [
-            { name: "DB Wide Curl", sets: 1, reps: "1 min", note: "" },
-            { name: "Hammer Curl", sets: 1, reps: "1 min", note: "" },
-            { name: "Straight Curl", sets: 1, reps: "1 min", note: "" }
+            { name: "DB Wide Curl", sets: 1, reps: "1 min · max reps", note: "Tap timer when you start", timed: 60 },
+            { name: "Hammer Curl", sets: 1, reps: "1 min · max reps", note: "Tap timer when you start", timed: 60 },
+            { name: "Straight Curl", sets: 1, reps: "1 min · max reps", note: "Tap timer when you start", timed: 60 }
           ]
         },
         {
@@ -168,7 +168,7 @@ const DATA = {
           exercises: [
             { name: "Power Clean", sets: 3, reps: "3", note: "Floor → shoulders, explosive · the carry-prep lift", barbell: true },
             { name: "Barbell Deadlift", sets: 3, reps: "5", note: "Brace hard, stay tight", barbell: true },
-            { name: "Front Squat (or Goblet)", sets: 3, reps: "6–8", note: "Upright torso" },
+            { name: "Front Squat", sets: 3, reps: "6–8", note: "Upright torso · sub goblet at total kg if no rack", barbell: true },
             { name: "Push Press", sets: 3, reps: "5", note: "Leg dip → drive overhead", barbell: true },
             { name: "Hamstring Curl", sets: 3, reps: "12", note: "Slow negative" }
           ]
