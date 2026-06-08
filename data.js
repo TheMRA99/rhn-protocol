@@ -189,7 +189,7 @@ const DATA = {
         {
           title: "Finish",
           exercises: [
-            { name: "Stairmaster · moderate", sets: 1, reps: "8 min", note: "Cool down", inputMode: "time_speed" }
+            { name: "Stairmaster · moderate", sets: 1, reps: "8 min", note: "Cool down · log minutes + level", inputMode: "cardio" }
           ]
         }
       ]
@@ -273,7 +273,7 @@ const DATA = {
         {
           title: "Gym · KB finisher",
           exercises: [
-            { name: "KB Swings · intervals", sets: 6, reps: "30s on / 30s off", note: "Do this at the gym · 20kg max. Push max reps per round (aim 22+). Rounds 4–6 single-arm alternating." }
+            { name: "KB Swings · intervals", sets: 6, reps: "30s on / 30s off", note: "Do this at the gym · 20kg max. Tap timer for the 30s on. Push max reps (aim 22+). Rounds 4–6 single-arm alternating.", timed: 30 }
           ]
         }
       ]

@@ -190,6 +190,11 @@ function inputFieldsForMode(mode) {
         { key: 'level', label: 'level', width: 54, inputmode: 'numeric' },
         { key: 'rounds', label: 'rds', width: 48, inputmode: 'numeric' }
       ];
+    case 'cardio':
+      return [
+        { key: 'min', label: 'min', width: 50, inputmode: 'decimal' },
+        { key: 'level', label: 'level', width: 54, inputmode: 'numeric' }
+      ];
     case 'weight_reps':
     default:
       return [
@@ -247,6 +252,12 @@ function formatPrev(set, mode, ex) {
       return `${set.sec || '–'} s`;
     case 'time_speed':
       return `${set.min || '–'} min · ${set.spm || '–'} spm`;
+    case 'treadmill':
+      return `${set.min || '–'} min · ${set.kmh || '–'} km/h · ${set.incline || '–'}%`;
+    case 'interval':
+      return `lvl ${set.level || '–'} · ${set.rounds || '–'} rds`;
+    case 'cardio':
+      return `${set.min || '–'} min · lvl ${set.level || '–'}`;
     case 'multistage': {
       // pull stage0 as the headline
       const s0 = set.stage0;
