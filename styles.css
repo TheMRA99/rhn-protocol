@@ -64,6 +64,34 @@
   --red: var(--rust);
 }
 
+/* ===== LIGHT THEME (default) — legible in a bright office, no brightness cranking ===== */
+:root.light {
+  --bg: #ECEAE3;          /* warm off-white canvas */
+  --bg-1: #FFFFFF;        /* card surface — clean white */
+  --bg-2: #F4F2EC;        /* subtle raised */
+  --bg-3: #E7E4DB;
+  --line: #D8D4CA;
+  --line-bright: #C2BDB1;
+
+  --text: #1B1B22;        /* near-black ink */
+  --text-dim: #6A655C;
+  --text-faint: #9C968B;
+
+  --wine: #B02A42;        /* deeper for contrast on light */
+  --wine-bright: #C8334B;
+  --wine-dim: #8A1F33;
+
+  --cobalt: #5A5F75;
+  --cobalt-bright: #474C60;
+  --cobalt-dim: #6E7388;
+
+  --crimson: #C81824;
+  --crimson-bright: #E11D2C;
+  --crimson-dim: #9A1422;
+
+  --shadow: 0 8px 28px rgba(40,30,30,0.12);
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
@@ -102,6 +130,36 @@ body::after {
   pointer-events: none;
   z-index: 0;
 }
+/* Light theme: kill the dark moodlight, soften the dots to a faint warm tint */
+:root.light body::before { opacity: 0.5; background-image: radial-gradient(rgba(176,42,66,0.06) 1px, transparent 1.4px); }
+:root.light body::after {
+  background:
+    radial-gradient(ellipse 90% 60% at 0% 0%, rgba(176,42,66,0.05), transparent 60%),
+    radial-gradient(ellipse 70% 55% at 100% 100%, rgba(160,69,90,0.04), transparent 65%);
+}
+/* Light theme: flip the hardcoded translucent dark surfaces */
+:root.light .topbar { background: rgba(236,234,227,0.88); }
+:root.light .tabs { background: rgba(236,234,227,0.88); }
+:root.light .rest-bar { background: rgba(255,255,255,0.94); }
+
+/* Theme toggle button in the topbar */
+.theme-toggle {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line-bright);
+  background: var(--bg-2);
+  color: var(--text-dim);
+  font-size: 15px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.theme-toggle:hover { color: var(--wine-bright); border-color: var(--wine); }
+.theme-toggle:active { transform: scale(0.94); }
 
 button, input { font-family: inherit; }
 button { cursor: pointer; border: none; background: none; color: inherit; }

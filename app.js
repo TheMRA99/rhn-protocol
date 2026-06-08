@@ -1154,6 +1154,23 @@ function renderAll() {
 state.selectedWorkout = getSelectedWorkoutForToday();
 save();
 
+// ===== THEME (light default) =====
+const THEME_KEY = 'rhn-theme';
+function applyTheme(theme) {
+  const isLight = theme !== 'dark';
+  document.documentElement.classList.toggle('light', isLight);
+  const btn = document.getElementById('themeToggle');
+  if (btn) btn.textContent = isLight ? '☾' : '☀';
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', isLight ? '#ECEAE3' : '#18181F');
+}
+applyTheme(localStorage.getItem(THEME_KEY) || 'light');
+document.getElementById('themeToggle')?.addEventListener('click', () => {
+  const next = document.documentElement.classList.contains('light') ? 'dark' : 'light';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+});
+
 // Rest-timer button wiring
 document.getElementById('restSkip')?.addEventListener('click', cancelRestTimer);
 document.getElementById('restPlus')?.addEventListener('click', () => adjustRestTimer(15));
