@@ -693,6 +693,29 @@ main {
 .exercise-block.collapsed .block-toggle::before { content: '+'; }
 .exercise-block.collapsed .exercise-block-body { display: none; }
 
+/* Collapsible info cards (Today tab) */
+.card-collapsible .card-header {
+  cursor: pointer;
+  user-select: none;
+  padding-right: 48px;
+  position: relative;
+}
+.card-collapsible .card-header:hover { background: var(--bg-2); }
+.card-toggle {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--wine);
+  line-height: 1;
+}
+.card-toggle::before { content: '−'; }
+.card-collapsible.collapsed .card-toggle::before { content: '+'; }
+.card-collapsible.collapsed > *:not(.card-header) { display: none; }
+
 /* Timed-set button (1-min arm finisher) */
 .timed-go {
   font-family: 'Manrope', system-ui, sans-serif;

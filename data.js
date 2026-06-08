@@ -152,7 +152,7 @@ const DATA = {
           title: "Core",
           exercises: [
             { name: "Cable Crunch", sets: 2, reps: "12", note: "Controlled, round spine" },
-            { name: "Stairmaster · intervals", sets: 1, reps: "10 min", note: "30s hard / 60s easy × 6 rounds · same time, way more burn", inputMode: "time_speed" }
+            { name: "Stairmaster · intervals", sets: 1, reps: "30s hard / 60s easy × 6", note: "Log the level you held on the hard bouts + rounds done", inputMode: "interval" }
           ]
         }
       ]

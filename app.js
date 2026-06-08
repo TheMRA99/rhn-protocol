@@ -185,6 +185,11 @@ function inputFieldsForMode(mode) {
         { key: 'kmh', label: 'km/h', width: 48, inputmode: 'decimal' },
         { key: 'incline', label: '%inc', width: 44, inputmode: 'decimal' }
       ];
+    case 'interval':
+      return [
+        { key: 'level', label: 'level', width: 54, inputmode: 'numeric' },
+        { key: 'rounds', label: 'rds', width: 48, inputmode: 'numeric' }
+      ];
     case 'weight_reps':
     default:
       return [
@@ -937,6 +942,8 @@ function buildHistoryDetail(session) {
         if (mode === 'bodyweight_reps') return `${s.reps || '–'} reps`;
         if (mode === 'time') return `${s.sec || '–'}s`;
         if (mode === 'time_speed') return `${s.min || '–'}min·${s.spm || '–'}spm`;
+        if (mode === 'treadmill') return `${s.min || '–'}min·${s.kmh || '–'}km/h·${s.incline || '–'}%`;
+        if (mode === 'interval') return `lvl ${s.level || '–'} · ${s.rounds || '–'} rds`;
         return `${s.kg || '–'}kg × ${s.reps || '–'}`;
       }).join('  ·  ');
       return `<div class="det-ex">
@@ -1100,5 +1107,12 @@ save();
 document.getElementById('restSkip')?.addEventListener('click', cancelRestTimer);
 document.getElementById('restPlus')?.addEventListener('click', () => adjustRestTimer(15));
 document.getElementById('restMinus')?.addEventListener('click', () => adjustRestTimer(-15));
+
+// Collapsible info cards (Morning ritual, Stamina, Daily)
+document.querySelectorAll('.card-collapsible .card-header').forEach(header => {
+  header.addEventListener('click', () => {
+    header.closest('.card-collapsible').classList.toggle('collapsed');
+  });
+});
 
 renderAll();

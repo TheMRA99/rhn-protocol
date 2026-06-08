@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=18" />
+<link rel="stylesheet" href="styles.css?v=19" />
 </head>
 <body>
 <header class="topbar">
@@ -58,10 +58,11 @@
       <div class="day-picker" id="dayPicker"></div>
     </div>
 
-    <section class="card">
+    <section class="card card-collapsible">
       <header class="card-header">
         <h2><span class="num">01</span>Morning ritual</h2>
         <span class="card-meta">6 min · daily</span>
+        <span class="card-toggle" aria-hidden="true"></span>
       </header>
       <div id="ritualList" class="info-list"></div>
     </section>
@@ -82,18 +83,20 @@
       <button class="btn-primary" id="finishWorkoutBtn">Mark session complete</button>
     </section>
 
-    <section class="card">
+    <section class="card card-collapsible">
       <header class="card-header">
         <h2><span class="num">03</span>Stamina protocol</h2>
         <span class="card-meta">2 min · AM / PM</span>
+        <span class="card-toggle" aria-hidden="true"></span>
       </header>
       <div id="staminaList" class="info-list"></div>
     </section>
 
-    <section class="card">
+    <section class="card card-collapsible">
       <header class="card-header">
         <h2><span class="num">04</span>Daily non-negotiables</h2>
         <span class="card-meta">Every day</span>
+        <span class="card-toggle" aria-hidden="true"></span>
       </header>
       <div id="dailyList" class="info-list"></div>
     </section>
@@ -270,7 +273,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=20"></script>
-<script src="app.js?v=15"></script>
+<script src="data.js?v=21"></script>
+<script src="app.js?v=16"></script>
 </body>
 </html>
