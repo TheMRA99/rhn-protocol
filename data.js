@@ -244,12 +244,19 @@ const DATA = {
             { name: "Seated Hammer Curl · mid hold", sets: 2, reps: "to failure", note: "Brachialis · forearm" }
           ]
         },
+        {
+          title: "Core",
+          exercises: [
+            { name: "V-Ups", sets: 2, reps: "10–12", note: "Reach for your toes · breathe OUT on the way up", inputMode: "bodyweight_reps" },
+            { name: "Russian Twist · medicine ball", sets: 2, reps: "12/side", note: "Feet up = harder · exhale on each twist · log ball kg" }
+          ]
+        }
       ]
     },
     {
       id: "homecore",
       name: "Home core",
-      tagline: "Compulsory · 18 min",
+      tagline: "Compulsory · 20 min",
       blurb: "Mandatory rest-day work. Core circuit + power at home; KB Swings at the gym. No skipping.",
       blocks: [
         {
@@ -257,6 +264,8 @@ const DATA = {
           exercises: [
             { name: "Hollow Hold", sets: 3, reps: "20 sec", note: "Arms over, legs straight", inputMode: "time" },
             { name: "Dead Bug", sets: 3, reps: "12", note: "Opposite arm/leg", inputMode: "bodyweight_reps" },
+            { name: "Crunches", sets: 2, reps: "15–20", note: "Slow · breathe OUT as you curl up", inputMode: "bodyweight_reps" },
+            { name: "Knee Tucks", sets: 2, reps: "12–15", note: "Seated · pull knees to chest, exhale", inputMode: "bodyweight_reps" },
             { name: "Side Plank", sets: 3, reps: "30 sec/side", note: "Hips high", inputMode: "time" },
             { name: "Plank Reach-Out", sets: 3, reps: "8/side", note: "Don't rotate hips", inputMode: "bodyweight_reps" },
             { name: "Superman Hold", sets: 3, reps: "20 sec", note: "Lower back + glutes", inputMode: "time" },
