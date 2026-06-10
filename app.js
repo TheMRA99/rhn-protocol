@@ -337,6 +337,22 @@ let _restHandle = null;
 let _restRemaining = 0;
 let _restTotal = 0;
 
+// Screen Wake Lock — keep the display on while a timer runs (HTTPS only)
+let _wakeLock = null;
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator) _wakeLock = await navigator.wakeLock.request('screen');
+  } catch (e) { /* unsupported or denied — fail silently */ }
+}
+function releaseWakeLock() {
+  try { _wakeLock?.release(); } catch (e) {}
+  _wakeLock = null;
+}
+// Re-acquire if the user tabs away and back while a timer is still running
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && _restHandle && !_wakeLock) requestWakeLock();
+});
+
 function restDurationFor(ex) {
   if (!ex) return 60;
   const mode = ex.inputMode;
@@ -366,6 +382,7 @@ function startRestTimer(seconds, label = 'Rest') {
   bar.hidden = false;
   bar.classList.remove('done');
   document.body.classList.add('rest-active');
+  requestWakeLock();
   const labelEl = document.querySelector('.rest-bar-label');
   if (labelEl) labelEl.textContent = label;
   updateRestBar();
@@ -379,6 +396,7 @@ function startRestTimer(seconds, label = 'Rest') {
 function cancelRestTimer() {
   if (_restHandle) clearInterval(_restHandle);
   _restHandle = null;
+  releaseWakeLock();
   const bar = document.getElementById('restBar');
   if (bar) bar.hidden = true;
   document.body.classList.remove('rest-active');
@@ -387,6 +405,7 @@ function cancelRestTimer() {
 function finishRestTimer() {
   if (_restHandle) clearInterval(_restHandle);
   _restHandle = null;
+  releaseWakeLock();
   if (navigator.vibrate) try { navigator.vibrate([120, 60, 120]); } catch (e) {}
   const bar = document.getElementById('restBar');
   if (!bar) return;
@@ -471,6 +490,7 @@ document.querySelectorAll('.tab').forEach(btn => {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('view-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'lifts') renderLifts(); // recompute from latest logs on open
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 });
@@ -1044,6 +1064,172 @@ function renderPhases() {
   `).join('');
 }
 
+// ========== LIFTS · PROGRESSION ANALYSIS ==========
+
+/** Numeric score for a single set, used to find the best set + compare sessions. */
+function setScore(s, mode, ex) {
+  if (!s) return 0;
+  switch (mode) {
+    case 'bodyweight_reps': return parseFloat(s.reps || 0);
+    case 'time': return parseFloat(s.sec || 0);
+    case 'time_speed': return parseFloat(s.min || 0) * (parseFloat(s.spm || 0) || 1);
+    case 'treadmill': return parseFloat(s.min || 0) * (parseFloat(s.kmh || 0) || 1) * (1 + (parseFloat(s.incline || 0) || 0) / 100);
+    case 'interval': return (parseFloat(s.level || 0) || 0) * 100 + (parseFloat(s.rounds || 0) || 0);
+    case 'cardio': return (parseFloat(s.level || 0) || 0) * 100 + (parseFloat(s.min || 0) || 0);
+    case 'multistage': {
+      const s0 = s.stage0 || {};
+      return parseFloat(s0.kg || 0) * (parseFloat(s0.reps || 0) || 1);
+    }
+    default: {
+      let kg = parseFloat(s.kg || 0);
+      if (ex?.barbell && !isNaN(kg)) kg = (ex.bar || 20) + 2 * kg; // compare true bar totals
+      return kg * (parseFloat(s.reps || 0) || 1);
+    }
+  }
+}
+
+/** Best (highest-scoring) done set of a session. */
+function bestSetOf(sets, mode, ex) {
+  const done = (sets || []).filter(s => s && s.done);
+  if (!done.length) return null;
+  return done.reduce((a, b) => (setScore(b, mode, ex) > setScore(a, mode, ex) ? b : a));
+}
+
+/** Walk the whole set log → per-exercise session history, newest activity first. */
+function collectExerciseHistory() {
+  const map = new Map();
+  const dates = Object.keys(state.setLog || {}).sort();
+  for (const d of dates) {
+    const byWorkout = state.setLog[d] || {};
+    for (const wid of Object.keys(byWorkout)) {
+      const w = DATA.workouts.find(x => x.id === wid);
+      if (!w) continue;
+      for (const exKey of Object.keys(byWorkout[wid])) {
+        const ex = findExerciseByKey(w, exKey);
+        if (!ex) continue;
+        const best = bestSetOf(byWorkout[wid][exKey], ex.inputMode || 'weight_reps', ex);
+        if (!best) continue;
+        const id = wid + '::' + exKey;
+        if (!map.has(id)) map.set(id, { ex, workoutName: w.name, mode: ex.inputMode || 'weight_reps', entries: [] });
+        map.get(id).entries.push({ date: d, best, score: setScore(best, ex.inputMode || 'weight_reps', ex) });
+      }
+    }
+  }
+  return [...map.values()].sort((a, b) => b.entries.at(-1).date.localeCompare(a.entries.at(-1).date));
+}
+
+function sparklineSVG(scores) {
+  if (scores.length < 2) return '';
+  const W = 110, H = 30, P = 3;
+  const min = Math.min(...scores), max = Math.max(...scores);
+  const range = max - min || 1;
+  const step = (W - 2 * P) / (scores.length - 1);
+  const pts = scores.map((v, i) => `${(P + i * step).toFixed(1)},${(H - P - ((v - min) / range) * (H - 2 * P)).toFixed(1)}`).join(' ');
+  const last = pts.split(' ').at(-1);
+  return `<svg viewBox="0 0 ${W} ${H}" class="spark" preserveAspectRatio="none">
+    <polyline points="${pts}" fill="none" stroke="var(--wine-bright)" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="${last.split(',')[0]}" cy="${last.split(',')[1]}" r="2.5" fill="var(--crimson-bright)"/>
+  </svg>`;
+}
+
+function renderLifts() {
+  const history = collectExerciseHistory();
+
+  // ----- Overview stats -----
+  const overview = document.getElementById('liftsOverview');
+  let totalSets = 0, tonnage = 0, improving = 0, tracked = 0;
+  for (const h of history) {
+    for (const e of h.entries) totalSets += 1;
+    if (h.mode === 'weight_reps' || h.mode === 'multistage') {
+      for (const d of Object.keys(state.setLog || {})) {
+        // tonnage handled below via entries' raw sets — keep simple: use best score sum as proxy
+      }
+    }
+    if (h.entries.length >= 2) {
+      tracked += 1;
+      if (h.entries.at(-1).score > h.entries[0].score) improving += 1;
+    }
+  }
+  // True tonnage: every done weight-mode set across the log
+  for (const d of Object.keys(state.setLog || {})) {
+    for (const wid of Object.keys(state.setLog[d] || {})) {
+      const w = DATA.workouts.find(x => x.id === wid);
+      if (!w) continue;
+      for (const exKey of Object.keys(state.setLog[d][wid])) {
+        const ex = findExerciseByKey(w, exKey);
+        if (!ex) continue;
+        const mode = ex.inputMode || 'weight_reps';
+        for (const s of state.setLog[d][wid][exKey] || []) {
+          if (!s || !s.done) continue;
+          if (mode === 'weight_reps') {
+            let kg = parseFloat(s.kg || 0);
+            if (ex.barbell && !isNaN(kg)) kg = (ex.bar || 20) + 2 * kg;
+            tonnage += (kg || 0) * (parseFloat(s.reps || 0) || 0);
+          } else if (mode === 'multistage') {
+            (ex.stages || []).forEach((_, si) => {
+              const st = s[`stage${si}`] || {};
+              tonnage += (parseFloat(st.kg || 0) || 0) * (parseFloat(st.reps || 0) || 0);
+            });
+          }
+        }
+      }
+    }
+  }
+  overview.innerHTML = `
+    <div class="target-cell"><div class="target-label">Sessions</div><div class="target-value">${state.sessions.length}</div><div class="target-note">logged complete</div></div>
+    <div class="target-cell"><div class="target-label">Exercises tracked</div><div class="target-value">${history.length}</div><div class="target-note">${tracked} with 2+ sessions</div></div>
+    <div class="target-cell"><div class="target-label">Improving</div><div class="target-value">${tracked ? Math.round((improving / tracked) * 100) + '%' : '—'}</div><div class="target-note">${improving} of ${tracked} trending up</div></div>
+    <div class="target-cell"><div class="target-label">Total lifted</div><div class="target-value">${tonnage >= 1000 ? (tonnage / 1000).toFixed(1) + 't' : Math.round(tonnage) + 'kg'}</div><div class="target-note">all-time tonnage</div></div>
+  `;
+
+  // ----- Per-exercise rows -----
+  const list = document.getElementById('liftsList');
+  if (!history.length) {
+    list.innerHTML = '<div class="history-empty">Log a few sessions and your progression appears here.</div>';
+    return;
+  }
+  list.innerHTML = history.map((h, i) => {
+    const first = h.entries[0];
+    const last = h.entries.at(-1);
+    const scores = h.entries.map(e => e.score);
+    const bestEver = h.entries.reduce((a, b) => (b.score > a.score ? b : a));
+    const deltaPct = h.entries.length >= 2 && first.score > 0
+      ? Math.round(((last.score - first.score) / first.score) * 100)
+      : null;
+    const deltaHTML = deltaPct === null
+      ? `<span class="lift-delta flat">${h.entries.length} session${h.entries.length > 1 ? 's' : ''}</span>`
+      : `<span class="lift-delta ${deltaPct > 0 ? 'up' : deltaPct < 0 ? 'down' : 'flat'}">${deltaPct > 0 ? '↑' : deltaPct < 0 ? '↓' : '→'} ${Math.abs(deltaPct)}%</span>`;
+    const detail = h.entries.slice().reverse().map(e => `
+      <div class="lift-session${e === bestEver ? ' pr' : ''}">
+        <span class="lift-session-date">${fmtDate(e.date)}</span>
+        <span class="lift-session-val">${formatPrev(e.best, h.mode, h.ex)}${e === bestEver ? ' · PR' : ''}</span>
+      </div>
+    `).join('');
+    return `
+      <div class="lift-row" data-i="${i}">
+        <div class="lift-row-head">
+          <div class="lift-info">
+            <div class="lift-name">${h.ex.name}</div>
+            <div class="lift-sub">${h.workoutName} · last ${fmtDate(last.date)} · ${formatPrev(last.best, h.mode, h.ex)}</div>
+          </div>
+          ${sparklineSVG(scores)}
+          ${deltaHTML}
+        </div>
+        <div class="lift-detail">
+          <div class="lift-session header-row">
+            <span class="lift-session-date">Best ever</span>
+            <span class="lift-session-val">${formatPrev(bestEver.best, h.mode, h.ex)} · ${fmtDate(bestEver.date)}</span>
+          </div>
+          ${detail}
+        </div>
+      </div>
+    `;
+  }).join('');
+  list.querySelectorAll('.lift-row').forEach(row => {
+    row.addEventListener('click', () => row.classList.toggle('open'));
+  });
+}
+
 document.getElementById('logWeightBtn').addEventListener('click', () => {
   const input = document.getElementById('weightInput');
   const kg = parseFloat(input.value);
@@ -1145,6 +1331,7 @@ function renderAll() {
   renderHeader();
   renderToday();
   renderAllWorkouts();
+  renderLifts();
   renderProgress();
   renderNutrition();
   renderProtocol();

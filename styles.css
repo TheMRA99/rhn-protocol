@@ -796,6 +796,75 @@ main {
 }
 .timed-go:active { transform: scale(0.97); }
 
+/* ========== LIFTS · PROGRESSION ========== */
+.lift-row {
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.lift-row:last-child { border-bottom: none; }
+.lift-row:hover { background: var(--bg-2); }
+.lift-row-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.lift-info { flex: 1; min-width: 0; }
+.lift-name {
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+  color: var(--text);
+}
+.lift-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 3px;
+  letter-spacing: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.spark { width: 110px; height: 30px; flex: 0 0 auto; }
+.lift-delta {
+  flex: 0 0 auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 52px;
+  text-align: right;
+}
+.lift-delta.up { color: var(--crimson-bright); }
+.lift-delta.down { color: var(--text-dim); }
+.lift-delta.flat { color: var(--text-faint); font-weight: 500; }
+.lift-detail { display: none; margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 8px; }
+.lift-row.open .lift-detail { display: block; }
+.lift-session {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+.lift-session-date { color: var(--text-dim); }
+.lift-session-val { color: var(--text); }
+.lift-session.pr .lift-session-val { color: var(--crimson-bright); font-weight: 600; }
+.lift-session.header-row {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+}
+.lift-session.header-row .lift-session-date {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 9px;
+}
+.lift-session.header-row .lift-session-val { color: var(--wine-bright); font-weight: 600; }
+
 /* Per-set note indicator (long-press / right-click to add) */
 .set-input, .ms-set { position: relative; }
 .set-input.has-note::after, .ms-set.has-note::after {

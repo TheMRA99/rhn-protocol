@@ -197,15 +197,15 @@ const DATA = {
     {
       id: "day5",
       name: "Pump · upper volume",
-      tagline: "Failure sets. Full sleeves.",
-      blurb: "Failure-set volume across pull, push, and arms. Last day before recovery.",
+      tagline: "Volume day. Full sleeves.",
+      blurb: "Controlled volume across pull, push, and arms. Leave 1–2 reps in the tank.",
       blocks: [
         {
-          title: "Lat Pulldown · failure triset",
+          title: "Lat Pulldown · triset",
           exercises: [
-            { name: "Wide Grip Pulldown", sets: 2, reps: "to failure", note: "Outer lats" },
-            { name: "Narrow Grip Pulldown", sets: 2, reps: "to failure", note: "Inner back, biceps" },
-            { name: "Reverse Grip Pulldown", sets: 2, reps: "to failure", note: "Lower lats + biceps" }
+            { name: "Wide Grip Pulldown", sets: 2, reps: "10–12", note: "Outer lats · 1–2 in tank" },
+            { name: "Narrow Grip Pulldown", sets: 2, reps: "10–12", note: "Inner back, biceps" },
+            { name: "Reverse Grip Pulldown", sets: 2, reps: "10–12", note: "Lower lats + biceps" }
           ]
         },
         {
@@ -217,9 +217,9 @@ const DATA = {
           ]
         },
         {
-          title: "Shoulders · failure",
+          title: "Shoulders",
           exercises: [
-            { name: "Shoulder Press", sets: 2, reps: "to failure", note: "Heavy then drop" },
+            { name: "Shoulder Press", sets: 2, reps: "8–10", note: "Controlled · 1–2 in tank" },
             {
               name: "Cable Lateral Raise · drop superset",
               sets: 2,
@@ -233,21 +233,22 @@ const DATA = {
                 { label: "L · drop" }
               ]
             },
-            { name: "Reverse Delt Fly", sets: 2, reps: "to failure", note: "Squeeze rear delts" }
+            { name: "Reverse Delt Fly", sets: 2, reps: "12–15", note: "Squeeze rear delts" }
           ]
         },
         {
           title: "Arms",
           exercises: [
             { name: "Straight Bar Pushdown", sets: 2, reps: "10–12", note: "Overall tricep mass" },
-            { name: "Seated Bicep Curl · mid hold", sets: 2, reps: "to failure", note: "Hold at 90° before each rep" },
-            { name: "Seated Hammer Curl · mid hold", sets: 2, reps: "to failure", note: "Brachialis · forearm" }
+            { name: "Seated Bicep Curl · mid hold", sets: 2, reps: "8–10", note: "Hold at 90° before each rep · the hold is the work" },
+            { name: "Seated Hammer Curl · mid hold", sets: 2, reps: "8–10", note: "Brachialis · forearm" }
           ]
         },
         {
           title: "Core",
           exercises: [
             { name: "V-Ups", sets: 2, reps: "10–12", note: "Reach for your toes · breathe OUT on the way up", inputMode: "bodyweight_reps" },
+            { name: "Single-Leg V-Ups", sets: 2, reps: "8/side", note: "Alternate legs · opposite hand to raised foot · exhale up", inputMode: "bodyweight_reps" },
             { name: "Russian Twist · medicine ball", sets: 2, reps: "12/side", note: "Feet up = harder · exhale on each twist · log ball kg" }
           ]
         }
@@ -262,14 +263,12 @@ const DATA = {
         {
           title: "Core circuit",
           exercises: [
-            { name: "Hollow Hold", sets: 3, reps: "20 sec", note: "Arms over, legs straight", inputMode: "time" },
-            { name: "Dead Bug", sets: 3, reps: "12", note: "Opposite arm/leg", inputMode: "bodyweight_reps" },
+            { name: "Hollow Hold", sets: 2, reps: "20 sec", note: "Arms over, legs straight", inputMode: "time" },
+            { name: "Dead Bug", sets: 2, reps: "12", note: "Opposite arm/leg", inputMode: "bodyweight_reps" },
             { name: "Crunches", sets: 2, reps: "15–20", note: "Slow · breathe OUT as you curl up", inputMode: "bodyweight_reps" },
             { name: "Knee Tucks", sets: 2, reps: "12–15", note: "Seated · pull knees to chest, exhale", inputMode: "bodyweight_reps" },
-            { name: "Side Plank", sets: 3, reps: "30 sec/side", note: "Hips high", inputMode: "time" },
-            { name: "Plank Reach-Out", sets: 3, reps: "8/side", note: "Don't rotate hips", inputMode: "bodyweight_reps" },
-            { name: "Superman Hold", sets: 3, reps: "20 sec", note: "Lower back + glutes", inputMode: "time" },
-            { name: "Push-Ups", sets: 3, reps: "20", note: "", inputMode: "bodyweight_reps" }
+            { name: "Side Plank", sets: 2, reps: "30 sec/side", note: "Hips high", inputMode: "time" },
+            { name: "Superman Hold", sets: 2, reps: "20 sec", note: "Lower back + glutes", inputMode: "time" }
           ]
         },
         {
