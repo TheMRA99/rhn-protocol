@@ -16,6 +16,7 @@ const DATA = {
 
   daily: [
     { name: "Protein", spec: "135–150 g", note: "1.8–2 g per kg bodyweight" },
+    { name: "Fiber + veg", spec: "25–30 g", note: "Two fists of veg per meal · flattens glucose, keeps you full" },
     { name: "Water", spec: "3 L+", note: "More in SG humidity" },
     { name: "Steps", spec: "10,000–12,000", note: "NEAT — biggest fat loss lever after the deficit" },
     { name: "Sleep", spec: "7+ hrs", note: "The #1 lever for results" },
@@ -28,7 +29,9 @@ const DATA = {
   stamina: [
     { name: "AM · Kegels", spec: "10 × 5s/5s", note: "Squeeze 5s, release 5s" },
     { name: "PM · Reverse Kegels", spec: "10 × 5s/5s", note: "The one that delays finishing" },
-    { name: "PM · Box Breathing", spec: "4×4×4×4 × 4 rounds", note: "In · hold · out · hold" }
+    { name: "PM · Box Breathing", spec: "4×4×4×4 × 4 rounds", note: "In · hold · out · hold" },
+    { name: "Physiological sigh", spec: "3 reps · anytime", note: "Double inhale nose, long exhale mouth · fastest downshift — works mid-meeting, at the rack" },
+    { name: "Eyes · 20-20-20", spec: "Every 20 min", note: "Look 6m+ away for 20 sec · stack it on prayer + water breaks" }
   ],
 
   workouts: [
@@ -37,6 +40,7 @@ const DATA = {
       name: "Back width + side delts",
       tagline: "The V-taper day",
       blurb: "Every lift makes shoulders wider, waist smaller. Matters MORE at 167cm.",
+      warmup: "3 min brisk incline walk · 1 light pulldown set (half weight × 12) before working sets",
       blocks: [
         {
           title: "Lifts",
@@ -79,6 +83,7 @@ const DATA = {
       name: "Lower posterior + core",
       tagline: "Glutes, hams, taller posture",
       blurb: "Open hips = taller posture. Glute shelf makes the waist look smaller.",
+      warmup: "5 min incline walk · RDL ramp: empty bar × 8, then ~60% × 5, then working weight",
       blocks: [
         {
           title: "Lifts",
@@ -99,6 +104,7 @@ const DATA = {
       name: "Chest + shoulders + arms",
       tagline: "Fill the sleeve",
       blurb: "Dense chest, capped delts, arms that fill a sleeve, forearms under a rolled cuff.",
+      warmup: "Arm circles + 15 band pull-aparts · incline DB ramp: half weight × 10 before working sets",
       blocks: [
         {
           title: "Push",
@@ -162,6 +168,7 @@ const DATA = {
       name: "Power + conditioning",
       tagline: "Heavy. Explosive. Springy.",
       blurb: "Heavy pull, explosive work, metabolic finisher. You feel light after.",
+      warmup: "5 min easy cardio · bar-only clean drills × 5 · deadlift ramp 60% × 5. Never pull heavy cold",
       blocks: [
         {
           title: "Strength",
@@ -199,6 +206,7 @@ const DATA = {
       name: "Pump · upper volume",
       tagline: "Volume day. Full sleeves.",
       blurb: "Controlled volume across pull, push, and arms. Leave 1–2 reps in the tank.",
+      warmup: "2 light pulldown sets (half weight × 12) · then straight in",
       blocks: [
         {
           title: "Lat Pulldown · triset",
@@ -250,6 +258,12 @@ const DATA = {
             { name: "V-Ups", sets: 2, reps: "10–12", note: "Reach for your toes · breathe OUT on the way up", inputMode: "bodyweight_reps" },
             { name: "Single-Leg V-Ups", sets: 2, reps: "8/side", note: "Alternate legs · opposite hand to raised foot · exhale up", inputMode: "bodyweight_reps" },
             { name: "Russian Twist · medicine ball", sets: 2, reps: "12/side", note: "Feet up = harder · exhale on each twist · log ball kg" }
+          ]
+        },
+        {
+          title: "Zone 2 · optional",
+          exercises: [
+            { name: "Incline Walk or Stairmaster · Zone 2", sets: 1, reps: "45–60 min", note: "Conversational pace — can talk, wouldn't sing. Here or on a rest day. VO2max = longevity.", inputMode: "cardio" }
           ]
         }
       ]
@@ -335,7 +349,8 @@ const DATA = {
     "Consistency > perfection. 80% for 16 weeks beats 100% for 3.",
     "Protein and veg first. Rice/roti last. Flattens insulin spikes.",
     "Never stack Day 1 + Day 3 (delt overlap).",
-    "Never stack Day 2 + Day 4 (leg overlap)."
+    "Never stack Day 2 + Day 4 (leg overlap).",
+    "Peak season at work? Minimum viable week: 2 sessions, protein, sleep. Zero guilt — consistency over heroics."
   ],
 
   genetics: [

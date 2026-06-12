@@ -796,6 +796,69 @@ main {
 }
 .timed-go:active { transform: scale(0.97); }
 
+/* ========== WARM-UP STRIP ========== */
+.workout-warmup {
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+  color: var(--text-dim);
+  font-weight: 500;
+  line-height: 1.5;
+  background: rgba(200,51,75,0.05);
+}
+.workout-warmup::before {
+  content: 'Warm-up · ';
+  color: var(--crimson-bright);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* ========== WAIST / SLEEP CARDS ========== */
+.chart-short { height: 150px; }
+.sleep-input input[type="time"] {
+  flex: 1.4;
+  min-width: 0;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--text);
+  padding: 12px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  outline: none;
+}
+.sleep-input input[type="time"]:focus { border-color: var(--wine); }
+.sleep-input input[type="number"] { flex: 0.8; }
+.sleep-summary {
+  padding: 14px 22px;
+}
+.sleep-note {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.sleep-note strong { color: var(--text); }
+.sleep-note.warn-note { color: var(--crimson-bright); }
+
+/* ========== SECONDARY BUTTON ========== */
+.btn-secondary {
+  display: block;
+  width: calc(100% - 44px);
+  margin: 0 22px 22px;
+  padding: 13px;
+  background: var(--bg-2);
+  color: var(--text);
+  border: 1px solid var(--line-bright);
+  border-radius: 10px;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-secondary:hover { background: var(--bg-3); border-color: var(--wine); }
+
 /* ========== LIFTS · PROGRESSION ========== */
 .lift-row {
   padding: 14px 22px;

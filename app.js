@@ -5,6 +5,8 @@ const STORAGE_KEY = 'rhn-protocol-v1';
 const defaultState = {
   startDate: null,
   weights: [],
+  waists: [],          // [{ date, cm }]
+  sleep: {},           // { "2026-05-08": { bed: "22:30", fresh: 4 } }
   sessions: [],
   selectedWorkout: null,
   workoutByDate: {},   // { "2026-04-29": "day3", ... }
@@ -48,8 +50,13 @@ function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+// Local-timezone date — toISOString() is UTC, which made "today" flip at 8am SGT
+function localIso(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  return localIso(new Date());
 }
 
 function fmtDate(iso) {
@@ -515,7 +522,7 @@ function computeStreak() {
   let streak = 0;
   let d = new Date();
   for (let i = 0; i < 365; i++) {
-    const iso = d.toISOString().slice(0, 10);
+    const iso = localIso(d);
     if (dates.has(iso)) {
       streak++;
       d.setDate(d.getDate() - 1);
@@ -578,6 +585,12 @@ function renderWorkout() {
   card.hidden = false;
   document.getElementById('workoutTitle').textContent = w.name;
   document.getElementById('workoutSubtitle').textContent = w.tagline;
+
+  const warmupEl = document.getElementById('workoutWarmup');
+  if (warmupEl) {
+    warmupEl.hidden = !w.warmup;
+    warmupEl.textContent = w.warmup || '';
+  }
 
   const dKey = dailyKey();
   const log = state.setLog[dKey] && state.setLog[dKey][id] ? state.setLog[dKey][id] : {};
@@ -867,6 +880,7 @@ function renderToday() {
   renderInfoList('dailyList', DATA.daily);
   renderInfoList('staminaList', DATA.stamina);
   renderWorkout();
+  renderSleep();
 
   const w = DATA.workouts.find(x => x.id === state.selectedWorkout);
   document.getElementById('todayTitle').textContent = w ? w.name : "Today's session";
@@ -971,6 +985,16 @@ function renderWeightStats() {
   `;
 }
 
+/** Gym sessions completed in the current training week (Sat-start, matching the split). */
+function sessionsThisTrainingWeek() {
+  const now = new Date();
+  const sinceSat = (now.getDay() + 1) % 7; // days since last Saturday
+  const start = new Date(now);
+  start.setDate(now.getDate() - sinceSat);
+  const startIso = localIso(start);
+  return state.sessions.filter(s => s.date >= startIso && s.workoutId !== 'homecore').length;
+}
+
 function renderWeekGrid() {
   const el = document.getElementById('weekGrid');
   const cw = weekNumber();
@@ -985,6 +1009,8 @@ function renderWeekGrid() {
     if (isCurrent) cls += ' current';
     el.innerHTML += `<div class="${cls}">${i}</div>`;
   }
+  const meta = document.getElementById('weekMapMeta');
+  if (meta) meta.textContent = `16 weeks · ${sessionsThisTrainingWeek()}/5 this wk`;
 }
 
 function buildHistoryDetail(session) {
@@ -1140,11 +1166,6 @@ function renderLifts() {
   let totalSets = 0, tonnage = 0, improving = 0, tracked = 0;
   for (const h of history) {
     for (const e of h.entries) totalSets += 1;
-    if (h.mode === 'weight_reps' || h.mode === 'multistage') {
-      for (const d of Object.keys(state.setLog || {})) {
-        // tonnage handled below via entries' raw sets — keep simple: use best score sum as proxy
-      }
-    }
     if (h.entries.length >= 2) {
       tracked += 1;
       if (h.entries.at(-1).score > h.entries[0].score) improving += 1;
@@ -1244,9 +1265,150 @@ document.getElementById('logWeightBtn').addEventListener('click', () => {
   renderHeader();
 });
 
+// ========== WAIST LOG · the V-cut + metabolic metric ==========
+function renderWaist() {
+  const chartEl = document.getElementById('waistChart');
+  const statsEl = document.getElementById('waistStats');
+  if (!chartEl || !statsEl) return;
+  const data = (state.waists || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+
+  if (!data.length) {
+    chartEl.innerHTML = '<div class="chart-empty">Tape at the navel, relaxed — same morning each week</div>';
+    statsEl.innerHTML = '';
+    return;
+  }
+
+  const allCm = data.map(d => d.cm);
+  const min = Math.floor(Math.min(...allCm) - 1);
+  const max = Math.ceil(Math.max(...allCm) + 1);
+  const range = max - min || 1;
+  const W = 1000, H = 150, P = 20;
+  const xStep = data.length > 1 ? (W - 2 * P) / (data.length - 1) : 0;
+  const points = data.map((d, i) => ({
+    x: P + i * xStep,
+    y: H - P - ((d.cm - min) / range) * (H - 2 * P)
+  }));
+  const path = points.map((p, i) => (i === 0 ? 'M' : 'L') + p.x + ',' + p.y).join(' ');
+
+  chartEl.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+      <path d="${path}" stroke="#828699" stroke-width="2.2" fill="none" />
+      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#828699" stroke="#18181F" stroke-width="2"/>`).join('')}
+    </svg>
+  `;
+
+  const first = data[0].cm;
+  const latest = data.at(-1).cm;
+  const change = latest - first;
+  statsEl.innerHTML = `
+    <div class="progress-stat">
+      <div class="progress-stat-label">Current</div>
+      <div class="progress-stat-value">${latest.toFixed(1)}</div>
+    </div>
+    <div class="progress-stat">
+      <div class="progress-stat-label">Change</div>
+      <div class="progress-stat-value ${change < 0 ? 'green' : ''}">${change > 0 ? '+' : ''}${change.toFixed(1)}</div>
+    </div>
+    <div class="progress-stat">
+      <div class="progress-stat-label">Long-term target</div>
+      <div class="progress-stat-value">&lt; 85</div>
+    </div>
+  `;
+}
+
+document.getElementById('logWaistBtn')?.addEventListener('click', () => {
+  const input = document.getElementById('waistInput');
+  const cm = parseFloat(input.value);
+  if (!cm || cm < 50 || cm > 150) { showToast('Enter a valid waist in cm'); return; }
+  const dKey = today();
+  state.waists = (state.waists || []).filter(w => w.date !== dKey);
+  state.waists.push({ date: dKey, cm });
+  save();
+  input.value = '';
+  showToast('Logged ' + cm.toFixed(1) + ' cm');
+  renderWaist();
+});
+
+// ========== SLEEP LOG · bed time + freshness ==========
+function renderSleep() {
+  const summary = document.getElementById('sleepSummary');
+  if (!summary) return;
+  const sleep = state.sleep || {};
+  const dKey = today();
+  const todayEntry = sleep[dKey];
+  if (todayEntry) {
+    const bedIn = document.getElementById('sleepBedInput');
+    const freshIn = document.getElementById('sleepFreshInput');
+    if (bedIn && !bedIn.value) bedIn.value = todayEntry.bed || '';
+    if (freshIn && !freshIn.value) freshIn.value = todayEntry.fresh || '';
+  }
+  // Last-7-entries freshness average
+  const recent = Object.keys(sleep).sort().slice(-7).map(k => sleep[k].fresh).filter(Boolean);
+  if (!recent.length) {
+    summary.innerHTML = '<span class="sleep-note">Log tonight\'s bed time tomorrow morning, with how fresh you woke (1–5).</span>';
+    return;
+  }
+  const avg = recent.reduce((a, b) => a + b, 0) / recent.length;
+  if (avg <= 2.5 && recent.length >= 4) {
+    summary.innerHTML = `<span class="sleep-note warn-note">⚠ Freshness avg ${avg.toFixed(1)} over ${recent.length} days — sleep is the limiter right now, not the program. Lights out 10:15.</span>`;
+  } else {
+    summary.innerHTML = `<span class="sleep-note">${recent.length}-day freshness avg · <strong>${avg.toFixed(1)} / 5</strong></span>`;
+  }
+}
+
+document.getElementById('logSleepBtn')?.addEventListener('click', () => {
+  const bed = document.getElementById('sleepBedInput').value;
+  const fresh = parseInt(document.getElementById('sleepFreshInput').value);
+  if (!bed && !fresh) { showToast('Enter bed time or freshness'); return; }
+  if (fresh && (fresh < 1 || fresh > 5)) { showToast('Freshness is 1–5'); return; }
+  state.sleep = state.sleep || {};
+  const dKey = today();
+  state.sleep[dKey] = { ...(state.sleep[dKey] || {}), bed: bed || undefined, fresh: fresh || undefined };
+  save();
+  showToast('Sleep logged');
+  renderSleep();
+});
+
+// ========== DATA BACKUP · export / import ==========
+document.getElementById('exportBtn')?.addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `rhn-backup-${today()}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('Backup downloaded');
+});
+
+document.getElementById('importBtn')?.addEventListener('click', () => {
+  document.getElementById('importFile')?.click();
+});
+
+document.getElementById('importFile')?.addEventListener('change', (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (!data || typeof data !== 'object' || !data.setLog) throw new Error('not a backup');
+      if (!confirm('Replace current data with this backup?')) return;
+      state = { ...defaultState, ...data };
+      save();
+      renderAll();
+      showToast('Backup restored');
+    } catch (err) {
+      showToast('Invalid backup file');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
 function renderProgress() {
   renderWeightChart();
   renderWeightStats();
+  renderWaist();
   renderWeekGrid();
   renderHistory();
   renderPhases();

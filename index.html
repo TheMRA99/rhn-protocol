@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=23" />
+<link rel="stylesheet" href="styles.css?v=24" />
 </head>
 <body>
 <header class="topbar">
@@ -81,6 +81,7 @@
         </div>
         <div class="session-progress-bar"><div class="session-progress-fill" id="sessionProgressFill" style="width:0%"></div></div>
       </div>
+      <div class="workout-warmup" id="workoutWarmup" hidden></div>
       <div id="exerciseList" class="exercises"></div>
       <button class="btn-primary" id="finishWorkoutBtn">Mark session complete</button>
     </section>
@@ -101,6 +102,21 @@
         <span class="card-toggle" aria-hidden="true"></span>
       </header>
       <div id="dailyList" class="info-list"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">05</span>Sleep log</h2>
+        <span class="card-meta">Bed time + freshness 1–5</span>
+      </header>
+      <div class="weight-input sleep-input">
+        <input type="time" id="sleepBedInput" />
+        <span class="unit">bed</span>
+        <input type="number" id="sleepFreshInput" min="1" max="5" inputmode="numeric" placeholder="1–5" />
+        <span class="unit">fresh</span>
+        <button class="btn-primary" id="logSleepBtn">Log</button>
+      </div>
+      <div class="sleep-summary" id="sleepSummary"></div>
     </section>
   </section>
 
@@ -163,15 +179,29 @@
 
     <section class="card">
       <header class="card-header">
-        <h2><span class="num">02</span>Week map</h2>
-        <span class="card-meta">16 weeks</span>
+        <h2><span class="num">02</span>Waist log</h2>
+        <span class="card-meta">Weekly · navel, relaxed</span>
+      </header>
+      <div class="weight-input">
+        <input type="number" step="0.1" id="waistInput" placeholder="86.0" />
+        <span class="unit">cm</span>
+        <button class="btn-primary" id="logWaistBtn">Log</button>
+      </div>
+      <div class="chart chart-short" id="waistChart"></div>
+      <div class="progress-stats" id="waistStats"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">03</span>Week map</h2>
+        <span class="card-meta" id="weekMapMeta">16 weeks</span>
       </header>
       <div class="week-grid" id="weekGrid"></div>
     </section>
 
     <section class="card">
       <header class="card-header">
-        <h2><span class="num">03</span>Session history</h2>
+        <h2><span class="num">04</span>Session history</h2>
         <span class="card-meta">Recent</span>
       </header>
       <div id="sessionHistory" class="history"></div>
@@ -179,7 +209,7 @@
 
     <section class="card">
       <header class="card-header">
-        <h2><span class="num">04</span>Timeline</h2>
+        <h2><span class="num">05</span>Timeline</h2>
         <span class="card-meta">What to expect</span>
       </header>
       <div class="phases" id="phases"></div>
@@ -267,9 +297,33 @@
       <div id="progressionList" class="rules"></div>
     </section>
 
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">05</span>Quarterly review</h2>
+        <span class="card-meta">90 min · once per season</span>
+      </header>
+      <div class="rules">
+        <div class="rule"><div class="rule-num">01</div><div class="rule-body">Re-test: weight trend, waist, one lift PR, resting heart rate, mobility.</div></div>
+        <div class="rule"><div class="rule-num">02</div><div class="rule-body">Re-read your muhasabah notes — what patterns keep showing up?</div></div>
+        <div class="rule"><div class="rule-num">03</div><div class="rule-body">One question per pillar: keep, fix, or kill?</div></div>
+        <div class="rule"><div class="rule-num">04</div><div class="rule-body">Set ONE focus for next quarter. Upgrading twelve things at once is how ambitious people upgrade nothing.</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">06</span>Data backup</h2>
+        <span class="card-meta">Your logs live on this phone only</span>
+      </header>
+      <p class="warn">Export a backup after good weeks. If the browser ever clears storage, import brings everything back.</p>
+      <button class="btn-primary" id="exportBtn">Export backup</button>
+      <button class="btn-secondary" id="importBtn">Import backup</button>
+      <input type="file" id="importFile" accept="application/json,.json" hidden />
+    </section>
+
     <section class="card danger-zone">
       <header class="card-header">
-        <h2><span class="num">05</span>Reset</h2>
+        <h2><span class="num">07</span>Reset</h2>
         <span class="card-meta">Starts a new 16-week block</span>
       </header>
       <p class="warn">This wipes the weight log, session history, and start date. Cannot undo.</p>
@@ -300,7 +354,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=25"></script>
-<script src="app.js?v=21"></script>
+<script src="data.js?v=26"></script>
+<script src="app.js?v=22"></script>
 </body>
 </html>
