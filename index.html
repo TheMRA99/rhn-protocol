@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=24" />
+<link rel="stylesheet" href="styles.css?v=25" />
 </head>
 <body>
 <header class="topbar">
@@ -104,9 +104,22 @@
       <div id="dailyList" class="info-list"></div>
     </section>
 
+    <section class="card card-collapsible collapsed">
+      <header class="card-header">
+        <h2><span class="num">05</span>Office day · covert</h2>
+        <span class="card-meta">Invisible · toilet trips + desk</span>
+        <span class="card-toggle" aria-hidden="true"></span>
+      </header>
+      <div class="office-rotator" id="officeRotator"></div>
+      <div class="block-title">Toilet-trip stations · one per trip</div>
+      <div id="officeTripList" class="info-list"></div>
+      <div class="block-title">Invisible at the desk</div>
+      <div id="officeDeskList" class="info-list"></div>
+    </section>
+
     <section class="card">
       <header class="card-header">
-        <h2><span class="num">05</span>Sleep log</h2>
+        <h2><span class="num">06</span>Sleep log</h2>
         <span class="card-meta">Bed time + freshness 1–5</span>
       </header>
       <div class="weight-input sleep-input">
@@ -354,7 +367,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=26"></script>
-<script src="app.js?v=22"></script>
+<script src="data.js?v=27"></script>
+<script src="app.js?v=23"></script>
 </body>
 </html>

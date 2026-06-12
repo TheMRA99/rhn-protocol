@@ -841,6 +841,46 @@ main {
 .sleep-note strong { color: var(--text); }
 .sleep-note.warn-note { color: var(--crimson-bright); }
 
+/* ========== OFFICE DAY ROTATOR ========== */
+.office-rotator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(200,51,75,0.05);
+}
+.office-next { flex: 1; min-width: 0; }
+.office-next-label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.office-next-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  letter-spacing: -0.005em;
+}
+.office-done-btn {
+  flex: 0 0 auto;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--wine);
+  color: var(--text);
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  transition: background 0.15s, transform 0.1s;
+}
+.office-done-btn:hover { background: var(--wine-bright); }
+.office-done-btn:active { transform: scale(0.95); }
+
 /* ========== SECONDARY BUTTON ========== */
 .btn-secondary {
   display: block;

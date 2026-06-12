@@ -9,6 +9,7 @@ const defaultState = {
   sleep: {},           // { "2026-05-08": { bed: "22:30", fresh: 4 } }
   sessions: [],
   selectedWorkout: null,
+  officeTrip: null,    // { date, idx, done } — covert office-day station rotator
   workoutByDate: {},   // { "2026-04-29": "day3", ... }
   setLog: {},
   daily: {},
@@ -881,6 +882,7 @@ function renderToday() {
   renderInfoList('staminaList', DATA.stamina);
   renderWorkout();
   renderSleep();
+  renderOffice();
 
   const w = DATA.workouts.find(x => x.id === state.selectedWorkout);
   document.getElementById('todayTitle').textContent = w ? w.name : "Today's session";
@@ -1328,6 +1330,33 @@ document.getElementById('logWaistBtn')?.addEventListener('click', () => {
   showToast('Logged ' + cm.toFixed(1) + ' cm');
   renderWaist();
 });
+
+// ========== OFFICE DAY · covert station rotator ==========
+function renderOffice() {
+  const rot = document.getElementById('officeRotator');
+  if (!rot) return;
+  renderInfoList('officeTripList', DATA.officeStations);
+  renderInfoList('officeDeskList', DATA.officeDesk);
+  const dKey = today();
+  if (!state.officeTrip || state.officeTrip.date !== dKey) {
+    state.officeTrip = { date: dKey, idx: 0, done: 0 };
+  }
+  const station = DATA.officeStations[state.officeTrip.idx % DATA.officeStations.length];
+  const doneTxt = state.officeTrip.done ? ` · ${state.officeTrip.done} trip${state.officeTrip.done > 1 ? 's' : ''} today` : '';
+  rot.innerHTML = `
+    <div class="office-next">
+      <span class="office-next-label">Next toilet trip${doneTxt}</span>
+      <span class="office-next-name">${station.name} · ${station.spec}</span>
+    </div>
+    <button class="office-done-btn" id="officeDoneBtn" type="button">Did it</button>
+  `;
+  document.getElementById('officeDoneBtn').addEventListener('click', () => {
+    state.officeTrip.idx = (state.officeTrip.idx + 1) % DATA.officeStations.length;
+    state.officeTrip.done = (state.officeTrip.done || 0) + 1;
+    save();
+    renderOffice();
+  });
+}
 
 // ========== SLEEP LOG · bed time + freshness ==========
 function renderSleep() {

@@ -34,6 +34,23 @@ const DATA = {
     { name: "Eyes · 20-20-20", spec: "Every 20 min", note: "Look 6m+ away for 20 sec · stack it on prayer + water breaks" }
   ],
 
+  officeStations: [
+    { name: "Hip-flexor opener", spec: "30 s / side", note: "Split stance, back knee drops, squeeze that glute hard, ribs down · THE move for your hips" },
+    { name: "Hip hinges or air squats", spec: "10 slow", note: "Resets the sitting pattern" },
+    { name: "Wall slide / doorframe pec stretch", spec: "30 s", note: "Undoes the keyboard hunch" },
+    { name: "Chin tucks at the mirror", spec: "5 reps", note: "Looks like checking your hair · it's neck posture work" },
+    { name: "Calf + tibialis rocks at the sink", spec: "10 each", note: "Ankle foundation work" }
+  ],
+
+  officeDesk: [
+    { name: "Seated glute squeezes", spec: "10 × 10 s · 2×/day", note: "Wakes up what sitting puts to sleep" },
+    { name: "Posterior pelvic tilts", spec: "10 slow", note: "Kills the anterior-tilt creep in the chair" },
+    { name: "Toe spreads + ankle rocks", spec: "20 reps", note: "Under the desk · zero visibility" },
+    { name: "Laptop-unlock anchor", spec: "Every unlock", note: "Password = chin tuck, chest proud, shoulders down-back · 30+ posture resets a day" },
+    { name: "Glass, not bottle", spec: "Hourly refills", note: "~1,500 extra steps per office day" },
+    { name: "Post-lunch walk", spec: "10 min", note: "Long way back to the desk · flattens the glucose spike" }
+  ],
+
   workouts: [
     {
       id: "day1",
