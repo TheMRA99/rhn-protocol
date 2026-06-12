@@ -1398,6 +1398,99 @@ document.getElementById('logSleepBtn')?.addEventListener('click', () => {
   renderSleep();
 });
 
+// ========== SLEEP ANALYSIS · Progress tab ==========
+// Bed times cross midnight, so average them relative to noon.
+function bedToNoonMinutes(bed) {
+  if (!bed || !/^\d{2}:\d{2}$/.test(bed)) return null;
+  const [h, m] = bed.split(':').map(Number);
+  return ((h + 12) % 24) * 60 + m;
+}
+function noonMinutesToStr(mins) {
+  const h = (Math.floor(mins / 60) + 12) % 24;
+  const m = Math.round(mins % 60);
+  return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+}
+
+function renderSleepAnalysis() {
+  const chartEl = document.getElementById('sleepChart');
+  const statsEl = document.getElementById('sleepStats');
+  const corrEl = document.getElementById('sleepCorrelation');
+  if (!chartEl || !statsEl || !corrEl) return;
+
+  const entries = Object.keys(state.sleep || {}).sort().map(d => ({ date: d, ...state.sleep[d] }));
+  if (!entries.length) {
+    chartEl.innerHTML = '<div class="chart-empty">Log bed time + freshness on the Today tab — analysis appears here</div>';
+    statsEl.innerHTML = '';
+    corrEl.innerHTML = '';
+    return;
+  }
+
+  // Freshness bars · last 14 logged mornings, 2.5 limiter line dashed
+  const recent = entries.filter(e => e.fresh).slice(-14);
+  const W = 1000, H = 150, P = 16;
+  const slotW = (W - 2 * P) / 14;
+  const bars = recent.map((e, i) => {
+    const h = (e.fresh / 5) * (H - 2 * P);
+    const color = e.fresh >= 4 ? '#E84966' : (e.fresh === 3 ? '#828699' : '#5A5E72');
+    return `<rect x="${P + i * slotW + 3}" y="${H - P - h}" width="${Math.max(slotW - 6, 6)}" height="${h}" rx="3" fill="${color}"/>`;
+  }).join('');
+  const refY = H - P - (2.5 / 5) * (H - 2 * P);
+  chartEl.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+    <line x1="${P}" y1="${refY}" x2="${W - P}" y2="${refY}" stroke="#3C4156" stroke-dasharray="4 6"/>
+    ${bars}
+  </svg>`;
+
+  // Stats: 7-day freshness + trend vs prior 7 · avg lights-out · % in bed by 22:30
+  const freshEntries = entries.filter(e => e.fresh);
+  const last7 = freshEntries.slice(-7).map(e => e.fresh);
+  const prev7 = freshEntries.slice(-14, -7).map(e => e.fresh);
+  const avg7 = last7.length ? last7.reduce((a, b) => a + b, 0) / last7.length : null;
+  const avgPrev = prev7.length ? prev7.reduce((a, b) => a + b, 0) / prev7.length : null;
+  const trend = (avg7 != null && avgPrev != null) ? avg7 - avgPrev : null;
+  const beds = entries.map(e => bedToNoonMinutes(e.bed)).filter(v => v != null);
+  const avgBed = beds.length ? beds.reduce((a, b) => a + b, 0) / beds.length : null;
+  const onTime = beds.length ? Math.round((beds.filter(v => v <= 630).length / beds.length) * 100) : null; // 630 = 22:30
+
+  statsEl.innerHTML = `
+    <div class="progress-stat">
+      <div class="progress-stat-label">7-day freshness</div>
+      <div class="progress-stat-value">${avg7 != null ? avg7.toFixed(1) : '—'}${trend != null ? `<span class="stat-trend">${trend > 0.05 ? '↑' : trend < -0.05 ? '↓' : '→'}</span>` : ''}</div>
+    </div>
+    <div class="progress-stat">
+      <div class="progress-stat-label">Avg lights-out</div>
+      <div class="progress-stat-value">${avgBed != null ? noonMinutesToStr(avgBed) : '—'}</div>
+    </div>
+    <div class="progress-stat">
+      <div class="progress-stat-label">In bed by 22:30</div>
+      <div class="progress-stat-value ${onTime != null && onTime >= 70 ? 'green' : ''}">${onTime != null ? onTime + '%' : '—'}</div>
+    </div>
+  `;
+
+  // Sleep × lifts payoff: of every lift-vs-last-session comparison, how often
+  // did you improve after a fresh morning (4–5) vs a tired one (1–3)?
+  const hist = collectExerciseHistory();
+  let freshImp = 0, freshTot = 0, tiredImp = 0, tiredTot = 0;
+  for (const h of hist) {
+    for (let i = 1; i < h.entries.length; i++) {
+      const f = state.sleep?.[h.entries[i].date]?.fresh;
+      if (!f) continue;
+      const improved = h.entries[i].score > h.entries[i - 1].score;
+      if (f >= 4) { freshTot++; if (improved) freshImp++; }
+      else { tiredTot++; if (improved) tiredImp++; }
+    }
+  }
+  if (freshTot >= 5 && tiredTot >= 5) {
+    const fr = Math.round((freshImp / freshTot) * 100);
+    const tr = Math.round((tiredImp / tiredTot) * 100);
+    corrEl.innerHTML = `
+      <div class="rule"><div class="rule-num">A</div><div class="rule-body">After <strong>fresh mornings (4–5)</strong> you improved on <strong>${fr}%</strong> of lifts (${freshImp} of ${freshTot}).</div></div>
+      <div class="rule"><div class="rule-num">B</div><div class="rule-body">After <strong>tired mornings (1–3)</strong>: <strong>${tr}%</strong> (${tiredImp} of ${tiredTot}).${fr > tr ? ' Sleep is paying you in kilograms — protect the 10:15 lights-out.' : ''}</div></div>
+    `;
+  } else {
+    corrEl.innerHTML = `<div class="rule"><div class="rule-num">··</div><div class="rule-body">Sleep × lifts payoff unlocks after ~2 weeks of logging both sleep and sessions (needs 5+ lift comparisons in each bucket · currently ${freshTot} fresh / ${tiredTot} tired).</div></div>`;
+  }
+}
+
 // ========== DATA BACKUP · export / import ==========
 document.getElementById('exportBtn')?.addEventListener('click', () => {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
@@ -1438,6 +1531,7 @@ function renderProgress() {
   renderWeightChart();
   renderWeightStats();
   renderWaist();
+  renderSleepAnalysis();
   renderWeekGrid();
   renderHistory();
   renderPhases();

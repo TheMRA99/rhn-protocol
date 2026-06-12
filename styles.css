@@ -840,6 +840,12 @@ main {
 }
 .sleep-note strong { color: var(--text); }
 .sleep-note.warn-note { color: var(--crimson-bright); }
+.stat-trend {
+  font-size: 14px;
+  margin-left: 5px;
+  color: var(--text-dim);
+  vertical-align: 2px;
+}
 
 /* ========== OFFICE DAY ROTATOR ========== */
 .office-rotator {

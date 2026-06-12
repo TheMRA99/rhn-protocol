@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=25" />
+<link rel="stylesheet" href="styles.css?v=26" />
 </head>
 <body>
 <header class="topbar">
@@ -206,7 +206,17 @@
 
     <section class="card">
       <header class="card-header">
-        <h2><span class="num">03</span>Week map</h2>
+        <h2><span class="num">03</span>Sleep</h2>
+        <span class="card-meta">Freshness · lights-out · payoff</span>
+      </header>
+      <div class="chart chart-short" id="sleepChart"></div>
+      <div class="progress-stats" id="sleepStats"></div>
+      <div class="rules" id="sleepCorrelation"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">04</span>Week map</h2>
         <span class="card-meta" id="weekMapMeta">16 weeks</span>
       </header>
       <div class="week-grid" id="weekGrid"></div>
@@ -214,7 +224,7 @@
 
     <section class="card">
       <header class="card-header">
-        <h2><span class="num">04</span>Session history</h2>
+        <h2><span class="num">05</span>Session history</h2>
         <span class="card-meta">Recent</span>
       </header>
       <div id="sessionHistory" class="history"></div>
@@ -222,7 +232,7 @@
 
     <section class="card">
       <header class="card-header">
-        <h2><span class="num">05</span>Timeline</h2>
+        <h2><span class="num">06</span>Timeline</h2>
         <span class="card-meta">What to expect</span>
       </header>
       <div class="phases" id="phases"></div>
@@ -368,6 +378,6 @@
 <div class="toast" id="toast"></div>
 
 <script src="data.js?v=27"></script>
-<script src="app.js?v=23"></script>
+<script src="app.js?v=24"></script>
 </body>
 </html>
