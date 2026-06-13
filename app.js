@@ -1603,6 +1603,15 @@ function renderProtocol() {
   `).join('');
 }
 
+// Lapse-friendly restart: Week 1 clock, every log kept
+document.getElementById('restartBlockBtn')?.addEventListener('click', () => {
+  if (!confirm('Restart the 16-week block from today? All history stays.')) return;
+  state.startDate = today();
+  save();
+  showToast('Week 1 · history kept');
+  renderAll();
+});
+
 document.getElementById('resetBtn').addEventListener('click', () => {
   if (!confirm('Wipe everything and restart Week 1?')) return;
   localStorage.removeItem(STORAGE_KEY);
