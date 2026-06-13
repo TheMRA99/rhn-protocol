@@ -993,7 +993,8 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 14px;
+  gap: 8px 14px;
+  flex-wrap: wrap;
 }
 .exercise-name {
   font-family: 'Manrope', system-ui, sans-serif;
@@ -1001,14 +1002,17 @@ main {
   font-size: 15px;
   letter-spacing: -0.005em;
   color: var(--text);
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .exercise-spec {
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   color: var(--cream);
   letter-spacing: 0;
-  white-space: nowrap;
   font-weight: 500;
+  flex: 0 0 auto;
+  text-align: right;
 }
 .exercise-note {
   font-size: 13px;
@@ -1698,5 +1702,8 @@ body.rest-active main { padding-bottom: 180px; }
   .phase-weeks { width: 60px; font-size: 18px; }
   .card-header { padding: 16px 18px; }
   .exercise, .check-item, .row, .rule { padding-left: 18px; padding-right: 18px; }
-  .btn-primary, .btn-ghost { width: calc(100% - 36px); margin-left: 18px; margin-right: 18px; }
+  .btn-primary, .btn-ghost, .btn-secondary { width: calc(100% - 36px); margin-left: 18px; margin-right: 18px; }
+  /* Fit all 6 tabs without a scroll on a 375px screen */
+  .tabs { padding: 0 6px; gap: 0; }
+  .tab { padding: 15px 9px; font-size: 12px; letter-spacing: 0; }
 }

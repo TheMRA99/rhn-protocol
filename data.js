@@ -69,7 +69,7 @@ const DATA = {
             {
               name: "Cable Lateral Raise · drop superset",
               sets: 3,
-              reps: "R+L heavy → R+L drop · 10 each",
+              reps: "10 ea stage",
               note: "Heavy R, heavy L, immediately drop weight, drop R, drop L",
               inputMode: "multistage",
               stages: [
@@ -158,7 +158,7 @@ const DATA = {
             {
               name: "Single-Arm Cable Pushdown · superset",
               sets: 2,
-              reps: "10 ea standard → 10 ea sideways",
+              reps: "10 ea stage",
               note: "Both arms standard, then both arms sideways · lateral head",
               inputMode: "multistage",
               stages: [
@@ -248,7 +248,7 @@ const DATA = {
             {
               name: "Cable Lateral Raise · drop superset",
               sets: 2,
-              reps: "R+L heavy → R+L drop",
+              reps: "10 ea stage",
               note: "Same drop superset as Day 1/3 — heavy R+L then immediately drop",
               inputMode: "multistage",
               stages: [
