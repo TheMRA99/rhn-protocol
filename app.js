@@ -1907,7 +1907,19 @@ save();
     save();
     document.getElementById('onboard').hidden = true;
   });
-  if (!state.onboarded) document.getElementById('onboard').hidden = false;
+
+  // Show ONLY on a truly fresh install. Anyone with existing logs (or who
+  // has already completed/skipped it) is permanently treated as onboarded —
+  // it never appears again.
+  const hasHistory = (state.weights?.length || state.waists?.length ||
+    state.sessions?.length || Object.keys(state.setLog || {}).length ||
+    state.baseline);
+  if (state.onboarded || hasHistory) {
+    if (!state.onboarded) { state.onboarded = true; save(); }
+    document.getElementById('onboard').hidden = true;
+  } else {
+    document.getElementById('onboard').hidden = false;
+  }
 })();
 
 // ===== THEME (light default) =====

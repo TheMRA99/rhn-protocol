@@ -19,6 +19,7 @@ const DATA = {
     { name: "Fiber + veg", spec: "25–30 g", note: "Two fists of veg per meal · flattens glucose, keeps you full" },
     { name: "Water", spec: "3 L+", note: "More in SG humidity" },
     { name: "Steps", spec: "10,000–12,000", note: "NEAT — biggest fat loss lever after the deficit" },
+    { name: "Cardio", spec: "10–20 min · Zone 2", note: "Every day · easy & conversational (walk / incline / stairs). Post-lift or a standalone on rest days. Keep it easy — not another hard session." },
     { name: "Sleep", spec: "7+ hrs", note: "The #1 lever for results" },
     { name: "Creatine", spec: "5 g", note: "2 scoops CreAMP, any time" },
     { name: "Vitamin D3", spec: "2,000–4,000 IU", note: "With a fatty meal" },
