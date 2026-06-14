@@ -275,7 +275,7 @@ function formatPrev(set, mode, ex) {
     default:
       if (ex?.barbell) {
         const side = parseFloat(set.kg);
-        const total = !isNaN(side) ? (20 + 2 * side) : null;
+        const total = !isNaN(side) ? ((ex.bar ?? 20) + 2 * side) : null;
         return `${set.kg || '–'} /side × ${set.reps || '–'}${total != null ? ` (${total} total)` : ''}`;
       }
       return `${set.kg || '–'} kg × ${set.reps || '–'}`;
@@ -646,7 +646,7 @@ function renderWorkout() {
         const fields = inputFieldsForMode(mode);
         const suggKg = (mode === 'weight_reps') ? suggestedKgFor(id, exKey, ex) : null;
         const isBarbell = ex.barbell === true;
-        const barWeight = ex.bar || 20;
+        const barWeight = ex.bar ?? 20;
         let setRows = '';
         for (let s = 0; s < ex.sets; s++) {
           totalSets += 1;
@@ -738,7 +738,7 @@ function renderWorkout() {
           // Live update of the bar total next to this kg input
           if (ex.barbell && field === 'kg') {
             const tot = row.querySelector('[data-bar-total]');
-            if (tot) tot.textContent = barTotalText(input.value, ex.bar || 20);
+            if (tot) tot.textContent = barTotalText(input.value, ex.bar ?? 20);
           }
         }
         if (setData.done) row.classList.add('done');
@@ -754,58 +754,50 @@ function renderWorkout() {
         }
       });
 
-      // On blur (change), auto-fill kg into related fields
+      // On blur (change), auto-fill this weight into every matching empty field.
+      // Enter a weight once → it propagates everywhere it logically repeats.
       input.addEventListener('change', () => {
-        const field = input.dataset.field;
-        if (field !== 'kg' || !input.value) return;
+        if (input.dataset.field !== 'kg' || !input.value) return;
+        const val = input.value;
         const exLog = state.setLog[dKey]?.[id]?.[exKey];
         if (!exLog) return;
+
+        const fillKg = (s, stageIdx) => {
+          let tRow, tIn, tot;
+          if (mode === 'multistage') {
+            tRow = list.querySelector(`.ms-set[data-ex="${CSS.escape(exKey)}"][data-set="${s}"]`);
+            tIn = tRow?.querySelector(`.ms-stage[data-stage="${stageIdx}"] input[data-field="kg"]`);
+          } else {
+            tRow = list.querySelector(`.set-input[data-ex="${CSS.escape(exKey)}"][data-set="${s}"]`);
+            tIn = tRow?.querySelector('input[data-field="kg"]');
+            tot = tRow?.querySelector('[data-bar-total]');
+          }
+          if (tIn && !tIn.value) tIn.value = val;
+          if (tot && ex.barbell) tot.textContent = barTotalText(val, ex.bar ?? 20);
+        };
+
         if (mode === 'multistage') {
+          // R and L of a stage-pair share one weight; every set repeats it.
           const stageEl = input.closest('.ms-stage');
           if (!stageEl) return;
           const stageIdx = +stageEl.dataset.stage;
-          const stageKey = `stage${stageIdx}`;
-
-          // Within-set R→L autofill: even stage → next (odd) stage in same set
-          if (stageIdx % 2 === 0 && ex.stages && ex.stages[stageIdx + 1]) {
-            const nextKey = `stage${stageIdx + 1}`;
-            if (!exLog[setIdx]) exLog[setIdx] = {};
-            if (!exLog[setIdx][nextKey]) exLog[setIdx][nextKey] = {};
-            if (!exLog[setIdx][nextKey].kg) {
-              exLog[setIdx][nextKey].kg = input.value;
-              const nextEl = row.querySelector(`.ms-stage[data-stage="${stageIdx + 1}"]`);
-              const nextIn = nextEl?.querySelector('input[data-field="kg"]');
-              if (nextIn && !nextIn.value) nextIn.value = input.value;
-            }
-          }
-
-          // Cross-set autofill: only triggered from S0
-          if (setIdx === 0) {
-            for (let s = 1; s < ex.sets; s++) {
-              if (!exLog[s]) exLog[s] = {};
-              if (!exLog[s][stageKey]) exLog[s][stageKey] = {};
-              if (!exLog[s][stageKey].kg) {
-                exLog[s][stageKey].kg = input.value;
-                const tRow = list.querySelector(`.ms-set[data-ex="${CSS.escape(exKey)}"][data-set="${s}"]`);
-                const tIn = tRow?.querySelector(`.ms-stage[data-stage="${stageIdx}"] input[data-field="kg"]`);
-                if (tIn && !tIn.value) tIn.value = input.value;
-              }
+          const pairBase = stageIdx - (stageIdx % 2);          // 0,1 → 0 · 2,3 → 2
+          const pairStages = [pairBase, pairBase + 1].filter(i => ex.stages[i]);
+          for (let s = 0; s < ex.sets; s++) {
+            if (!exLog[s]) exLog[s] = {};
+            for (const st of pairStages) {
+              const k = `stage${st}`;
+              if (!exLog[s][k]) exLog[s][k] = {};
+              if (s === setIdx && st === stageIdx) continue;    // skip the one just typed
+              if (!exLog[s][k].kg) { exLog[s][k].kg = val; fillKg(s, st); }
             }
           }
         } else {
-          if (setIdx !== 0) return;
-          for (let s = 1; s < ex.sets; s++) {
+          // Plain / barbell: same weight across every empty set
+          for (let s = 0; s < ex.sets; s++) {
+            if (s === setIdx) continue;
             if (!exLog[s]) exLog[s] = {};
-            if (!exLog[s].kg) {
-              exLog[s].kg = input.value;
-              const tRow = list.querySelector(`.set-input[data-ex="${CSS.escape(exKey)}"][data-set="${s}"]`);
-              const tIn = tRow?.querySelector('input[data-field="kg"]');
-              if (tIn && !tIn.value) tIn.value = input.value;
-              if (ex.barbell) {
-                const tot = tRow?.querySelector('[data-bar-total]');
-                if (tot) tot.textContent = barTotalText(input.value, ex.bar || 20);
-              }
-            }
+            if (!exLog[s].kg) { exLog[s].kg = val; fillKg(s); }
           }
         }
         save();
@@ -1110,7 +1102,7 @@ function setScore(s, mode, ex) {
     }
     default: {
       let kg = parseFloat(s.kg || 0);
-      if (ex?.barbell && !isNaN(kg)) kg = (ex.bar || 20) + 2 * kg; // compare true bar totals
+      if (ex?.barbell && !isNaN(kg)) kg = (ex.bar ?? 20) + 2 * kg; // compare true bar totals
       return kg * (parseFloat(s.reps || 0) || 1);
     }
   }
@@ -1186,7 +1178,7 @@ function renderLifts() {
           if (!s || !s.done) continue;
           if (mode === 'weight_reps') {
             let kg = parseFloat(s.kg || 0);
-            if (ex.barbell && !isNaN(kg)) kg = (ex.bar || 20) + 2 * kg;
+            if (ex.barbell && !isNaN(kg)) kg = (ex.bar ?? 20) + 2 * kg;
             tonnage += (kg || 0) * (parseFloat(s.reps || 0) || 0);
           } else if (mode === 'multistage') {
             (ex.stages || []).forEach((_, si) => {

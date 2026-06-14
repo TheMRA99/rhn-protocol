@@ -63,7 +63,7 @@ const DATA = {
           title: "Lifts",
           exercises: [
             { name: "Assisted Pull-Up (wide grip)", sets: 2, reps: "6–8", note: "1–2 reps in tank · log reps achieved", inputMode: "bodyweight_reps" },
-            { name: "Chest-Supported Row", sets: 2, reps: "8–10", note: "Drive elbows back" },
+            { name: "Chest-Supported Row", sets: 2, reps: "8–10", note: "Drive elbows back · key in one side, app doubles it", barbell: true, bar: 0 },
             { name: "Pendlay Row", sets: 2, reps: "5", note: "Dead-stop on floor each rep · pull explosive to lower chest", barbell: true },
             { name: "Wide-Grip Lat Pulldown", sets: 3, reps: "10–12", note: "Lats, not arms" },
             {
