@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=28" />
+<link rel="stylesheet" href="styles.css?v=29" />
 </head>
 <body>
 <header class="topbar">
@@ -50,6 +50,7 @@
 <main id="app">
   <!-- TODAY -->
   <section class="view active" id="view-today">
+    <div class="mode-banner" id="modeBanner" hidden></div>
     <div class="hero">
       <div class="hero-meta">
         <span class="hero-eyebrow" id="todayDate">--</span>
@@ -140,6 +141,23 @@
       <h1 class="hero-title">The split</h1>
       <p class="hero-sub">Don't train the same group two days in a row. Alternate upper / lower. Miss a day, skip it.</p>
     </div>
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">+</span>Plate calculator</h2>
+        <span class="card-meta">Per side · kg plates</span>
+      </header>
+      <div class="plate-input">
+        <input type="number" step="2.5" id="plateTarget" placeholder="60" inputmode="decimal" />
+        <span class="unit">kg total</span>
+        <select id="plateBar">
+          <option value="20">20 bar</option>
+          <option value="15">15 bar</option>
+          <option value="10">10 bar</option>
+          <option value="0">no bar (×2)</option>
+        </select>
+      </div>
+      <div class="plate-result" id="plateResult"></div>
+    </section>
     <div id="workoutsAll"></div>
   </section>
 
@@ -188,6 +206,7 @@
       </div>
       <div class="chart" id="weightChart"></div>
       <div class="progress-stats" id="weightStats"></div>
+      <p class="stat-note" id="weightNote"></p>
     </section>
 
     <section class="card">
@@ -220,6 +239,7 @@
         <span class="card-meta" id="weekMapMeta">16 weeks</span>
       </header>
       <div class="week-grid" id="weekGrid"></div>
+      <div class="week-legend" id="weekMapLegend"></div>
     </section>
 
     <section class="card">
@@ -322,7 +342,17 @@
 
     <section class="card">
       <header class="card-header">
-        <h2><span class="num">05</span>Quarterly review</h2>
+        <h2><span class="num">05</span>Maintain mode</h2>
+        <span class="card-meta">Travel · illness · busy season</span>
+      </header>
+      <p class="warn">Pauses the 16-week clock so deloads don't drift, freezes the streak, swaps in a bodyweight circuit, and stops the deficit nagging. Resume any time — the block picks up exactly where you left it.</p>
+      <div id="maintainStatus" class="info-list"></div>
+      <button class="btn-primary" id="maintainToggleBtn">Pause block</button>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">06</span>Quarterly review</h2>
         <span class="card-meta">90 min · once per season</span>
       </header>
       <div class="rules">
@@ -335,7 +365,7 @@
 
     <section class="card">
       <header class="card-header">
-        <h2><span class="num">06</span>Data backup</h2>
+        <h2><span class="num">07</span>Data backup</h2>
         <span class="card-meta">Your logs live on this phone only</span>
       </header>
       <p class="warn">Export a backup after good weeks. If the browser ever clears storage, import brings everything back.</p>
@@ -346,13 +376,15 @@
 
     <section class="card danger-zone">
       <header class="card-header">
-        <h2><span class="num">07</span>Restart · Reset</h2>
+        <h2><span class="num">08</span>Restart · Reset</h2>
         <span class="card-meta">Two very different buttons</span>
       </header>
       <p class="warn">Had a lapse? Restart the 16-week clock and keep every log you've ever made. Reset is the nuclear option — it wipes everything.</p>
       <button class="btn-secondary" id="restartBlockBtn">Restart block · keep all history</button>
       <button class="btn-ghost" id="resetBtn">Reset all data</button>
     </section>
+
+    <p class="disclaimer-line" id="disclaimerLine"></p>
 
     <figure class="makers-mark">
       <img src="logo.png" alt="Muneer Ahmed · Ahmed Khaandaan" />
@@ -378,7 +410,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=29"></script>
-<script src="app.js?v=26"></script>
+<script src="data.js?v=30"></script>
+<script src="app.js?v=27"></script>
 </body>
 </html>

@@ -10,6 +10,7 @@ const defaultState = {
   sessions: [],
   selectedWorkout: null,
   officeTrip: null,    // { date, idx, done } — covert office-day station rotator
+  pausedAt: null,      // ISO date when Maintain/Travel mode was switched on (null = active block)
   workoutByDate: {},   // { "2026-04-29": "day3", ... }
   setLog: {},
   daily: {},
@@ -65,12 +66,42 @@ function fmtDate(iso) {
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase();
 }
 
+function isPaused() { return !!state.pausedAt; }
+
 function weekNumber() {
   if (!state.startDate) return 1;
   const start = new Date(state.startDate + 'T00:00:00');
-  const now = new Date();
-  const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-  return Math.min(16, Math.floor(diffDays / 7) + 1);
+  // While paused, freeze the clock at the pause date so deloads don't drift.
+  const ref = isPaused() ? new Date(state.pausedAt + 'T00:00:00') : new Date();
+  const diffDays = Math.floor((ref - start) / (1000 * 60 * 60 * 24));
+  return Math.min(16, Math.max(1, Math.floor(diffDays / 7) + 1));
+}
+
+// Deloads land at weeks 8 and 14; week 8 also runs a diet break.
+function isDeloadWeek(n) { return n === 8 || n === 14; }
+function isDietBreakWeek(n) { return n === 8; }
+
+function enterPause() {
+  state.pausedAt = today();
+  save();
+  renderAll();
+  showToast('Block paused · streak frozen');
+}
+
+function exitPause() {
+  if (state.pausedAt && state.startDate) {
+    // Shift the whole block forward by the paused duration so deloads /
+    // diet break keep their position relative to where you left off.
+    const pausedMs = new Date(today() + 'T00:00:00') - new Date(state.pausedAt + 'T00:00:00');
+    const pausedDays = Math.max(0, Math.round(pausedMs / 86400000));
+    const ns = new Date(state.startDate + 'T00:00:00');
+    ns.setDate(ns.getDate() + pausedDays);
+    state.startDate = localIso(ns);
+  }
+  state.pausedAt = null;
+  save();
+  renderAll();
+  showToast('Block resumed');
 }
 
 function dailyKey() {
@@ -875,6 +906,7 @@ function renderToday() {
   renderWorkout();
   renderSleep();
   renderOffice();
+  renderModeBanner();
 
   const w = DATA.workouts.find(x => x.id === state.selectedWorkout);
   document.getElementById('todayTitle').textContent = w ? w.name : "Today's session";
@@ -883,6 +915,35 @@ function renderToday() {
 }
 
 // ========== WORKOUTS VIEW ==========
+// ===== PLATE CALCULATOR =====
+const PLATES = [25, 20, 15, 10, 5, 2.5, 1.25];
+function computePlates(total, bar) {
+  let perSide = (total - bar) / 2;
+  if (isNaN(perSide) || perSide < 0) return null;
+  const out = [];
+  for (const p of PLATES) {
+    let n = 0;
+    while (perSide >= p - 0.001) { perSide -= p; n++; }
+    if (n) out.push({ p, n });
+  }
+  const leftover = Math.round(perSide * 100) / 100;
+  return { out, leftover, perSide: (total - bar) / 2 };
+}
+function renderPlateResult() {
+  const el = document.getElementById('plateResult');
+  if (!el) return;
+  const total = parseFloat(document.getElementById('plateTarget').value);
+  const bar = parseFloat(document.getElementById('plateBar').value);
+  if (isNaN(total)) { el.innerHTML = '<span class="plate-hint">Enter a target weight</span>'; return; }
+  const r = computePlates(total, bar);
+  if (!r || r.perSide < 0) { el.innerHTML = '<span class="plate-hint">Target is below the bar weight</span>'; return; }
+  const chips = r.out.map(x => `<span class="plate-chip">${x.n}×${x.p}</span>`).join('') || '<span class="plate-hint">just the bar</span>';
+  const warn = r.leftover > 0 ? `<span class="plate-hint"> · ${r.leftover}kg short (no plate fits)</span>` : '';
+  el.innerHTML = `<div class="plate-perside">${r.perSide}kg / side</div><div class="plate-chips">${chips}${warn}</div>`;
+}
+document.getElementById('plateTarget')?.addEventListener('input', renderPlateResult);
+document.getElementById('plateBar')?.addEventListener('change', renderPlateResult);
+
 function renderAllWorkouts() {
   const wrap = document.getElementById('workoutsAll');
   wrap.innerHTML = DATA.workouts.map((w, i) => `
@@ -937,46 +998,78 @@ function renderWeightChart() {
 
   const targetY = H - P - ((target - min) / range) * (H - 2 * P);
 
+  // 7-day trailing average line — the signal under the daily noise
+  const avgPts = data.map((d, i) => {
+    const win = data.slice(Math.max(0, i - 6), i + 1).map(x => x.kg);
+    const a = win.reduce((s, v) => s + v, 0) / win.length;
+    const x = P + i * xStep;
+    const y = H - P - ((a - min) / range) * (H - 2 * P);
+    return x + ',' + y;
+  }).join(' ');
+
   el.innerHTML = `
     <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
       <defs>
         <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#E03A60" stop-opacity="0.40"/>
+          <stop offset="0%" stop-color="#E03A60" stop-opacity="0.28"/>
           <stop offset="100%" stop-color="#E03A60" stop-opacity="0"/>
         </linearGradient>
       </defs>
       <line x1="${P}" y1="${targetY}" x2="${W - P}" y2="${targetY}" stroke="#3D4258" stroke-dasharray="4 6" />
       <text x="${W - P - 4}" y="${targetY - 6}" text-anchor="end" fill="#E11D2C" font-family="JetBrains Mono" font-size="11">target ${target}</text>
       <path d="${area}" fill="url(#grad)" />
-      <path d="${path}" stroke="#E03A60" stroke-width="2.2" fill="none" filter="drop-shadow(0 0 7px rgba(225,29,44,0.6))" />
-      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#E11D2C" stroke="#18181F" stroke-width="2"/>`).join('')}
+      <polyline points="${avgPts}" fill="none" stroke="#E03A60" stroke-width="3" stroke-linejoin="round" filter="drop-shadow(0 0 7px rgba(225,29,44,0.55))" />
+      <path d="${path}" stroke="#6E747A" stroke-width="1.2" fill="none" opacity="0.55" />
+      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="2.5" fill="#6E747A"/>`).join('')}
     </svg>
   `;
+}
+
+// Rolling 7-day average ending at the latest entry — the honest cut number.
+function rollingAvgWeight() {
+  const data = state.weights.slice().sort((a, b) => a.date.localeCompare(b.date));
+  if (!data.length) return null;
+  const last7 = data.slice(-7).map(d => d.kg);
+  return last7.reduce((a, b) => a + b, 0) / last7.length;
 }
 
 function renderWeightStats() {
   const el = document.getElementById('weightStats');
   const data = state.weights.slice().sort((a, b) => a.date.localeCompare(b.date));
-  const latest = data.at(-1)?.kg ?? DATA.startKg;
+  const today = data.at(-1)?.kg ?? DATA.startKg;
+  const avg = rollingAvgWeight() ?? DATA.startKg;
   const start = data.length > 1 ? data[0].kg : DATA.startKg;
-  const lost = start - latest;
+  const lost = start - avg;
   const target = DATA.targetKg;
-  const toGo = latest - target;
+  const toGo = avg - target;
+  const atFloor = avg <= 68;
 
   el.innerHTML = `
     <div class="progress-stat">
-      <div class="progress-stat-label">Current</div>
-      <div class="progress-stat-value">${latest.toFixed(1)}</div>
+      <div class="progress-stat-label">7-day avg</div>
+      <div class="progress-stat-value">${avg.toFixed(1)}</div>
+      <div class="progress-stat-sub">today ${today.toFixed(1)}</div>
     </div>
     <div class="progress-stat">
       <div class="progress-stat-label">Lost</div>
       <div class="progress-stat-value ${lost > 0 ? 'green' : ''}">${lost > 0 ? '−' : ''}${Math.abs(lost).toFixed(1)}</div>
     </div>
     <div class="progress-stat">
-      <div class="progress-stat-label">To target</div>
-      <div class="progress-stat-value">${toGo > 0 ? toGo.toFixed(1) : '✓'}</div>
+      <div class="progress-stat-label">${atFloor ? 'At floor' : 'To target'}</div>
+      <div class="progress-stat-value">${atFloor ? '✓' : (toGo > 0 ? toGo.toFixed(1) : '✓')}</div>
     </div>
   `;
+
+  const note = document.getElementById('weightNote');
+  if (note) {
+    if (data.length < 7) {
+      note.textContent = 'Weigh in daily. The 7-day average is the real trend — ignore the daily ±1kg of water and food.';
+    } else if (atFloor) {
+      note.textContent = '68 kg reached — this is the floor. Hold maintenance + keep progressing the lifts. No deeper deficit; below 12% body fat tanks recovery and hormones.';
+    } else {
+      note.textContent = 'Track the average line, not the daily dot. A good rate here is 0.3–0.45 kg/week.';
+    }
+  }
 }
 
 /** Gym sessions completed in the current training week (Sat-start, matching the split). */
@@ -994,17 +1087,23 @@ function renderWeekGrid() {
   const cw = weekNumber();
   el.innerHTML = '';
   for (let i = 1; i <= 16; i++) {
-    const isCurrent = i === cw;
-    const isPast = i < cw;
-    const isDeload = i % 5 === 0;
     let cls = 'week-cell';
-    if (isPast) cls += ' done';
-    if (isDeload) cls += ' deload';
-    if (isCurrent) cls += ' current';
-    el.innerHTML += `<div class="${cls}">${i}</div>`;
+    if (i < cw) cls += ' done';
+    if (isDeloadWeek(i)) cls += ' deload';
+    if (isDietBreakWeek(i)) cls += ' dietbreak';
+    if (i === cw) cls += ' current';
+    const title = isDietBreakWeek(i) ? 'Deload + diet break' : (isDeloadWeek(i) ? 'Deload' : '');
+    el.innerHTML += `<div class="${cls}"${title ? ` title="${title}"` : ''}>${i}</div>`;
   }
   const meta = document.getElementById('weekMapMeta');
   if (meta) meta.textContent = `16 weeks · ${sessionsThisTrainingWeek()}/5 this wk`;
+  // Legend
+  const legend = document.getElementById('weekMapLegend');
+  if (legend) legend.innerHTML = `
+    <span class="wk-leg"><i class="wk-sw done"></i>done</span>
+    <span class="wk-leg"><i class="wk-sw current"></i>now</span>
+    <span class="wk-leg"><i class="wk-sw deload"></i>deload (8·14)</span>
+    <span class="wk-leg"><i class="wk-sw dietbreak"></i>diet break (8)</span>`;
 }
 
 function buildHistoryDetail(session) {
@@ -1593,7 +1692,59 @@ function renderProtocol() {
       </div>
     </div>
   `).join('');
+  renderMaintain();
+  const disc = document.getElementById('disclaimerLine');
+  if (disc) disc.textContent = DATA.disclaimer || '';
 }
+
+// ===== MAINTAIN / TRAVEL MODE =====
+function renderMaintain() {
+  const btn = document.getElementById('maintainToggleBtn');
+  const status = document.getElementById('maintainStatus');
+  if (!btn || !status) return;
+  if (isPaused()) {
+    btn.textContent = 'Resume block';
+    btn.classList.add('done');
+    status.innerHTML = `<div class="info-row"><div class="info-body"><div class="info-name">Paused since ${fmtDate(state.pausedAt)}</div><div class="info-note">Week frozen at ${weekNumber()}. Streak held. On resume, the block shifts forward so nothing drifts.</div></div></div>`;
+  } else {
+    btn.textContent = 'Pause block';
+    btn.classList.remove('done');
+    status.innerHTML = '';
+  }
+}
+
+// Banner at the top of Today — pause state or a deload/diet-break week
+function renderModeBanner() {
+  const el = document.getElementById('modeBanner');
+  if (!el) return;
+  const wk = weekNumber();
+  if (isPaused()) {
+    el.hidden = false;
+    el.className = 'mode-banner paused';
+    el.innerHTML = `<div class="mode-banner-title">Maintain mode · block paused</div>
+      <div class="mode-banner-body">Hold the line, don't chase. Bodyweight circuit below; eat at maintenance; protect sleep. Resume on the Protocol tab when you're back.</div>
+      <div class="maintain-circuit">${DATA.maintainCircuit.map(m => `<div class="mc-row"><span class="mc-name">${m.name}</span><span class="mc-spec">${m.spec}</span></div>`).join('')}</div>`;
+  } else if (isDeloadWeek(wk)) {
+    el.hidden = false;
+    el.className = 'mode-banner deload';
+    const diet = isDietBreakWeek(wk) ? ' This week also runs a <strong>diet break</strong> — eat at maintenance for 5–7 days. Hormonal and mental reset.' : '';
+    el.innerHTML = `<div class="mode-banner-title">Week ${wk} · Deload</div>
+      <div class="mode-banner-body">Same lifts, ~60% load, half the sets. Leave the gym feeling you could've done more — that's the point. Form and mobility focus.${diet}</div>`;
+  } else {
+    el.hidden = true;
+    el.innerHTML = '';
+  }
+}
+
+// Maintain / travel / illness mode toggle
+document.getElementById('maintainToggleBtn')?.addEventListener('click', () => {
+  if (isPaused()) {
+    exitPause();
+  } else {
+    if (!confirm('Pause the block? Streak freezes, deficit nagging stops, and a bodyweight circuit takes over until you resume.')) return;
+    enterPause();
+  }
+});
 
 // Lapse-friendly restart: Week 1 clock, every log kept
 document.getElementById('restartBlockBtn')?.addEventListener('click', () => {

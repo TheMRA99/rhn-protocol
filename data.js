@@ -65,12 +65,12 @@ const DATA = {
             { name: "Assisted Pull-Up (wide grip)", sets: 2, reps: "6–8", note: "1–2 reps in tank · log reps achieved", inputMode: "bodyweight_reps" },
             { name: "Chest-Supported Row", sets: 2, reps: "8–10", note: "Drive elbows back · key in one side, app doubles it", barbell: true, bar: 0 },
             { name: "Pendlay Row", sets: 2, reps: "5", note: "Dead-stop on floor each rep · pull explosive to lower chest", barbell: true },
-            { name: "Wide-Grip Lat Pulldown", sets: 3, reps: "10–12", note: "Lats, not arms" },
+            { name: "Wide-Grip Lat Pulldown", sets: 3, reps: "10–12", note: "Lats not arms · drive elbows down to your ribs, 2-sec squeeze at the bottom" },
             {
               name: "Cable Lateral Raise · drop superset",
               sets: 3,
               reps: "10 ea stage",
-              note: "Heavy R, heavy L, immediately drop weight, drop R, drop L",
+              note: "3-sec lower, lead with elbows · heavy R, heavy L, immediately drop weight, drop R, drop L",
               inputMode: "multistage",
               stages: [
                 { label: "R · heavy" },
@@ -105,7 +105,7 @@ const DATA = {
         {
           title: "Lifts",
           exercises: [
-            { name: "Romanian Deadlift", sets: 3, reps: "6–8", note: "Hinge. Feel the stretch", barbell: true },
+            { name: "Romanian Deadlift", sets: 3, reps: "6–8", note: "Ribs down, brace before the hinge. Stop where the back starts to round — that's today's range.", barbell: true },
             { name: "Back Squat", sets: 3, reps: "6–8", note: "Depth over weight", barbell: true },
             { name: "Barbell Hip Thrust (off bench)", sets: 2, reps: "8–10", note: "Glute thickness", barbell: true },
             { name: "Hip Abduction & Adduction", sets: 2, reps: "15", note: "Glute medius + adductors" },
@@ -133,7 +133,7 @@ const DATA = {
               name: "Cable Lateral Raise · drop superset",
               sets: 2,
               reps: "R+L heavy → R+L drop · 10 each",
-              note: "Heavy R, heavy L, immediately drop weight, drop R, drop L",
+              note: "3-sec lower, lead with elbows · heavy R, heavy L, immediately drop weight, drop R, drop L",
               inputMode: "multistage",
               stages: [
                 { label: "R · heavy" },
@@ -319,6 +319,13 @@ const DATA = {
     }
   ],
 
+  maintainCircuit: [
+    { name: "Push-Ups", spec: "3 × max", note: "Hold the groove, don't chase numbers" },
+    { name: "Bodyweight Squats", spec: "3 × 20", note: "Full depth, controlled" },
+    { name: "Dead Hang", spec: "2 × max", note: "Decompress the spine, keep grip" },
+    { name: "Morning ritual", spec: "Full", note: "Keeps the hips honest while you're away" }
+  ],
+
   targets: [
     { label: "Calories", value: "2,000–2,200", note: "300–400 deficit" },
     { label: "Protein", value: "135–150 g", note: "1.8–2 g/kg" },
@@ -356,6 +363,9 @@ const DATA = {
 
   executionRules: [
     "Leave 1–2 reps in reserve on heavy lifts. Ego-lifting = torn tendon.",
+    "In a deficit: cut volume, never load. Tired? Drop the last set — keep the weight on the bar. That's how muscle survives the cut.",
+    "Brace before every heavy rep: big breath into the belly, ribs down, then lift. The brace protects the back the cut can't.",
+    "Week 1 load: pick a weight you could grind ~2 reps past the target, then start one notch below. Conservative. The app pre-fills from session 2.",
     "Slow 3-sec eccentrics on laterals and core.",
     "10,000–12,000 steps daily — biggest fat-loss lever after the deficit.",
     "90–120 sec rest on heavy compounds. 45–60 sec on volume work.",
@@ -365,10 +375,13 @@ const DATA = {
     "Track every workout. What you don't measure, you don't grow.",
     "Consistency > perfection. 80% for 16 weeks beats 100% for 3.",
     "Protein and veg first. Rice/roti last. Flattens insulin spikes.",
+    "Hydrate: 2.5–3 L/day, more on training days and in the heat. Salt your food normally — cramping in this humidity is usually sodium, not magnesium.",
     "Never stack Day 1 + Day 3 (delt overlap).",
     "Never stack Day 2 + Day 4 (leg overlap).",
-    "Peak season at work? Minimum viable week: 2 sessions, protein, sleep. Zero guilt — consistency over heroics."
+    "Peak season at work? Flip on Maintain mode below. Minimum viable week: 2 sessions, protein, sleep. Zero guilt."
   ],
+
+  disclaimer: "General information, not medical advice. Week-0 bloodwork and a real doctor/physio are the authority on anything clinical. Any pain that changes how a rep looks, or a groin ache that worsens with lifting or coughing — get it seen now, not at week 16.",
 
   genetics: [
     { title: "Central fat storage (TOFI)", body: "Gut comes off LAST. Be patient. Don't chase it with endless ab work." },
@@ -393,7 +406,8 @@ const DATA = {
   progression: [
     { title: "Main lifts · double progression", body: "RDL, Squat, DL, Incline/Flat DB, Pull-Ups, Press, Row. Hit 8 on ALL sets → +2.5–5kg next session. 6–7 → keep weight. Under 6 → too heavy, drop it." },
     { title: "Volume lifts · 10–15 reps", body: "Delts, arms, forearms. Hit 15 clean on all sets → small increment up." },
-    { title: "Deload every 5th week", body: "All weights to 80%. Cut sets in half. Form + mobility focus. Come back heavier." }
+    { title: "Deloads · weeks 8 & 14", body: "Same lifts, ~60% load, half the sets. The app auto-adjusts and flags the week. Week 8 also runs a diet break (eat at maintenance 5–7 days — hormonal + mental reset). Week 14 deload sets up a fresh finish, not a fried one." },
+    { title: "Stalled? No rep added in 3 sessions", body: "Pick one: (a) drop load 10% and rebuild, (b) swap to a listed variation, (c) fix sleep/food first. A stall is information, not failure." }
   ],
 
   phases: [
