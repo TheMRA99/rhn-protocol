@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=29" />
+<link rel="stylesheet" href="styles.css?v=31" />
 </head>
 <body>
 <header class="topbar">
@@ -59,6 +59,7 @@
       <h1 class="hero-title" id="todayTitle">Today's session</h1>
       <p class="hero-sub" id="todaySub">Pick what fits your week. Don't stack delts back-to-back.</p>
       <div class="day-picker" id="dayPicker"></div>
+      <button class="mvs-link" id="mvsLink">Bad day? Log a 20-min minimum session →</button>
     </div>
 
     <section class="card card-collapsible">
@@ -252,7 +253,15 @@
 
     <section class="card">
       <header class="card-header">
-        <h2><span class="num">06</span>Timeline</h2>
+        <h2><span class="num">06</span>Mobility milestones</h2>
+        <span class="card-meta">Re-test every 4 weeks</span>
+      </header>
+      <div id="mobilityList"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">07</span>Timeline</h2>
         <span class="card-meta">What to expect</span>
       </header>
       <div class="phases" id="phases"></div>
@@ -408,9 +417,41 @@
   </div>
 </div>
 
+<div class="onboard" id="onboard" hidden>
+  <div class="onboard-card">
+    <div class="onboard-eyebrow">Day 0 · 2 minutes</div>
+    <h2 class="onboard-title">Set your baseline</h2>
+    <p class="onboard-sub">Every later number measures against today. Skippable, but weight and waist make the whole Progress tab work.</p>
+
+    <label class="onboard-field"><span>Bodyweight</span><div><input type="number" step="0.1" id="obWeight" inputmode="decimal" placeholder="75.0" /><em>kg</em></div></label>
+    <label class="onboard-field"><span>Waist at navel</span><div><input type="number" step="0.1" id="obWaist" inputmode="decimal" placeholder="86.0" /><em>cm</em></div></label>
+
+    <div class="onboard-test">
+      <div class="onboard-test-title">Knee-to-wall test</div>
+      <div class="onboard-test-hint">Big toe back from a wall, push the knee to touch without the heel lifting. Measure toe-to-wall. Under 10 cm unlocks ankle work on Day 2.</div>
+      <div class="onboard-pair">
+        <label><span>Left</span><div><input type="number" step="0.5" id="obKneeL" inputmode="decimal" placeholder="cm" /><em>cm</em></div></label>
+        <label><span>Right</span><div><input type="number" step="0.5" id="obKneeR" inputmode="decimal" placeholder="cm" /><em>cm</em></div></label>
+      </div>
+    </div>
+
+    <div class="onboard-test">
+      <div class="onboard-test-title">Seated hip internal rotation</div>
+      <div class="onboard-test-hint">Sit, rotate the shin outward. Very limited + equal both sides = likely anatomical — manage in gait, don't force the lift stance.</div>
+      <div class="onboard-seg" id="obHipIR" data-val="">
+        <button type="button" data-v="normal">Normal</button>
+        <button type="button" data-v="limited">Limited</button>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="obStart">Start the block</button>
+    <button class="onboard-skip" id="obSkip">Skip for now</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=30"></script>
-<script src="app.js?v=27"></script>
+<script src="data.js?v=32"></script>
+<script src="app.js?v=29"></script>
 </body>
 </html>

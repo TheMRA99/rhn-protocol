@@ -113,6 +113,15 @@ const DATA = {
             { name: "Dead Bug", sets: 2, reps: "12", note: "Slow, anti-extension", inputMode: "bodyweight_reps" },
             { name: "Incline Walk", sets: 1, reps: "15 min", note: "Easy pace · log min, km/h, incline%", inputMode: "treadmill" }
           ]
+        },
+        {
+          title: "Ankle + glute-med prep",
+          gated: "ankle",
+          exercises: [
+            { name: "Wall Ankle Rocks", sets: 2, reps: "12/side", note: "Knee over toes to the wall · your knee-to-wall test flagged tight ankles", inputMode: "bodyweight_reps" },
+            { name: "Tibialis Raises", sets: 2, reps: "15", note: "Heels down, toes up against a wall", inputMode: "bodyweight_reps" },
+            { name: "Banded Clamshells", sets: 2, reps: "15/side", note: "Glute med — fixes the toe-out gait", inputMode: "bodyweight_reps" }
+          ]
         }
       ]
     },
@@ -316,7 +325,31 @@ const DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "mvs",
+      special: true,
+      name: "Minimum viable session",
+      tagline: "Bad day · 20 min · still counts",
+      blurb: "Tired, short on time, low on sleep? Three lifts, in and out. Showing up is the win — this logs as a full green day.",
+      blocks: [
+        {
+          title: "The 3",
+          exercises: [
+            { name: "Goblet Squat", sets: 3, reps: "10", note: "One DB, full depth" },
+            { name: "DB Row", sets: 3, reps: "10/side", note: "One DB, brace on the bench" },
+            { name: "DB Shoulder Press", sets: 3, reps: "10", note: "Standing or seated" }
+          ]
+        }
+      ]
     }
+  ],
+
+  mobilityTests: [
+    { name: "Deep squat hold", spec: "60 sec, heels down", note: "Sit in the bottom, chest up" },
+    { name: "Couch stretch", spec: "60 sec/side, no arch", note: "Glute squeezed, ribs down" },
+    { name: "Knee-to-wall", spec: "≥ 10 cm each side", note: "Big toe to wall, knee taps without heel lifting" },
+    { name: "Standing toe touch", spec: "Palms to floor", note: "Soft knees, hinge" }
   ],
 
   maintainCircuit: [

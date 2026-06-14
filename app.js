@@ -11,6 +11,10 @@ const defaultState = {
   selectedWorkout: null,
   officeTrip: null,    // { date, idx, done } — covert office-day station rotator
   pausedAt: null,      // ISO date when Maintain/Travel mode was switched on (null = active block)
+  onboarded: false,    // first-run flow completed
+  baseline: null,      // { weight, waist, kneeL, kneeR, hipIR, photo } captured at day 0
+  mobility: [],        // [{ date, test, value }] — 4-weekly mobility milestones
+  pain: {},            // { "date::workout::exKey": true } — pain flags for pattern-spotting
   workoutByDate: {},   // { "2026-04-29": "day3", ... }
   setLog: {},
   daily: {},
@@ -80,6 +84,17 @@ function weekNumber() {
 // Deloads land at weeks 8 and 14; week 8 also runs a diet break.
 function isDeloadWeek(n) { return n === 8 || n === 14; }
 function isDietBreakWeek(n) { return n === 8; }
+
+// Self-test gating: ankle/glute-med block shows only if knee-to-wall flagged tight.
+function gateActive(gate) {
+  if (gate === 'ankle') {
+    const b = state.baseline;
+    if (!b) return false;
+    const l = parseFloat(b.kneeL), rr = parseFloat(b.kneeR);
+    return (!isNaN(l) && l < 10) || (!isNaN(rr) && rr < 10);
+  }
+  return false;
+}
 
 function enterPause() {
   state.pausedAt = today();
@@ -573,7 +588,7 @@ function computeStreak() {
 // ========== TODAY: DAY PICKER ==========
 function renderDayPicker() {
   const wrap = document.getElementById('dayPicker');
-  wrap.innerHTML = DATA.workouts.map((w, i) => `
+  wrap.innerHTML = DATA.workouts.filter(w => !w.special).map((w, i) => `
     <button class="day-pill ${state.selectedWorkout === w.id ? 'active' : ''}" data-id="${w.id}">
       <div class="day-pill-num">${w.id === 'homecore' ? 'Home · core' : 'Day 0' + (i + 1)}</div>
       <div class="day-pill-name">${w.name.split('+')[0].trim()}</div>
@@ -629,7 +644,7 @@ function renderWorkout() {
 
   const list = document.getElementById('exerciseList');
   let totalSets = 0, doneSets = 0;
-  list.innerHTML = w.blocks.map(block => `
+  list.innerHTML = w.blocks.filter(block => !block.gated || gateActive(block.gated)).map(block => `
     <section class="exercise-block">
       <button type="button" class="block-title">
         <span class="block-title-text">${block.title}</span>
@@ -715,14 +730,20 @@ function renderWorkout() {
       const prevHTML = prev
         ? `<div class="exercise-prev ${beating ? 'beaten' : ''}" title="From ${fmtDate(prev.date)}">last · ${formatPrev(prev.set, mode, ex)}${beating ? ' · beaten' : ''}</div>`
         : '';
+      const stallHTML = isStalled(id, exKey, ex)
+        ? `<div class="exercise-stall">Stalled 3 sessions. Pick one: drop load 10% &amp; rebuild · swap a variation · or fix sleep + food first.</div>`
+        : '';
+      const painOn = !!(state.pain && state.pain[`${dKey}::${id}::${exKey}`]);
       return `
         <div class="exercise">
           <div class="exercise-head">
             <div class="exercise-name">${ex.name}</div>
             <div class="exercise-spec">${ex.sets} × ${ex.reps}</div>
+            <button type="button" class="pain-flag ${painOn ? 'on' : ''}" data-painkey="${dKey}::${id}::${exKey}" title="Flag pain on this exercise">⚑</button>
           </div>
           ${ex.note ? `<div class="exercise-note">${ex.note}</div>` : ''}
           ${prevHTML}
+          ${stallHTML}
           ${bodyHTML}
         </div>
       `;
@@ -883,6 +904,17 @@ function renderWorkout() {
     });
   });
 
+  // Pain flags — toggle, store for pattern-spotting
+  list.querySelectorAll('.pain-flag').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.painkey;
+      state.pain = state.pain || {};
+      if (state.pain[key]) { delete state.pain[key]; btn.classList.remove('on'); }
+      else { state.pain[key] = true; btn.classList.add('on'); showToast('Pain flagged — ease off, no hero sets'); }
+      save();
+    });
+  });
+
   const btn = document.getElementById('finishWorkoutBtn');
   const isLogged = state.sessions.some(s => s.date === dKey && s.workoutId === id);
   btn.textContent = isLogged ? 'Session logged' : 'Mark session complete';
@@ -946,7 +978,7 @@ document.getElementById('plateBar')?.addEventListener('change', renderPlateResul
 
 function renderAllWorkouts() {
   const wrap = document.getElementById('workoutsAll');
-  wrap.innerHTML = DATA.workouts.map((w, i) => `
+  wrap.innerHTML = DATA.workouts.filter(w => !w.special).map((w, i) => `
     <section class="workout-block">
       <div class="workout-block-head">
         <div class="workout-block-tag">${w.id === 'homecore' ? 'Home · core' : 'Day 0' + (i + 1)}</div>
@@ -1212,6 +1244,22 @@ function bestSetOf(sets, mode, ex) {
   const done = (sets || []).filter(s => s && s.done);
   if (!done.length) return null;
   return done.reduce((a, b) => (setScore(b, mode, ex) > setScore(a, mode, ex) ? b : a));
+}
+
+// Stall: last 3 logged sessions produced no new best over the prior peak.
+function isStalled(workoutId, exKey, ex) {
+  const mode = ex.inputMode || 'weight_reps';
+  if (mode !== 'weight_reps' && mode !== 'multistage') return false;  // strength lifts only
+  const dates = Object.keys(state.setLog || {}).filter(d => d !== today()).sort();
+  const scores = [];
+  for (const d of dates) {
+    const best = bestSetOf(state.setLog[d]?.[workoutId]?.[exKey], mode, ex);
+    if (best) scores.push(setScore(best, mode, ex));
+  }
+  if (scores.length < 3) return false;
+  const recent = scores.slice(-3);
+  const priorMax = scores.length > 3 ? Math.max(...scores.slice(0, -3)) : recent[0];
+  return Math.max(...recent) <= priorMax + 0.001;
 }
 
 /** Walk the whole set log → per-exercise session history, newest activity first. */
@@ -1618,6 +1666,41 @@ document.getElementById('importFile')?.addEventListener('change', (e) => {
   e.target.value = '';
 });
 
+// ===== MOBILITY MILESTONES =====
+function renderMobility() {
+  const el = document.getElementById('mobilityList');
+  if (!el) return;
+  el.innerHTML = DATA.mobilityTests.map((t, i) => {
+    const hits = (state.mobility || []).filter(m => m.test === t.name).sort((a, b) => a.date.localeCompare(b.date));
+    const last = hits.at(-1);
+    const daysAgo = last ? Math.round((new Date(today()) - new Date(last.date)) / 86400000) : null;
+    const stale = daysAgo == null || daysAgo >= 28;
+    const status = last
+      ? `<span class="mob-last ${stale ? 'stale' : 'fresh'}">last hit ${fmtDate(last.date)}${stale ? ' · re-test due' : ''}</span>`
+      : `<span class="mob-last stale">not tested yet</span>`;
+    return `
+      <div class="mob-row">
+        <div class="mob-info">
+          <div class="mob-name">${t.name} <span class="mob-spec">${t.spec}</span></div>
+          <div class="mob-note">${t.note}</div>
+          ${status}
+        </div>
+        <button class="mob-btn" data-test="${i}">Hit ✓</button>
+      </div>`;
+  }).join('');
+  el.querySelectorAll('.mob-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const t = DATA.mobilityTests[+btn.dataset.test];
+      state.mobility = state.mobility || [];
+      state.mobility = state.mobility.filter(m => !(m.test === t.name && m.date === today()));
+      state.mobility.push({ test: t.name, date: today() });
+      save();
+      renderMobility();
+      showToast(t.name + ' logged');
+    });
+  });
+}
+
 function renderProgress() {
   renderWeightChart();
   renderWeightStats();
@@ -1625,6 +1708,7 @@ function renderProgress() {
   renderSleepAnalysis();
   renderWeekGrid();
   renderHistory();
+  renderMobility();
   renderPhases();
 }
 
@@ -1736,6 +1820,18 @@ function renderModeBanner() {
   }
 }
 
+// Minimum viable session — bad-day workout
+document.getElementById('mvsLink')?.addEventListener('click', () => {
+  setSelectedWorkoutForToday('mvs');
+  save();
+  renderToday();
+  renderHeader();
+  requestAnimationFrame(() => {
+    const card = document.getElementById('workoutCard');
+    if (card && !card.hidden) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
 // Maintain / travel / illness mode toggle
 document.getElementById('maintainToggleBtn')?.addEventListener('click', () => {
   if (isPaused()) {
@@ -1777,6 +1873,42 @@ function renderAll() {
 // Sync today's workout pick from per-date map (auto-default if first visit today)
 state.selectedWorkout = getSelectedWorkoutForToday();
 save();
+
+// ===== FIRST-RUN ONBOARDING =====
+(function wireOnboard() {
+  const seg = document.getElementById('obHipIR');
+  seg?.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      seg.dataset.val = btn.dataset.v;
+      seg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+    });
+  });
+  document.getElementById('obStart')?.addEventListener('click', () => {
+    const num = id => { const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? null : v; };
+    const weight = num('obWeight'), waist = num('obWaist');
+    state.baseline = {
+      weight, waist,
+      kneeL: num('obKneeL'), kneeR: num('obKneeR'),
+      hipIR: document.getElementById('obHipIR').dataset.val || null,
+      date: today()
+    };
+    if (weight != null) { state.weights = state.weights.filter(w => w.date !== today()); state.weights.push({ date: today(), kg: weight }); }
+    if (waist != null) { state.waists = state.waists.filter(w => w.date !== today()); state.waists.push({ date: today(), cm: waist }); }
+    state.onboarded = true;
+    state.startDate = today();
+    save();
+    document.getElementById('onboard').hidden = true;
+    renderAll();
+    showToast('Baseline set · week 1');
+  });
+  document.getElementById('obSkip')?.addEventListener('click', () => {
+    state.onboarded = true;
+    if (!state.startDate) state.startDate = today();
+    save();
+    document.getElementById('onboard').hidden = true;
+  });
+  if (!state.onboarded) document.getElementById('onboard').hidden = false;
+})();
 
 // ===== THEME (light default) =====
 const THEME_KEY = 'rhn-theme';

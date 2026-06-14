@@ -1789,6 +1789,97 @@ body.rest-active main { padding-bottom: 180px; }
 }
 .plate-hint { font-size: 12px; color: var(--text-dim); }
 
+/* ===== ONBOARDING ===== */
+.onboard {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(10,8,14,0.82);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  display: flex; align-items: flex-start; justify-content: center;
+  overflow-y: auto; padding: 24px 16px 60px;
+}
+.onboard-card {
+  width: 100%; max-width: 460px;
+  background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+  border: 1px solid var(--line-bright); border-radius: 18px;
+  padding: 26px 22px;
+  box-shadow: 0 20px 60px -12px rgba(0,0,0,0.7);
+}
+.onboard-eyebrow { font-family: 'Hanken Grotesk', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--wine-bright); }
+.onboard-title { font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 700; font-size: 30px; letter-spacing: -0.03em; margin: 6px 0 8px; color: var(--text); }
+.onboard-sub { font-size: 13.5px; color: var(--text-dim); line-height: 1.5; margin-bottom: 20px; }
+.onboard-field { display: block; margin-bottom: 14px; }
+.onboard-field > span, .onboard-pair label > span { display: block; font-size: 12px; font-weight: 600; color: var(--text-dim); margin-bottom: 6px; }
+.onboard-field > div, .onboard-pair label > div { display: flex; align-items: center; gap: 8px; }
+.onboard-field input, .onboard-pair input {
+  flex: 1; min-width: 0; background: var(--bg-3); border: 1px solid var(--line); border-radius: 10px;
+  color: var(--text); padding: 12px 14px; font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 600; outline: none;
+}
+.onboard-field input:focus, .onboard-pair input:focus { border-color: var(--wine); }
+.onboard-field em, .onboard-pair em { font-style: normal; font-size: 11px; color: var(--text-faint); flex: 0 0 auto; }
+.onboard-test { margin: 18px 0; padding-top: 16px; border-top: 1px solid var(--line); }
+.onboard-test-title { font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 4px; }
+.onboard-test-hint { font-size: 12px; color: var(--text-dim); line-height: 1.5; margin-bottom: 12px; }
+.onboard-pair { display: flex; gap: 12px; }
+.onboard-pair label { flex: 1; }
+.onboard-seg { display: flex; gap: 8px; }
+.onboard-seg button {
+  flex: 1; padding: 11px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--bg-3); color: var(--text-dim); font-family: 'Hanken Grotesk', sans-serif; font-weight: 600; font-size: 13px;
+}
+.onboard-seg button.on { border-color: var(--wine); color: var(--text); background: rgba(200,51,75,0.14); }
+#obStart { margin-top: 22px; }
+.onboard-skip { display: block; width: 100%; margin-top: 10px; padding: 10px; background: none; color: var(--text-dim); font-family: 'Hanken Grotesk', sans-serif; font-size: 13px; font-weight: 500; }
+.onboard-skip:hover { color: var(--text); }
+
+/* ===== MVS LINK ===== */
+.mvs-link {
+  display: block; margin-top: 14px; padding: 10px 0; width: 100%; text-align: left;
+  background: none; color: var(--text-dim);
+  font-family: 'Hanken Grotesk', sans-serif; font-size: 13px; font-weight: 600;
+  transition: color 0.15s;
+}
+.mvs-link:hover { color: var(--wine-bright); }
+
+/* ===== MOBILITY MILESTONES ===== */
+.mob-row { display: flex; align-items: center; gap: 12px; padding: 14px 22px; border-bottom: 1px solid var(--line); }
+.mob-row:last-child { border-bottom: none; }
+.mob-info { flex: 1; min-width: 0; }
+.mob-name { font-weight: 600; font-size: 14px; color: var(--text); }
+.mob-spec { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--cobalt-bright); font-weight: 500; }
+.mob-note { font-size: 12px; color: var(--text-dim); margin-top: 2px; line-height: 1.45; }
+.mob-last { display: inline-block; margin-top: 5px; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+.mob-last.fresh { color: var(--wine-bright); }
+.mob-last.stale { color: var(--text-faint); }
+.mob-btn { flex: 0 0 auto; padding: 9px 14px; border-radius: 9px; background: var(--bg-3); border: 1px solid var(--line-bright); color: var(--text); font-family: 'Hanken Grotesk', sans-serif; font-weight: 600; font-size: 13px; }
+.mob-btn:hover { border-color: var(--wine); color: var(--wine-bright); }
+.mob-btn:active { transform: scale(0.95); }
+
+/* ===== STALL CHIP + PAIN FLAG ===== */
+.exercise-stall {
+  margin-top: 8px;
+  padding: 8px 11px;
+  border-radius: 8px;
+  background: rgba(56,85,232,0.12);
+  border: 1px solid var(--cobalt-dim);
+  color: var(--cobalt-bright);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+.pain-flag {
+  flex: 0 0 auto;
+  font-size: 13px;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 7px;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text-faint);
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.pain-flag:hover { color: var(--text-dim); border-color: var(--line-bright); }
+.pain-flag.on { color: var(--rust); border-color: var(--rust); background: rgba(220,38,38,0.12); }
+
 /* ===== DISCLAIMER ===== */
 .disclaimer-line {
   padding: 4px 4px 22px;
