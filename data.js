@@ -107,7 +107,7 @@ const DATA = {
           title: "Lifts",
           exercises: [
             { name: "Romanian Deadlift", sets: 3, reps: "6–8", note: "Ribs down, brace before the hinge. Stop where the back starts to round — that's today's range.", barbell: true },
-            { name: "Back Squat", sets: 3, reps: "6–8", note: "Depth over weight", barbell: true },
+            { name: "Back Squat", sets: 3, reps: "6–8", note: "Depth over weight. Let your toes point out 15–30° — your natural stance. Cue: knees track over toes, never force toes straight.", barbell: true },
             { name: "Barbell Hip Thrust (off bench)", sets: 2, reps: "8–10", note: "Glute thickness", barbell: true },
             { name: "Hip Abduction & Adduction", sets: 2, reps: "15", note: "Glute medius + adductors" },
             { name: "Single-Leg Calf Raise", sets: 2, reps: "12/side", note: "Achilles prehab", inputMode: "bodyweight_reps" },
@@ -202,7 +202,7 @@ const DATA = {
           exercises: [
             { name: "Power Clean", sets: 3, reps: "3", note: "Floor → shoulders, explosive · the carry-prep lift", barbell: true },
             { name: "Barbell Deadlift", sets: 3, reps: "5", note: "Brace hard, stay tight", barbell: true },
-            { name: "Front Squat", sets: 3, reps: "6–8", note: "Upright torso · sub goblet at total kg if no rack", barbell: true },
+            { name: "Front Squat", sets: 3, reps: "6–8", note: "Upright torso · toes out 15–30°, knees chase the toes · sub goblet at total kg if no rack", barbell: true },
             { name: "Push Press", sets: 3, reps: "5", note: "Leg dip → drive overhead", barbell: true },
             { name: "Hamstring Curl", sets: 3, reps: "12", note: "Slow negative" }
           ]

@@ -11,8 +11,8 @@ const defaultState = {
   selectedWorkout: null,
   officeTrip: null,    // { date, idx, done } — covert office-day station rotator
   pausedAt: null,      // ISO date when Maintain/Travel mode was switched on (null = active block)
-  onboarded: false,    // first-run flow completed
-  baseline: null,      // { weight, waist, kneeL, kneeR, hipIR, photo } captured at day 0
+  onboarded: true,     // onboarding removed — baseline is hard-coded below
+  baseline: { weight: 75, waist: 86, kneeL: 13, kneeR: 16, hipIR: 'normal' },
   mobility: [],        // [{ date, test, value }] — 4-weekly mobility milestones
   pain: {},            // { "date::workout::exKey": true } — pain flags for pattern-spotting
   workoutByDate: {},   // { "2026-04-29": "day3", ... }
@@ -40,7 +40,11 @@ function load() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return seed();
     const parsed = JSON.parse(raw);
-    return { ...defaultState, ...parsed };
+    const merged = { ...defaultState, ...parsed };
+    // Onboarding is gone — everyone is onboarded with a hard-coded baseline.
+    merged.onboarded = true;
+    if (!merged.baseline) merged.baseline = { ...defaultState.baseline };
+    return merged;
   } catch (e) {
     return seed();
   }
@@ -639,6 +643,20 @@ function renderWorkout() {
     warmupEl.textContent = w.warmup || '';
   }
 
+  // Hip-IR self-test gating: on lower day, if internal rotation came back
+  // limited (and symmetric, which a single value implies), don't fight the
+  // stance in lifts — manage the toe-out in gait instead.
+  const gatedNote = document.getElementById('workoutGatedNote');
+  if (gatedNote) {
+    if (id === 'day2' && state.baseline && state.baseline.hipIR === 'limited') {
+      gatedNote.hidden = false;
+      gatedNote.textContent = 'Your hip internal-rotation test came back limited — likely anatomical (femoral retroversion). Don\'t force a narrow/toes-forward squat stance. Let the feet turn out, keep knees over toes, and manage the toe-out in walking, not under the bar.';
+    } else {
+      gatedNote.hidden = true;
+      gatedNote.textContent = '';
+    }
+  }
+
   const dKey = dailyKey();
   const log = state.setLog[dKey] && state.setLog[dKey][id] ? state.setLog[dKey][id] : {};
 
@@ -1094,14 +1112,48 @@ function renderWeightStats() {
 
   const note = document.getElementById('weightNote');
   if (note) {
-    if (data.length < 7) {
-      note.textContent = 'Weigh in daily. The 7-day average is the real trend — ignore the daily ±1kg of water and food.';
-    } else if (atFloor) {
-      note.textContent = '68 kg reached — this is the floor. Hold maintenance + keep progressing the lifts. No deeper deficit; below 12% body fat tanks recovery and hormones.';
-    } else {
-      note.textContent = 'Track the average line, not the daily dot. A good rate here is 0.3–0.45 kg/week.';
-    }
+    note.innerHTML = weightTrendNote(data, avg, atFloor);
   }
+}
+
+// 14-day slope check: compare the rolling avg now vs ~2 weeks ago, against
+// the 0.3–0.45 kg/wk target. Returns an on-track / ahead / behind note + nudge.
+function weightTrendNote(data, avg, atFloor) {
+  if (data.length < 7) {
+    return 'Weigh in daily. The 7-day average is the real trend — ignore the daily ±1 kg of water and food.';
+  }
+  if (atFloor) {
+    return '<strong>68 kg — the floor.</strong> Hold maintenance and keep progressing the lifts. No deeper deficit; below 12% body fat tanks recovery and hormones.';
+  }
+  // Find a data point ~14 days before the latest to measure the slope.
+  const latest = data.at(-1);
+  const latestT = new Date(latest.date).getTime();
+  let past = null;
+  for (const d of data) {
+    const days = (latestT - new Date(d.date).getTime()) / 86400000;
+    if (days >= 12) past = d; else break;
+  }
+  if (!past) {
+    return 'Track the average line, not the daily dot. Target rate is 0.3–0.45 kg/week — the 2-week check kicks in once you have ~14 days logged.';
+  }
+  const weeks = ((latestT - new Date(past.date).getTime()) / 86400000) / 7;
+  // rolling avg at the past point
+  const idx = data.indexOf(past);
+  const pastWin = data.slice(Math.max(0, idx - 6), idx + 1).map(x => x.kg);
+  const pastAvg = pastWin.reduce((a, b) => a + b, 0) / pastWin.length;
+  const rate = (pastAvg - avg) / weeks; // +ve = losing
+  const r = rate.toFixed(2);
+
+  if (rate >= 0.3 && rate <= 0.45) {
+    return `<strong>On track.</strong> Losing ${r} kg/week — right in the 0.3–0.45 window. Hold everything steady; you're keeping muscle while the fat comes off.`;
+  }
+  if (rate > 0.45) {
+    return `<strong>Ahead — and a touch fast.</strong> Losing ${r} kg/week (target 0.3–0.45). Add ~100–150 kcal/day (a fist of rice or an extra fruit). Too fast burns muscle and tanks gym performance.`;
+  }
+  if (rate < 0.3 && rate >= 0) {
+    return `<strong>Behind.</strong> Losing ${r} kg/week (target 0.3–0.45). Trim ~150 kcal/day — cut one starch portion or the chai sugar — or add 1,500 steps. Re-check in a week.`;
+  }
+  return `<strong>Trending up.</strong> The 2-week average rose ${Math.abs(r)} kg/week. If you're not in a planned diet break, the deficit has slipped — tighten portions and recheck the weekly average, not the daily.`;
 }
 
 /** Gym sessions completed in the current training week (Sat-start, matching the split). */
@@ -1874,53 +1926,9 @@ function renderAll() {
 state.selectedWorkout = getSelectedWorkoutForToday();
 save();
 
-// ===== FIRST-RUN ONBOARDING =====
-(function wireOnboard() {
-  const seg = document.getElementById('obHipIR');
-  seg?.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      seg.dataset.val = btn.dataset.v;
-      seg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
-    });
-  });
-  document.getElementById('obStart')?.addEventListener('click', () => {
-    const num = id => { const v = parseFloat(document.getElementById(id).value); return isNaN(v) ? null : v; };
-    const weight = num('obWeight'), waist = num('obWaist');
-    state.baseline = {
-      weight, waist,
-      kneeL: num('obKneeL'), kneeR: num('obKneeR'),
-      hipIR: document.getElementById('obHipIR').dataset.val || null,
-      date: today()
-    };
-    if (weight != null) { state.weights = state.weights.filter(w => w.date !== today()); state.weights.push({ date: today(), kg: weight }); }
-    if (waist != null) { state.waists = state.waists.filter(w => w.date !== today()); state.waists.push({ date: today(), cm: waist }); }
-    state.onboarded = true;
-    state.startDate = today();
-    save();
-    document.getElementById('onboard').hidden = true;
-    renderAll();
-    showToast('Baseline set · week 1');
-  });
-  document.getElementById('obSkip')?.addEventListener('click', () => {
-    state.onboarded = true;
-    if (!state.startDate) state.startDate = today();
-    save();
-    document.getElementById('onboard').hidden = true;
-  });
-
-  // Show ONLY on a truly fresh install. Anyone with existing logs (or who
-  // has already completed/skipped it) is permanently treated as onboarded —
-  // it never appears again.
-  const hasHistory = (state.weights?.length || state.waists?.length ||
-    state.sessions?.length || Object.keys(state.setLog || {}).length ||
-    state.baseline);
-  if (state.onboarded || hasHistory) {
-    if (!state.onboarded) { state.onboarded = true; save(); }
-    document.getElementById('onboard').hidden = true;
-  } else {
-    document.getElementById('onboard').hidden = false;
-  }
-})();
+// Onboarding removed — baseline is hard-coded. Keep the overlay hidden if any
+// stale markup is still cached on a device.
+(function () { const o = document.getElementById('onboard'); if (o) o.hidden = true; })();
 
 // ===== THEME (light default) =====
 const THEME_KEY = 'rhn-theme';
