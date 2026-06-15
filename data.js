@@ -238,9 +238,9 @@ const DATA = {
         {
           title: "Lat Pulldown · triset",
           exercises: [
-            { name: "Wide Grip Pulldown", sets: 2, reps: "10–12", note: "Outer lats · 1–2 in tank" },
-            { name: "Narrow Grip Pulldown", sets: 2, reps: "10–12", note: "Inner back, biceps" },
-            { name: "Reverse Grip Pulldown", sets: 2, reps: "10–12", note: "Lower lats + biceps" }
+            { name: "Wide Grip Pulldown", sets: 1, reps: "to failure", note: "Heavy · outer lats · 1 all-out set" },
+            { name: "Narrow Grip Pulldown", sets: 1, reps: "to failure", note: "Heavy · inner back, biceps" },
+            { name: "Reverse Grip Pulldown", sets: 1, reps: "to failure", note: "Heavy · lower lats + biceps" }
           ]
         },
         {
@@ -274,17 +274,17 @@ const DATA = {
         {
           title: "Arms",
           exercises: [
-            { name: "Straight Bar Pushdown", sets: 2, reps: "10–12", note: "Overall tricep mass" },
-            { name: "Seated Bicep Curl · mid hold", sets: 2, reps: "8–10", note: "Hold at 90° before each rep · the hold is the work" },
-            { name: "Seated Hammer Curl · mid hold", sets: 2, reps: "8–10", note: "Brachialis · forearm" }
+            { name: "Straight Bar Pushdown", sets: 1, reps: "to failure", note: "Heavy · one all-out set · overall tricep mass" },
+            { name: "Seated Bicep Curl · mid hold", sets: 1, reps: "to failure", note: "Heavy · hold at 90° before each rep" },
+            { name: "Seated Hammer Curl · mid hold", sets: 1, reps: "to failure", note: "Heavy · brachialis + forearm" }
           ]
         },
         {
           title: "Core",
           exercises: [
-            { name: "V-Ups", sets: 2, reps: "10–12", note: "Reach for your toes · breathe OUT on the way up", inputMode: "bodyweight_reps" },
-            { name: "Single-Leg V-Ups", sets: 2, reps: "8/side", note: "Alternate legs · opposite hand to raised foot · exhale up", inputMode: "bodyweight_reps" },
-            { name: "Russian Twist · medicine ball", sets: 2, reps: "12/side", note: "Feet up = harder · exhale on each twist · log ball kg" }
+            { name: "V-Ups", sets: 1, reps: "10–12", note: "Reach for your toes · breathe OUT on the way up", inputMode: "bodyweight_reps" },
+            { name: "Single-Leg V-Ups", sets: 1, reps: "8/side", note: "Alternate legs · opposite hand to raised foot · exhale up", inputMode: "bodyweight_reps" },
+            { name: "Russian Twist · medicine ball", sets: 1, reps: "12/side", note: "Feet up = harder · exhale on each twist · log ball kg" }
           ]
         },
         {
@@ -320,9 +320,16 @@ const DATA = {
           ]
         },
         {
+          title: "Vertical pull",
+          exercises: [
+            { name: "Pull-Ups", sets: 3, reps: "max", note: "Wide-ish, palms away · lats + width. Assisted band if needed.", inputMode: "bodyweight_reps" },
+            { name: "Chin-Ups", sets: 2, reps: "max", note: "Palms toward you · biceps + lats", inputMode: "bodyweight_reps" }
+          ]
+        },
+        {
           title: "Gym · KB finisher",
           exercises: [
-            { name: "KB Swings · intervals", sets: 6, reps: "30s on / 30s off", note: "Do this at the gym · 20kg max. Tap timer for the 30s on. Push max reps (aim 22+). Rounds 4–6 single-arm alternating.", timed: 30 }
+            { name: "KB Swings · intervals", sets: 4, reps: "30s on / 30s off", note: "20kg max. Tap timer for the 30s on. Push max reps (aim 22+). Last round single-arm alternating if you've got it.", timed: 30 }
           ]
         }
       ]
