@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=32" />
+<link rel="stylesheet" href="styles.css?v=33" />
 </head>
 <body>
 <header class="topbar">
@@ -61,6 +61,8 @@
       <div class="day-picker" id="dayPicker"></div>
       <button class="mvs-link" id="mvsLink">Bad day? Log a 20-min minimum session →</button>
     </div>
+
+    <section class="card readiness-card" id="readinessCard" hidden></section>
 
     <section class="card card-collapsible">
       <header class="card-header">
@@ -210,6 +212,8 @@
       <div class="progress-stats" id="weightStats"></div>
       <p class="stat-note" id="weightNote"></p>
     </section>
+
+    <section class="card forecast-card" id="forecastCard" hidden></section>
 
     <section class="card">
       <header class="card-header">
@@ -421,6 +425,6 @@
 <div class="toast" id="toast"></div>
 
 <script src="data.js?v=36"></script>
-<script src="app.js?v=33"></script>
+<script src="app.js?v=34"></script>
 </body>
 </html>

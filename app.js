@@ -990,6 +990,7 @@ function renderToday() {
   renderInfoList('ritualList', DATA.morningRitual);
   renderInfoList('dailyList', DATA.daily);
   renderInfoList('staminaList', DATA.stamina);
+  renderReadiness();
   renderWorkout();
   renderSleep();
   renderOffice();
@@ -999,6 +1000,70 @@ function renderToday() {
   document.getElementById('todayTitle').textContent = w ? w.name : "Today's session";
   document.getElementById('todaySub').textContent = w ? w.blurb : "Pick what fits your week. Don't stack delts back-to-back.";
   document.getElementById('todayTag').textContent = w ? w.tagline : 'Show up';
+}
+
+// ===== Intelligence-layer renderers =====
+function renderReadiness() {
+  const el = document.getElementById('readinessCard');
+  if (!el) return;
+  const { readiness: r, adjustments } = adaptivePlan();
+  const vClass = r.verdict === 'push' ? 'rd-push' : r.verdict === 'hold' ? 'rd-hold' : 'rd-backoff';
+
+  if (!r.hasData) {
+    el.hidden = false;
+    el.innerHTML = `
+      <header class="card-header"><h2>Readiness</h2><span class="card-meta">adaptive engine</span></header>
+      <div class="rd-empty">Log <strong>last night's freshness</strong> on the Sleep card and weigh in daily — the engine reads those to call <em>push · hold · back off</em> and adjusts today automatically.</div>`;
+    return;
+  }
+
+  const factorsHTML = r.factors.map(f =>
+    `<span class="rd-chip ${f.delta >= 0 ? 'pos' : 'neg'}">${f.label} <b>${f.delta > 0 ? '+' : ''}${f.delta}</b></span>`
+  ).join('');
+  const adjHTML = adjustments.map(a => `<li class="rd-adj rd-adj-${a.kind}">${a.text}</li>`).join('');
+
+  el.hidden = false;
+  el.innerHTML = `
+    <header class="card-header"><h2>Readiness</h2><span class="card-meta">adaptive engine</span></header>
+    <div class="rd-top">
+      <div class="rd-score"><span class="rd-num">${r.score}</span><span class="rd-denom">/100</span></div>
+      <div class="rd-verdict ${vClass}">${r.verdict.toUpperCase()}</div>
+    </div>
+    <div class="rd-bar"><div class="rd-bar-fill ${vClass}" style="width:${r.score}%"></div></div>
+    ${factorsHTML ? `<div class="rd-factors">${factorsHTML}</div>` : ''}
+    <ul class="rd-adjs">${adjHTML}</ul>`;
+}
+
+function renderForecast() {
+  const el = document.getElementById('forecastCard');
+  if (!el) return;
+  const f = forecastTrajectory(DATA.targetKg);
+  const head = `<header class="card-header"><h2>Trajectory</h2><span class="card-meta">forecast · ${DATA.targetKg} kg</span></header>`;
+
+  if (f.status === 'thin') {
+    el.hidden = false;
+    el.innerHTML = head + `<div class="fc-empty">Need ~2 weeks of daily weigh-ins to project a date. Keep logging — the forecast unlocks once the trend is real, not daily water noise.</div>`;
+    return;
+  }
+  if (f.status === 'reached') {
+    el.hidden = false;
+    el.innerHTML = head + `<div class="fc-empty"><strong>At target.</strong> The trend line sits at or below ${DATA.targetKg} kg — shift to holding the line and pushing the lifts. No deeper deficit.</div>`;
+    return;
+  }
+  if (f.status === 'flat') {
+    el.hidden = false;
+    el.innerHTML = head + `<div class="fc-empty"><strong>No date yet — the 4-week average is flat.</strong> Nothing to project until it's dropping. Tighten the deficit ~150 kcal/day or add steps, then recheck.</div>`;
+    return;
+  }
+  const rate = Math.abs(f.slopePerWeek).toFixed(2);
+  el.hidden = false;
+  el.innerHTML = head + `
+    <div class="fc-main">
+      <div class="fc-date">${fmtForecastDate(f.projDate)}</div>
+      <div class="fc-sub">projected ${DATA.targetKg} kg · ± ${f.bandDays} days</div>
+    </div>
+    <div class="fc-rate">Losing <strong>${rate} kg/week</strong> on the ${f.n}-point trend · ≈${f.curKg.toFixed(1)} kg now.</div>
+    <div class="fc-whatif">Slip to the slow edge — missed sessions, a looser week — and it drifts to <strong>${fmtForecastDate(f.slowDate)}</strong>. Seeing the date is the lever; protect the pace.</div>`;
 }
 
 // ========== WORKOUTS VIEW ==========
@@ -1202,6 +1267,173 @@ function sessionsThisTrainingWeek() {
   start.setDate(now.getDate() - sinceSat);
   const startIso = localIso(start);
   return state.sessions.filter(s => s.date >= startIso && s.workoutId !== 'homecore').length;
+}
+
+// ============================================================================
+// INTELLIGENCE LAYER · on-device reasoning + prediction over logged data only.
+// No sensors, no network. Every function degrades gracefully on missing logs.
+// ============================================================================
+
+const DAY_MS = 86400000;
+function daysAgo(iso) { return (Date.now() - new Date(iso + 'T00:00:00').getTime()) / DAY_MS; }
+function fmtForecastDate(d) {
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// ----- #6 TRAJECTORY FORECASTING -------------------------------------------
+// Least-squares fit of weight vs day over the last 28 days of entries, projected
+// to the target. Confidence band scales with the slope's standard error so the
+// estimate is honest about noise. Returns a status object the card can render.
+function forecastTrajectory(targetKg) {
+  const data = state.weights.slice().sort((a, b) => a.date.localeCompare(b.date));
+  if (data.length < 6) return { status: 'thin', n: data.length };
+  const t0 = new Date(data[0].date + 'T00:00:00').getTime();
+  const latestT = new Date(data.at(-1).date + 'T00:00:00').getTime();
+  const win = data.filter(d => (latestT - new Date(d.date + 'T00:00:00').getTime()) / DAY_MS <= 28);
+  if (win.length < 6) return { status: 'thin', n: win.length };
+  const xs = win.map(d => (new Date(d.date + 'T00:00:00').getTime() - t0) / DAY_MS);
+  const ys = win.map(d => d.kg);
+  const spanDays = xs.at(-1) - xs[0];
+  if (spanDays < 10) return { status: 'thin', n: win.length };
+  const n = xs.length;
+  const mx = xs.reduce((a, b) => a + b, 0) / n;
+  const my = ys.reduce((a, b) => a + b, 0) / n;
+  let sxx = 0, sxy = 0;
+  for (let i = 0; i < n; i++) { sxx += (xs[i] - mx) ** 2; sxy += (xs[i] - mx) * (ys[i] - my); }
+  if (sxx === 0) return { status: 'thin', n };
+  const slope = sxy / sxx;                 // kg/day, negative = losing
+  const intercept = my - slope * mx;
+  let ss = 0;
+  for (let i = 0; i < n; i++) { const pred = intercept + slope * xs[i]; ss += (ys[i] - pred) ** 2; }
+  const resStd = Math.sqrt(ss / Math.max(1, n - 2));
+  const seSlope = resStd / Math.sqrt(sxx);
+  const slopePerWeek = slope * 7;
+  const curKg = intercept + slope * xs.at(-1); // fitted (smoothed) current weight
+  if (curKg <= targetKg) return { status: 'reached', slopePerWeek, curKg, n };
+  if (slope >= -0.001) return { status: 'flat', slopePerWeek, curKg, n }; // not losing
+  const daysToTarget = (targetKg - curKg) / slope;     // both negative → positive
+  const projDate = new Date(latestT + daysToTarget * DAY_MS);
+  const relSE = Math.min(0.6, seSlope / Math.abs(slope));
+  const bandDays = Math.max(2, Math.round(daysToTarget * relSE));
+  const slowDate = new Date(latestT + daysToTarget * (1 + relSE) * DAY_MS); // slip scenario
+  return { status: 'ok', slopePerWeek, curKg, n, daysToTarget, projDate, bandDays, slowDate, targetKg };
+}
+
+// ----- #1 ADAPTIVE PERIODIZATION ENGINE ------------------------------------
+// Readiness = a composite of what you actually log: last night's freshness,
+// 7-day sleep consistency, recent pain flags, and lift-performance trend.
+// One number → push / hold / back off.
+function readinessScore() {
+  const factors = [];
+  let score = 70; // neutral = hold
+  const sleepDates = Object.keys(state.sleep || {}).sort();
+
+  let lastFresh = null;
+  for (let i = sleepDates.length - 1; i >= 0; i--) {
+    const f = state.sleep[sleepDates[i]]?.fresh;
+    if (f && daysAgo(sleepDates[i]) <= 2) { lastFresh = +f; break; }
+  }
+  if (lastFresh != null) {
+    const d = Math.round((lastFresh - 3) * 12); // 1→−24 … 5→+24
+    score += d;
+    factors.push({ label: `Last night ${lastFresh}/5`, delta: d });
+  }
+
+  const recentFresh = sleepDates.slice(-7).map(d => +state.sleep[d]?.fresh).filter(Boolean);
+  if (recentFresh.length >= 3) {
+    const avg = recentFresh.reduce((a, b) => a + b, 0) / recentFresh.length;
+    const d = Math.round((avg - 3) * 6);
+    score += d;
+    factors.push({ label: `7-day sleep ${avg.toFixed(1)}/5`, delta: d });
+  }
+
+  const painNames = recentPainExercises();
+  if (painNames.length) {
+    const d = -Math.min(20, painNames.length * 10);
+    score += d;
+    factors.push({ label: `${painNames.length} pain flag${painNames.length > 1 ? 's' : ''}`, delta: d });
+  }
+
+  const stalls = stalledLiftNames();
+  if (stalls.length) {
+    const d = -Math.min(15, stalls.length * 8);
+    score += d;
+    factors.push({ label: `${stalls.length} lift${stalls.length > 1 ? 's' : ''} stalling`, delta: d });
+  }
+
+  score = Math.max(0, Math.min(100, Math.round(score)));
+  const verdict = score >= 78 ? 'push' : score >= 55 ? 'hold' : 'back off';
+  return { score, verdict, factors, lastFresh, hasData: factors.length > 0 };
+}
+
+// Exercises flagged for pain in the last 5 days, resolved to readable names.
+function recentPainExercises() {
+  const names = new Set();
+  for (const k of Object.keys(state.pain || {})) {
+    if (!state.pain[k]) continue;
+    const parts = k.split('::');
+    const date = parts[0], wid = parts[1], exKey = parts.slice(2).join('::');
+    if (daysAgo(date) > 5) continue;
+    const w = DATA.workouts.find(x => x.id === wid);
+    const ex = w ? findExerciseByKey(w, exKey) : null;
+    if (ex) names.add(ex.name);
+  }
+  return [...names];
+}
+
+// Strength lifts whose last 3 sessions beat no prior peak, last trained ≤16 days.
+function stalledLiftNames() {
+  const out = [];
+  for (const h of collectExerciseHistory()) {
+    if (h.mode !== 'weight_reps' && h.mode !== 'multistage') continue;
+    const scores = h.entries.map(e => e.score);
+    if (scores.length < 4) continue;
+    if (daysAgo(h.entries.at(-1).date) > 16) continue;
+    const recent = scores.slice(-3);
+    const prior = Math.max(...scores.slice(0, -3));
+    if (Math.max(...recent) <= prior + 0.001) out.push(h.ex.name);
+  }
+  return out;
+}
+
+// Waist flat over ~2 weeks → calorie/step nudge (only if there's a 2-week pair).
+function waistFlatNudge() {
+  const data = (state.waists || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+  if (data.length < 2) return null;
+  const latest = data.at(-1);
+  const latestT = new Date(latest.date + 'T00:00:00').getTime();
+  let past = null;
+  for (const d of data) {
+    const days = (latestT - new Date(d.date + 'T00:00:00').getTime()) / DAY_MS;
+    if (days >= 12) past = d; else break;
+  }
+  if (!past) return null;
+  if (past.cm - latest.cm < 0.5) {
+    return `Waist flat for 2 weeks (${latest.cm} cm). If the scale's also stuck, trim ~150 kcal/day or add 1,500 steps and recheck next week. If the scale's still dropping, it's just measurement noise — hold course.`;
+  }
+  return null;
+}
+
+// The engine's output: readiness + the concrete adjustments it recommends today.
+function adaptivePlan() {
+  const r = readinessScore();
+  const adj = [];
+  if (r.verdict === 'back off') {
+    adj.push({ kind: 'session', text: 'Low readiness — make today the 20-min minimum session or an easy Zone-2 walk. Hold the load, skip the hero sets. Showing up still counts.' });
+  } else if (r.verdict === 'push') {
+    adj.push({ kind: 'push', text: 'Green light. On any double-progression lift where you hit the top of the rep range last time, add 2.5 kg today.' });
+  } else {
+    adj.push({ kind: 'session', text: 'Train as planned — leave 1–2 reps in reserve on the heavy compounds.' });
+  }
+  for (const name of recentPainExercises()) {
+    adj.push({ kind: 'pain', text: `${name} was flagged for pain — swap to a pain-free variation today and add the matching prehab. Don't train through it.` });
+  }
+  for (const name of stalledLiftNames().slice(0, 3)) {
+    adj.push({ kind: 'stall', text: `${name} hasn't moved in 3 sessions — drop the load ~10% and rebuild, or swap the variation. A stall is information, not failure.` });
+  }
+  const waist = waistFlatNudge();
+  if (waist) adj.push({ kind: 'waist', text: waist });
+  return { readiness: r, adjustments: adj };
 }
 
 function renderWeekGrid() {
@@ -1794,6 +2026,7 @@ function renderMobility() {
 function renderProgress() {
   renderWeightChart();
   renderWeightStats();
+  renderForecast();
   renderWaist();
   renderSleepAnalysis();
   renderWeekGrid();
