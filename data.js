@@ -87,6 +87,12 @@ const DATA = {
           ]
         },
         {
+          title: "Diagonal lats",
+          exercises: [
+            { name: "Single-Arm Diagonal Lat Pulldown", sets: 3, reps: "8–10 / side", phases: [2], note: "Phase 2 only. Kneel tall at the high cable, single handle. Pull DOWN and ACROSS toward the opposite hip — the diagonal line catches the lower-outer lat a straight bar misses. 2-sec squeeze, slow return. Same weight both sides." }
+          ]
+        },
+        {
           title: "Forearms + Traps",
           exercises: [
             { name: "Wrist Curl (palms up)", sets: 2, reps: "15", note: "Flexor mass" },

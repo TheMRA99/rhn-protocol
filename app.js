@@ -85,6 +85,43 @@ function weekNumber() {
   return Math.min(16, Math.max(1, Math.floor(diffDays / 7) + 1));
 }
 
+// ===== Periodization: 16 weeks = four 4-week phases. Workouts evolve by phase. =====
+function phaseNumber(week) {
+  return Math.min(4, Math.ceil((week || weekNumber()) / 4));
+}
+
+// Week index for an arbitrary log date — lets history render the phase that was
+// actually active that day rather than today's phase.
+function weekForDate(dateStr) {
+  if (!state.startDate || !dateStr) return weekNumber();
+  const start = new Date(state.startDate + 'T00:00:00');
+  const ref = new Date(dateStr + 'T00:00:00');
+  const diffDays = Math.floor((ref - start) / 86400000);
+  return Math.min(16, Math.max(1, Math.floor(diffDays / 7) + 1));
+}
+
+// Resolve a workout to a phase: keep every exercise that has no `phases` tag, or
+// whose `phases` list includes the active phase; drop blocks left empty. NOTE:
+// phase-specific exercises must always be APPENDED at the end of a block or live
+// in their own block, so the index-based set-log keys of the base exercises never
+// shift between phases (history, prev-best and suggestions stay aligned).
+function resolveWorkout(w, phase) {
+  if (!w || !w.blocks) return w;
+  const ph = phase || phaseNumber();
+  const blocks = w.blocks
+    .map(b => ({ ...b, exercises: b.exercises.filter(ex => !ex.phases || ex.phases.includes(ph)) }))
+    .filter(b => b.exercises.length);
+  return { ...w, blocks, _phase: ph };
+}
+
+function getWorkout(id, phase) {
+  return resolveWorkout(DATA.workouts.find(x => x.id === id), phase);
+}
+
+function phaseWorkouts(phase) {
+  return DATA.workouts.filter(w => !w.special).map(w => resolveWorkout(w, phase));
+}
+
 // Deloads land at weeks 8 and 14; week 8 also runs a diet break.
 function isDeloadWeek(n) { return n === 8 || n === 14; }
 function isDietBreakWeek(n) { return n === 8; }
@@ -356,7 +393,7 @@ function renderSessionProgress(done, total) {
 function refreshSessionProgress() {
   const id = state.selectedWorkout;
   if (!id) return;
-  const w = DATA.workouts.find(x => x.id === id);
+  const w = getWorkout(id);
   if (!w) return;
   const dKey = dailyKey();
   const log = state.setLog[dKey] && state.setLog[dKey][id] ? state.setLog[dKey][id] : {};
@@ -631,11 +668,11 @@ function renderWorkout() {
   const card = document.getElementById('workoutCard');
   const id = state.selectedWorkout;
   if (!id) { card.hidden = true; return; }
-  const w = DATA.workouts.find(x => x.id === id);
+  const w = getWorkout(id);
   if (!w) { card.hidden = true; return; }
   card.hidden = false;
   document.getElementById('workoutTitle').textContent = w.name;
-  document.getElementById('workoutSubtitle').textContent = w.tagline;
+  document.getElementById('workoutSubtitle').textContent = w.tagline + ' · Phase ' + (w._phase || phaseNumber());
 
   const warmupEl = document.getElementById('workoutWarmup');
   if (warmupEl) {
@@ -958,7 +995,7 @@ function renderToday() {
   renderOffice();
   renderModeBanner();
 
-  const w = DATA.workouts.find(x => x.id === state.selectedWorkout);
+  const w = getWorkout(state.selectedWorkout);
   document.getElementById('todayTitle').textContent = w ? w.name : "Today's session";
   document.getElementById('todaySub').textContent = w ? w.blurb : "Pick what fits your week. Don't stack delts back-to-back.";
   document.getElementById('todayTag').textContent = w ? w.tagline : 'Show up';
@@ -996,7 +1033,8 @@ document.getElementById('plateBar')?.addEventListener('change', renderPlateResul
 
 function renderAllWorkouts() {
   const wrap = document.getElementById('workoutsAll');
-  wrap.innerHTML = DATA.workouts.filter(w => !w.special).map((w, i) => `
+  const phaseTag = `<div style="font:700 11px/1 var(--font-mono,ui-monospace,monospace);letter-spacing:.12em;text-transform:uppercase;opacity:.55;margin-bottom:16px">Showing Phase ${phaseNumber()} · Week ${weekNumber()}</div>`;
+  wrap.innerHTML = phaseTag + phaseWorkouts().map((w, i) => `
     <section class="workout-block">
       <div class="workout-block-head">
         <div class="workout-block-tag">${w.id === 'homecore' ? 'Home · core' : 'Day 0' + (i + 1)}</div>
@@ -1191,7 +1229,7 @@ function renderWeekGrid() {
 }
 
 function buildHistoryDetail(session) {
-  const w = DATA.workouts.find(x => x.id === session.workoutId);
+  const w = getWorkout(session.workoutId, phaseNumber(weekForDate(session.date)));
   if (!w) return '';
   const dayLog = state.setLog?.[session.date]?.[session.workoutId] || {};
   const blocks = w.blocks.map(block => {
