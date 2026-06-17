@@ -19,7 +19,8 @@ const defaultState = {
   setLog: {},
   daily: {},
   ritual: {},
-  stamina: {}
+  stamina: {},
+  ramadan: false      // #4 fasting engine: post-iftar training, hold load, pause deficit
 };
 
 // Default workout per weekday — Sat is Day 1, then forward through the week
@@ -993,6 +994,7 @@ function renderToday() {
   renderReadiness();
   renderWorkout();
   renderSleep();
+  renderPrayer();
   renderOffice();
   renderModeBanner();
 
@@ -1064,6 +1066,50 @@ function renderForecast() {
     </div>
     <div class="fc-rate">Losing <strong>${rate} kg/week</strong> on the ${f.n}-point trend · ≈${f.curKg.toFixed(1)} kg now.</div>
     <div class="fc-whatif">Slip to the slow edge — missed sessions, a looser week — and it drifts to <strong>${fmtForecastDate(f.slowDate)}</strong>. Seeing the date is the lever; protect the pace.</div>`;
+}
+
+function renderPrayer() {
+  const el = document.getElementById('prayerCard');
+  if (!el) return;
+  const now = new Date();
+  const nowH = now.getHours() + now.getMinutes() / 60;
+  const t = prayerTimes(now);
+  const np = nextPrayer(t, nowH);
+  const ramadan = !!state.ramadan;
+
+  const cells = PRAYER_ORDER.map(([k, label]) => {
+    const isNext = !np.tomorrow && k === np.key;
+    return `<div class="pr-cell ${isNext ? 'pr-next' : ''} ${k === 'sunrise' ? 'pr-muted' : ''}">
+      <span class="pr-name">${label}</span><span class="pr-time">${fmtClock(t[k])}</span>
+    </div>`;
+  }).join('');
+
+  let delta = np.tomorrow ? (24 - nowH) + t.fajr : np.at - nowH;
+  const hrs = Math.floor(delta), mins = Math.round((delta - hrs) * 60);
+  const cd = hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+  const wd = windDownClock(t);
+
+  let ramadanHTML = '';
+  if (ramadan) {
+    ramadanHTML = `
+      <div class="pr-ramadan">
+        <div class="pr-ram-row"><span>Suhoor ends · Fajr</span><strong>${fmtClock(t.fajr)}</strong></div>
+        <div class="pr-ram-row"><span>Iftar · Maghrib</span><strong>${fmtClock(t.maghrib)}</strong></div>
+        <div class="pr-ram-note">Train <strong>after iftar</strong> — break the fast and hydrate first. Hold your loads, no PRs while fasting. <strong>Deficit paused:</strong> eat at maintenance to protect muscle. Suhoor = protein + slow carbs + a litre of water.</div>
+      </div>`;
+  }
+
+  el.innerHTML = `
+    <header class="card-header"><h2>Prayer &amp; fasting</h2><span class="card-meta">${PRAYER_CONFIG.place} · calculated</span></header>
+    <div class="pr-next-line">Next · <strong>${np.label}</strong> ${np.tomorrow ? 'tomorrow' : `in ${cd}`}</div>
+    <div class="pr-grid">${cells}</div>
+    <button class="pr-toggle ${ramadan ? 'on' : ''}" id="ramadanToggle">${ramadan ? '✓ Ramadan mode on' : 'Ramadan mode'}</button>
+    ${ramadanHTML}
+    <div class="pr-windown">Wind-down for Fajr ${fmtClock(t.fajr)} — lights out by <strong>${fmtClock(wd)}</strong> to bank 7 hours.</div>
+    <div class="pr-caveat">Calculated from MUIS angles (Fajr 20° · Isha 18° · Shafi'i Asr). For fasting, confirm suhoor &amp; iftar against the official MUIS table.</div>`;
+
+  const tg = document.getElementById('ramadanToggle');
+  if (tg) tg.addEventListener('click', () => { state.ramadan = !state.ramadan; save(); renderPrayer(); });
 }
 
 // ========== WORKOUTS VIEW ==========
@@ -1434,6 +1480,151 @@ function adaptivePlan() {
   const waist = waistFlatNudge();
   if (waist) adj.push({ kind: 'waist', text: waist });
   return { readiness: r, adjustments: adj };
+}
+
+// ----- #4 PRAYER-TIME + FASTING ENGINE -------------------------------------
+// On-device solar calculation (no API). Singapore / MUIS convention:
+// Fajr 20°, Isha 18°, Shafi'i Asr (factor 1). Sun-position math per PrayTimes.
+const PRAYER_CONFIG = { lat: 1.3521, lng: 103.8198, tz: 8, fajrAngle: 20, ishaAngle: 18, asrFactor: 1, place: 'Singapore' };
+
+const dtr = d => d * Math.PI / 180, rtd = r => r * 180 / Math.PI;
+const sinD = d => Math.sin(dtr(d)), cosD = d => Math.cos(dtr(d)), tanD = d => Math.tan(dtr(d));
+const arcsinD = x => rtd(Math.asin(x)), arccosD = x => rtd(Math.acos(x));
+const arccotD = x => rtd(Math.atan(1 / x)), arctan2D = (y, x) => rtd(Math.atan2(y, x));
+const fixAngle = a => { a = a % 360; return a < 0 ? a + 360 : a; };
+const fixhour = h => { h = h % 24; return h < 0 ? h + 24 : h; };
+
+function julianDate(y, m, d) {
+  if (m <= 2) { y -= 1; m += 12; }
+  const A = Math.floor(y / 100), B = 2 - A + Math.floor(A / 4);
+  return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + B - 1524.5;
+}
+
+// Sun declination + equation of time (hours) for a Julian date.
+function sunPosition(jd) {
+  const D = jd - 2451545.0;
+  const g = fixAngle(357.529 + 0.98560028 * D);
+  const q = fixAngle(280.459 + 0.98564736 * D);
+  const L = fixAngle(q + 1.915 * sinD(g) + 0.020 * sinD(2 * g));
+  const e = 23.439 - 0.00000036 * D;
+  const RA = arctan2D(cosD(e) * sinD(L), cosD(L)) / 15;
+  return { decl: arcsinD(sinD(e) * sinD(L)), eqt: q / 15 - fixhour(RA) };
+}
+
+// Local clock times (decimal hours) for the six daily markers.
+function prayerTimes(dateObj) {
+  const c = PRAYER_CONFIG;
+  const jDate = julianDate(dateObj.getFullYear(), dateObj.getMonth() + 1, dateObj.getDate()) - c.lng / (15 * 24);
+  const { decl, eqt } = sunPosition(jDate + 0.5);   // equatorial: decl/eqt ~constant across the day
+  const noon = 12 - eqt;
+  const adj = h => fixhour(h + c.tz - c.lng / 15);
+  // Hour-offset from noon for a sun altitude `angle` (T uses −sin(angle), matching PrayTimes).
+  const T = angle => (1 / 15) * arccosD((-sinD(angle) - sinD(decl) * sinD(c.lat)) / (cosD(decl) * cosD(c.lat)));
+  const asrAlt = arccotD(c.asrFactor + tanD(Math.abs(c.lat - decl)));
+  return {
+    fajr: adj(noon - T(c.fajrAngle)),
+    sunrise: adj(noon - T(0.833)),
+    dhuhr: adj(noon),
+    asr: adj(noon + T(-asrAlt)),
+    maghrib: adj(noon + T(0.833)),
+    isha: adj(noon + T(c.ishaAngle))
+  };
+}
+
+const PRAYER_ORDER = [
+  ['fajr', 'Fajr'], ['sunrise', 'Syuruk'], ['dhuhr', 'Zuhr'],
+  ['asr', 'Asr'], ['maghrib', 'Maghrib'], ['isha', 'Isha']
+];
+
+function fmtClock(h) {
+  let hh = Math.floor(fixhour(h));
+  let mm = Math.round((h - Math.floor(h)) * 60);
+  if (mm === 60) { mm = 0; hh = (hh + 1) % 24; }
+  const ampm = hh < 12 ? 'AM' : 'PM';
+  const h12 = ((hh + 11) % 12) + 1;
+  return `${h12}:${String(mm).padStart(2, '0')} ${ampm}`;
+}
+
+// Next upcoming prayer (skips Syuruk — sunrise isn't a prayer) given current time.
+function nextPrayer(times, nowH) {
+  const seq = PRAYER_ORDER.filter(([k]) => k !== 'sunrise');
+  for (const [k, label] of seq) if (times[k] > nowH) return { key: k, label, at: times[k] };
+  return { key: 'fajr', label: 'Fajr', at: times.fajr, tomorrow: true };
+}
+
+// Fajr-anchored wind-down: to wake ~20 min before Fajr with 7h sleep, lights out by…
+function windDownClock(times) { return fixhour(times.fajr - 0.33 - 7); }
+
+// ----- #3 PATTERN DETECTION -------------------------------------------------
+// On-device correlation across the logs. Each pattern returns only when there's
+// enough data to be real — nothing inferred from a handful of points.
+function detectPatterns() {
+  const out = [];
+  const sleep = state.sleep || {};
+
+  // (1) Freshness ↔ PRs: was the morning fresher on days a lift hit a new best?
+  const prFresh = [], flatFresh = [];
+  for (const h of collectExerciseHistory()) {
+    if (h.mode !== 'weight_reps' && h.mode !== 'multistage') continue;
+    let priorMax = null;
+    for (const e of h.entries) {
+      if (priorMax !== null) {
+        const f = +(sleep[e.date]?.fresh);
+        if (f) (e.score > priorMax + 0.001 ? prFresh : flatFresh).push(f);
+      }
+      priorMax = priorMax === null ? e.score : Math.max(priorMax, e.score);
+    }
+  }
+  if (prFresh.length >= 4 && flatFresh.length >= 4) {
+    const avg = a => a.reduce((x, y) => x + y, 0) / a.length;
+    const ap = avg(prFresh), af = avg(flatFresh);
+    if (ap - af >= 0.4) {
+      out.push({ icon: 'sleep', text: `Your PRs land on mornings you rated <strong>${ap.toFixed(1)}/5</strong> fresh — versus ${af.toFixed(1)}/5 on days nothing moved. Sleep is upstream of strength; the nights you protect it are the days you grow.` });
+    }
+  }
+
+  // (2) Pain clustering: is one movement taking most of the flags?
+  const painCount = {};
+  for (const k of Object.keys(state.pain || {})) {
+    if (!state.pain[k]) continue;
+    const parts = k.split('::'), wid = parts[1], exKey = parts.slice(2).join('::');
+    const w = DATA.workouts.find(x => x.id === wid);
+    const ex = w ? findExerciseByKey(w, exKey) : null;
+    if (ex) painCount[ex.name] = (painCount[ex.name] || 0) + 1;
+  }
+  const painSorted = Object.entries(painCount).sort((a, b) => b[1] - a[1]);
+  const totalPain = painSorted.reduce((s, [, n]) => s + n, 0);
+  if (painSorted.length && painSorted[0][1] >= 2) {
+    const [name, n] = painSorted[0];
+    out.push({ icon: 'pain', text: `<strong>${n} of your ${totalPain} pain flags</strong> are on ${name}. That's a recurring pattern, not bad luck — swap the variation, drop the load, and if it keeps flagging, get it looked at.` });
+  }
+
+  // (3) Strongest training day: where do you actually show up?
+  const trained = (state.sessions || []).filter(s => s.workoutId !== 'homecore');
+  if (trained.length >= 6) {
+    const byDay = [0, 0, 0, 0, 0, 0, 0];
+    for (const s of trained) byDay[new Date(s.date + 'T00:00:00').getDay()]++;
+    const names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const max = Math.max(...byDay);
+    if (max >= 2 && max > Math.min(...byDay)) {
+      out.push({ icon: 'cal', text: `You show up most on <strong>${names[byDay.indexOf(max)]}s</strong> (${max} sessions). That's your anchor — protect the slot and build the week around it.` });
+    }
+  }
+
+  return out;
+}
+
+function renderPatterns() {
+  const el = document.getElementById('patternsCard');
+  if (!el) return;
+  const pats = detectPatterns();
+  const head = `<header class="card-header"><h2>Patterns</h2><span class="card-meta">your data, correlated</span></header>`;
+  el.hidden = false;
+  if (!pats.length) {
+    el.innerHTML = head + `<div class="pt-empty">Watching for links across your logs — sleep ↔ strength, recurring pain, your strongest training days. Real patterns surface here after a few weeks of logging; nothing gets inferred from too little data.</div>`;
+    return;
+  }
+  el.innerHTML = head + `<ul class="pt-list">${pats.map(p => `<li class="pt-item pt-${p.icon}">${p.text}</li>`).join('')}</ul>`;
 }
 
 function renderWeekGrid() {
@@ -2027,6 +2218,7 @@ function renderProgress() {
   renderWeightChart();
   renderWeightStats();
   renderForecast();
+  renderPatterns();
   renderWaist();
   renderSleepAnalysis();
   renderWeekGrid();

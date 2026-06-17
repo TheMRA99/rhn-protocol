@@ -1966,3 +1966,36 @@ body.rest-active main { padding-bottom: 180px; }
 .fc-rate { font-size: 13.5px; line-height: 1.5; color: var(--text-dim); }
 .fc-whatif { font-size: 13px; line-height: 1.55; color: var(--text-faint); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
 .fc-rate strong, .fc-whatif strong { color: var(--text); }
+
+/* #4 Prayer & fasting */
+.prayer-card { border-left: 3px solid var(--cobalt-bright); }
+.pr-next-line { font-size: 13.5px; color: var(--text-dim); margin: 2px 0 12px; }
+.pr-next-line strong { color: var(--wine-bright); }
+.pr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pr-cell { display: flex; flex-direction: column; gap: 3px; padding: 10px 8px; border-radius: 9px; background: var(--line); text-align: center; }
+.pr-name { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); }
+.pr-time { font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 16px; font-weight: 700; color: var(--text); }
+.pr-cell.pr-muted .pr-time { color: var(--text-dim); font-weight: 600; }
+.pr-cell.pr-next { background: var(--wine); }
+.pr-cell.pr-next .pr-name { color: rgba(255,255,255,0.82); }
+.pr-cell.pr-next .pr-time { color: #fff; }
+.pr-toggle { margin-top: 12px; width: 100%; padding: 11px; border-radius: 9px; border: 1.5px solid var(--line-bright); background: transparent; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer; transition: all .2s; }
+.pr-toggle.on { border-color: var(--wine); background: color-mix(in srgb, var(--wine) 14%, transparent); color: var(--wine-bright); }
+.pr-ramadan { margin-top: 12px; padding: 12px; border-radius: 9px; background: var(--line); border-left: 2px solid var(--wine-bright); }
+.pr-ram-row { display: flex; justify-content: space-between; font-size: 13.5px; color: var(--text-dim); padding: 3px 0; }
+.pr-ram-row strong { color: var(--text); font-family: 'Bricolage Grotesque', system-ui, sans-serif; }
+.pr-ram-note { font-size: 13px; line-height: 1.55; color: var(--text-dim); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line-bright); }
+.pr-ram-note strong { color: var(--text); }
+.pr-windown { font-size: 13px; line-height: 1.5; color: var(--text-faint); margin-top: 12px; }
+.pr-windown strong { color: var(--text); }
+.pr-caveat { font-size: 11.5px; line-height: 1.5; color: var(--text-faint); margin-top: 10px; opacity: 0.85; }
+
+/* #3 Pattern detection */
+.patterns-card { border-left: 3px solid var(--wine); }
+.pt-empty { font-size: 13.5px; line-height: 1.55; color: var(--text-dim); }
+.pt-list { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.pt-item { font-size: 13.5px; line-height: 1.55; color: var(--text-dim); padding: 12px 14px; border-radius: 10px; background: var(--line); border-left: 2px solid var(--line-bright); }
+.pt-item strong { color: var(--text); }
+.pt-sleep { border-left-color: var(--cobalt-bright); }
+.pt-pain { border-left-color: var(--crimson); }
+.pt-cal { border-left-color: var(--wine-bright); }
