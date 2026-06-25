@@ -1999,3 +1999,7 @@ body.rest-active main { padding-bottom: 180px; }
 .pt-sleep { border-left-color: var(--cobalt-bright); }
 .pt-pain { border-left-color: var(--crimson); }
 .pt-cal { border-left-color: var(--wine-bright); }
+
+/* Working-set RIR/tempo cue on the session card */
+.workout-cue { font-size: 12px; line-height: 1.45; color: var(--text-faint); padding: 4px 0 2px; letter-spacing: 0.01em; }
+.workout-cue strong { color: var(--wine-bright); font-weight: 700; }

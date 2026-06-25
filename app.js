@@ -45,6 +45,12 @@ function load() {
     // Onboarding is gone — everyone is onboarded with a hard-coded baseline.
     merged.onboarded = true;
     if (!merged.baseline) merged.baseline = { ...defaultState.baseline };
+    // Never show "started —": if the clock was never set (older state / lapse),
+    // anchor it to today so week + streak are real. Restart-block resets it later.
+    if (!merged.startDate) {
+      merged.startDate = today();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+    }
     return merged;
   } catch (e) {
     return seed();
@@ -595,8 +601,9 @@ document.querySelectorAll('.tab').forEach(btn => {
 function renderHeader() {
   document.getElementById('currentWeek').textContent = weekNumber();
   document.getElementById('streakBadge').textContent = computeStreak();
-  const latest = state.weights.at(-1);
-  document.getElementById('weightBadge').textContent = latest ? latest.kg.toFixed(1) : DATA.startKg.toFixed(1);
+  // Header shows the 7-day rolling average — the real trend, not the daily ±1 kg.
+  const avg = rollingAvgWeight();
+  document.getElementById('weightBadge').textContent = avg != null ? avg.toFixed(1) : DATA.startKg.toFixed(1);
   const sel = state.selectedWorkout;
   const ws = DATA.workouts.find(w => w.id === sel);
   document.getElementById('dayBadge').textContent = ws ? ws.id.replace('day', 'D').replace('homecore', 'Hc') : '—';

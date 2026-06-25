@@ -6,7 +6,10 @@ const DATA = {
 
   morningRitual: [
     { name: "Stomach Vacuum", spec: "3 × 30 sec", note: "Inner core, waist control" },
-    { name: "Cat-Cow", spec: "10 reps", note: "Spine mobility" },
+    { name: "Spine & Pelvis · Lower-lumbar Cat-Cow", spec: "8–10 slow", note: "Drive it from the PELVIS (tuck → arch), not the upper back. Exhale into the tuck. Stop if you feel a pinch or pain ≥3." },
+    { name: "Spine & Pelvis · Child's Pose", spec: "30–45 sec", note: "Hips to heels, arms long, breathe into the low back and let it decompress. Stop if you feel a pinch or pain ≥3." },
+    { name: "Spine & Pelvis · Rolling Wave", spec: "5–6 reps", note: "From child's pose, roll forward segment by segment, chest leading. Stop if you feel a pinch or pain ≥3." },
+    { name: "Spine & Pelvis · Baby Cobra", spec: "5 reps · 2–3 s hold", note: "Glutes ON, ribs down, lift the CHEST not the low back. Keep it low and gentle. Stop if you feel a pinch or pain ≥3." },
     { name: "Couch Stretch", spec: "30 sec / side", note: "Hip flexor release · fixes the desk-sit pain at the front of your hip" },
     { name: "Deep Squat Hold", spec: "30 sec", note: "Hip mobility" },
     { name: "Single-Leg Glute Bridge", spec: "10 / side", note: "Wakes lazy glutes from sitting" },
@@ -15,9 +18,10 @@ const DATA = {
   ],
 
   daily: [
+    { name: "Calories", spec: "2,000–2,200", note: "300–400 kcal deficit · you decide what the week averages" },
     { name: "Protein", spec: "135–150 g", note: "1.8–2 g per kg bodyweight" },
     { name: "Fiber + veg", spec: "25–30 g", note: "Two fists of veg per meal · flattens glucose, keeps you full" },
-    { name: "Water", spec: "3 L+", note: "More in SG humidity" },
+    { name: "Water", spec: "2.5–3 L+", note: "More on training days and in the SG heat" },
     { name: "Steps", spec: "10,000–12,000", note: "NEAT — biggest fat loss lever after the deficit" },
     { name: "Cardio", spec: "10–20 min · Zone 2", note: "Every day · easy & conversational (walk / incline / stairs). Post-lift or a standalone on rest days. Keep it easy — not another hard session." },
     { name: "Sleep", spec: "7+ hrs", note: "The #1 lever for results" },
@@ -31,6 +35,7 @@ const DATA = {
     { name: "AM · Kegels", spec: "10 × 5s/5s", note: "Squeeze 5s, release 5s" },
     { name: "PM · Reverse Kegels", spec: "10 × 5s/5s", note: "The one that delays finishing" },
     { name: "PM · Box Breathing", spec: "4×4×4×4 × 4 rounds", note: "In · hold · out · hold" },
+    { name: "PM · Happy Baby", spec: "45–60 sec", note: "Hold the outside of the feet, knees toward the armpits, rock gently · lets the low back flatten (posterior tilt) and downshifts you for sleep. Stop if you feel a pinch or pain ≥3." },
     { name: "Physiological sigh", spec: "3 reps · anytime", note: "Double inhale nose, long exhale mouth · fastest downshift — works mid-meeting, at the rack" },
     { name: "Eyes · 20-20-20", spec: "Every 20 min", note: "Look 6m+ away for 20 sec · stack it on prayer + water breaks" }
   ],
@@ -119,6 +124,13 @@ const DATA = {
             { name: "Single-Leg Calf Raise", sets: 2, reps: "12/side", note: "Achilles prehab", inputMode: "bodyweight_reps" },
             { name: "Dead Bug", sets: 2, reps: "12", note: "Slow, anti-extension", inputMode: "bodyweight_reps" },
             { name: "Incline Walk", sets: 1, reps: "15 min", note: "Easy pace · log min, km/h, incline%", inputMode: "treadmill" }
+          ]
+        },
+        {
+          title: "Hip prep · duck-feet",
+          exercises: [
+            { name: "Frog Pulses", sets: 1, reps: "12–15 slow", note: "Knees wide, shins out, rock the hips toward your heels and pulse. Never force the groin; pad the knees. Stop if you feel a pinch or pain ≥3.", inputMode: "bodyweight_reps" },
+            { name: "Frog Internal Rotations", sets: 1, reps: "8–10 / side", note: "From frog/quadruped, rotate shins and feet to drive the hip inward — go slow and own the end range. THE drill for your toes-out. Stop if you feel a pinch or pain ≥3.", inputMode: "bodyweight_reps" }
           ]
         },
         {
@@ -363,7 +375,8 @@ const DATA = {
     { name: "Deep squat hold", spec: "60 sec, heels down", note: "Sit in the bottom, chest up" },
     { name: "Couch stretch", spec: "60 sec/side, no arch", note: "Glute squeezed, ribs down" },
     { name: "Knee-to-wall", spec: "≥ 10 cm each side", note: "Big toe to wall, knee taps without heel lifting" },
-    { name: "Standing toe touch", spec: "Palms to floor", note: "Soft knees, hinge" }
+    { name: "Standing toe touch", spec: "Palms to floor", note: "Soft knees, hinge" },
+    { name: "Hip internal rotation", spec: "Compare L vs R", note: "Seated or frog-IR · turn the shin out to rotate the hip in. Re-test monthly: range opening = your toes-out is soft-tissue and the frog work is winning; stuck and symmetric = anatomical, manage it in gait, don't force it." }
   ],
 
   maintainCircuit: [
