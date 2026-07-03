@@ -338,9 +338,9 @@ const DATA = {
           ]
         },
         {
-          title: "Vertical pull",
+          title: "Vertical pull · ONE home day only",
           exercises: [
-            { name: "Pull-Ups", sets: 3, reps: "max", note: "Wide-ish, palms away · lats + width. Assisted band if needed.", inputMode: "bodyweight_reps" },
+            { name: "Pull-Ups", sets: 3, reps: "max", note: "Wide-ish, palms away · lats + width. Assisted band if needed. Ran this yesterday? Skip the pull block today — lats need 48h before Saturday's back day.", inputMode: "bodyweight_reps" },
             { name: "Chin-Ups", sets: 2, reps: "max", note: "Palms toward you · biceps + lats", inputMode: "bodyweight_reps" }
           ]
         },
@@ -389,7 +389,7 @@ const DATA = {
   targets: [
     { label: "Calories", value: "2,000–2,200", note: "300–400 deficit" },
     { label: "Protein", value: "135–150 g", note: "1.8–2 g/kg" },
-    { label: "Water", value: "3 L+", note: "Singapore humidity" },
+    { label: "Water", value: "2.5–3 L+", note: "More on training days · SG heat" },
     { label: "Steps", value: "10–12K", note: "Daily" },
     { label: "Sleep", value: "7+ hrs", note: "#1 lever" },
     { label: "Creatine", value: "5 g", note: "Daily" }

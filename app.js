@@ -236,9 +236,9 @@ function suggestedKgFor(workoutId, exKey, ex, stageIdx) {
   if (!kgList.length) return null;
   const lastKg = Math.max(...kgList);
 
-  // Deload week (multiples of 5): 80% of last
-  if (weekNumber() % 5 === 0) {
-    return Math.round(lastKg * 0.8 * 4) / 4;
+  // Deload weeks 8 & 14: ~60% of last, matching the progression card.
+  if (isDeloadWeek(weekNumber())) {
+    return Math.round(lastKg * 0.6 * 4) / 4;
   }
 
   const repMatch = (ex.reps || '').match(/(\d+)\s*[-–]\s*(\d+)/);
@@ -334,12 +334,13 @@ function findPreviousBest(workoutId, exKey) {
     if (!sets || !sets.length) continue;
     const valid = sets.filter(s => s && s.done);
     if (!valid.length) continue;
-    // Pick best by kg first, else reps, else sec, else min
-    const best = valid.reduce((a, b) => {
-      const aw = parseFloat(a.kg || a.sec || a.min || a.reps || 0);
-      const bw = parseFloat(b.kg || b.sec || b.min || b.reps || 0);
-      return bw > aw ? b : a;
-    });
+    // Pick best by kg first, else reps, else sec, else min.
+    // Multistage sets keep their numbers in stage0 — rank on the heavy stage.
+    const rank = (s) => {
+      const src = s.stage0 || s;
+      return parseFloat(src.kg || src.sec || src.min || src.reps || 0) || 0;
+    };
+    const best = valid.reduce((a, b) => (rank(b) > rank(a) ? b : a));
     return { date: d, set: best };
   }
   return null;
@@ -426,6 +427,11 @@ function isCurrentBeating(currentSets, prev, mode) {
     if (mode === 'bodyweight_reps') return parseFloat(s.reps || 0);
     if (mode === 'time') return parseFloat(s.sec || 0);
     if (mode === 'time_speed') return parseFloat(s.min || 0) * (parseFloat(s.spm || 0) || 1);
+    if (mode === 'multistage') {
+      // drop supersets keep their numbers in stage0..N — headline on the heavy stage
+      const s0 = s.stage0 || {};
+      return parseFloat(s0.kg || 0) * (parseFloat(s0.reps || 0) || 1);
+    }
     // weight_reps: tonnage proxy
     return parseFloat(s.kg || 0) * (parseFloat(s.reps || 0) || 1);
   };
