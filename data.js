@@ -69,14 +69,20 @@ const DATA = {
           title: "Lifts",
           exercises: [
             { name: "Assisted Pull-Up (wide grip)", sets: 2, reps: "6–8", note: "1–2 reps in tank · log reps achieved", inputMode: "bodyweight_reps" },
-            { name: "Chest-Supported Row", sets: 2, reps: "8–10", note: "Drive elbows back · key in one side, app doubles it", barbell: true, bar: 0 },
+            { name: "Chest-Supported Row", sets: 2, reps: "8–10", note: "Drive elbows back · key in one side, app doubles it", barbell: true, bar: 0,
+              byPhase: { 3: { name: "Chest-Supported Row · wide elbows", note: "Phase 3: elbows flared ~60°, pull to the upper chest · shifts it to upper back + rear delts · key in one side, app doubles it" } } },
             { name: "Pendlay Row", sets: 2, reps: "5", note: "Dead-stop on floor each rep · pull explosive to lower chest", barbell: true },
-            { name: "Wide-Grip Lat Pulldown", sets: 3, reps: "10–12", note: "Lats not arms · drive elbows down to your ribs, 2-sec squeeze at the bottom" },
+            { name: "Wide-Grip Lat Pulldown", sets: 3, reps: "10–12", note: "Lats not arms · drive elbows down to your ribs, 2-sec squeeze at the bottom",
+              byPhase: {
+                2: { sets: 2, note: "Trimmed to 2 sets while the diagonal block runs · lats not arms, 2-sec squeeze at the bottom" },
+                4: { name: "Weighted Pull-Up", reps: "5–8", note: "Phase 4: the pulldown graduates. Belt or DB between the feet · log the ADDED kg (0 = bodyweight) · full hang, chest to the bar line" }
+              } },
             {
               name: "Cable Lateral Raise · drop superset",
               sets: 3,
               reps: "10 ea stage",
               note: "3-sec lower, lead with elbows · heavy R, heavy L, immediately drop weight, drop R, drop L",
+              byPhase: { 3: { name: "Lean-Away Cable Lateral · drop superset", note: "Phase 3: grip the frame, lean away — constant tension, deeper stretch at the bottom · same heavy R/L then drop R/L" } },
               inputMode: "multistage",
               stages: [
                 { label: "R · heavy" },
@@ -155,13 +161,15 @@ const DATA = {
           title: "Push",
           exercises: [
             { name: "Incline DB Press", sets: 3, reps: "6–8", note: "Upper chest = lifted look" },
-            { name: "Flat DB Press", sets: 3, reps: "8–10", note: "Mid-chest thickness" },
+            { name: "Flat DB Press", sets: 3, reps: "8–10", note: "Mid-chest thickness",
+              byPhase: { 4: { name: "Slight-Decline DB Press", note: "Phase 4: bench one notch down (or plates under the head end) · fuller pec stretch, easier on the shoulders" } } },
             { name: "Seated DB Shoulder Press", sets: 3, reps: "8–10", note: "Front + side delts" },
             {
               name: "Cable Lateral Raise · drop superset",
               sets: 2,
               reps: "R+L heavy → R+L drop · 10 each",
               note: "3-sec lower, lead with elbows · heavy R, heavy L, immediately drop weight, drop R, drop L",
+              byPhase: { 3: { name: "Lean-Away Cable Lateral · drop superset", note: "Phase 3: grip the frame, lean away — constant tension, deeper stretch at the bottom · same heavy R/L then drop R/L" } },
               inputMode: "multistage",
               stages: [
                 { label: "R · heavy" },
@@ -278,6 +286,7 @@ const DATA = {
               sets: 2,
               reps: "10 ea stage",
               note: "Same drop superset as Day 1/3 — heavy R+L then immediately drop",
+              byPhase: { 3: { name: "Lean-Away Cable Lateral · drop superset", note: "Phase 3: grip the frame, lean away — constant tension, deeper stretch at the bottom · same heavy R/L then drop R/L" } },
               inputMode: "multistage",
               stages: [
                 { label: "R · heavy" },
@@ -293,8 +302,8 @@ const DATA = {
           title: "Arms",
           exercises: [
             { name: "Straight Bar Pushdown", sets: 1, reps: "to failure", note: "Heavy · one all-out set · overall tricep mass" },
-            { name: "Seated Bicep Curl · mid hold", sets: 1, reps: "to failure", note: "Heavy · hold at 90° before each rep" },
-            { name: "Seated Hammer Curl · mid hold", sets: 1, reps: "to failure", note: "Heavy · brachialis + forearm" }
+            { name: "Spider Curl", sets: 1, reps: "to failure", note: "Heavy · chest on a 45° incline bench, arms hanging · curl to peak, 1-sec squeeze · the bench kills the swing" },
+            { name: "Spider Hammer Curl", sets: 1, reps: "to failure", note: "Heavy · same setup, neutral grip · brachialis + forearm" }
           ]
         },
         {

@@ -112,11 +112,19 @@ function weekForDate(dateStr) {
 // phase-specific exercises must always be APPENDED at the end of a block or live
 // in their own block, so the index-based set-log keys of the base exercises never
 // shift between phases (history, prev-best and suggestions stay aligned).
+// `byPhase: { 3: { name, note, reps, sets } }` overrides an exercise in place for
+// that phase — same slot, same key. Overrides may change name/note/reps/sets only,
+// never inputMode/stages/order (those would corrupt how old logs are read).
 function resolveWorkout(w, phase) {
   if (!w || !w.blocks) return w;
   const ph = phase || phaseNumber();
   const blocks = w.blocks
-    .map(b => ({ ...b, exercises: b.exercises.filter(ex => !ex.phases || ex.phases.includes(ph)) }))
+    .map(b => ({
+      ...b,
+      exercises: b.exercises
+        .filter(ex => !ex.phases || ex.phases.includes(ph))
+        .map(ex => (ex.byPhase && ex.byPhase[ph]) ? { ...ex, ...ex.byPhase[ph] } : ex)
+    }))
     .filter(b => b.exercises.length);
   return { ...w, blocks, _phase: ph };
 }
