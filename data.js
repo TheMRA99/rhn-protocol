@@ -5,15 +5,12 @@ const DATA = {
   totalWeeks: 16,
 
   morningRitual: [
-    { name: "Stomach Vacuum", spec: "3 × 30 sec", note: "Inner core, waist control" },
-    { name: "Spine & Pelvis · Lower-lumbar Cat-Cow", spec: "8–10 slow", note: "Drive it from the PELVIS (tuck → arch), not the upper back. Exhale into the tuck. Stop if you feel a pinch or pain ≥3." },
-    { name: "Spine & Pelvis · Child's Pose", spec: "30–45 sec", note: "Hips to heels, arms long, breathe into the low back and let it decompress. Stop if you feel a pinch or pain ≥3." },
-    { name: "Spine & Pelvis · Rolling Wave", spec: "5–6 reps", note: "From child's pose, roll forward segment by segment, chest leading. Stop if you feel a pinch or pain ≥3." },
-    { name: "Spine & Pelvis · Baby Cobra", spec: "5 reps · 2–3 s hold", note: "Glutes ON, ribs down, lift the CHEST not the low back. Keep it low and gentle. Stop if you feel a pinch or pain ≥3." },
+    { name: "Stomach Vacuum", spec: "2 × 30 sec", note: "Inner core, waist control" },
+    { name: "Lower-lumbar Cat-Cow", spec: "8–10 slow", note: "Drive it from the PELVIS (tuck → arch), not the upper back. Exhale into the tuck. Stop if you feel a pinch or pain ≥3." },
+    { name: "Child's Pose", spec: "30–45 sec", note: "Hips to heels, arms long, breathe into the low back and let it decompress. Stop if you feel a pinch or pain ≥3." },
     { name: "Couch Stretch", spec: "30 sec / side", note: "Hip flexor release · fixes the desk-sit pain at the front of your hip" },
     { name: "Deep Squat Hold", spec: "30 sec", note: "Hip mobility" },
     { name: "Single-Leg Glute Bridge", spec: "10 / side", note: "Wakes lazy glutes from sitting" },
-    { name: "Bird Dog", spec: "10 / side · slow", note: "Anti-extension core + glute coordination — built for desk-bound" },
     { name: "Thoracic Opener", spec: "30 sec / side", note: "Doorway. Opens chest, fights hunch" }
   ],
 
@@ -32,9 +29,9 @@ const DATA = {
   ],
 
   stamina: [
-    { name: "AM · Kegels", spec: "10 × 5s/5s", note: "Squeeze 5s, release 5s" },
+    { name: "AM · Kegels", spec: "10 × 5s/5s", note: "Squeeze 5s, release 5s · invisible — do them at the desk or on the commute, costs zero clock time" },
     { name: "PM · Reverse Kegels", spec: "10 × 5s/5s", note: "The one that delays finishing" },
-    { name: "PM · Box Breathing", spec: "4×4×4×4 × 4 rounds", note: "In · hold · out · hold" },
+    { name: "PM · Box Breathing", spec: "4×4×4×4 × 2 rounds", note: "In · hold · out · hold · ~2 min. Add rounds on rough days" },
     { name: "PM · Happy Baby", spec: "45–60 sec", note: "Hold the outside of the feet, knees toward the armpits, rock gently · lets the low back flatten (posterior tilt) and downshifts you for sleep. Stop if you feel a pinch or pain ≥3." },
     { name: "Physiological sigh", spec: "3 reps · anytime", note: "Double inhale nose, long exhale mouth · fastest downshift — works mid-meeting, at the rack" },
     { name: "Eyes · 20-20-20", spec: "Every 20 min", note: "Look 6m+ away for 20 sec · stack it on prayer + water breaks" }
@@ -163,7 +160,7 @@ const DATA = {
             { name: "Incline DB Press", sets: 3, reps: "6–8", note: "Upper chest = lifted look" },
             { name: "Flat DB Press", sets: 3, reps: "8–10", note: "Mid-chest thickness",
               byPhase: { 4: { name: "Slight-Decline DB Press", note: "Phase 4: bench one notch down (or plates under the head end) · fuller pec stretch, easier on the shoulders" } } },
-            { name: "Seated DB Shoulder Press", sets: 3, reps: "8–10", note: "Front + side delts" },
+            { name: "Seated DB Shoulder Press", sets: 2, reps: "8–10", note: "Front + side delts · laterals ×3/wk + push press cover the rest" },
             {
               name: "Cable Lateral Raise · drop superset",
               sets: 2,

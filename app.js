@@ -1133,6 +1133,13 @@ function renderPrayer() {
   if (tg) tg.addEventListener('click', () => { state.ramadan = !state.ramadan; save(); renderPrayer(); });
 }
 
+// Keep the prayer countdown honest while the Today tab sits open — the times
+// themselves are recomputed from the current date on every render.
+setInterval(() => {
+  const v = document.getElementById('view-today');
+  if (v && v.classList.contains('active') && document.visibilityState === 'visible') renderPrayer();
+}, 60000);
+
 // ========== WORKOUTS VIEW ==========
 // ===== PLATE CALCULATOR =====
 const PLATES = [25, 20, 15, 10, 5, 2.5, 1.25];
