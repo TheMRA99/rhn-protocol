@@ -79,7 +79,7 @@ const DATA = {
               } },
             {
               name: "Cable Lateral Raise · drop superset",
-              sets: 3,
+              sets: 2,
               reps: "10 ea stage",
               note: "3-sec lower, lead with elbows · heavy R, heavy L, immediately drop weight, drop R, drop L",
               byPhase: { 3: { name: "Lean-Away Cable Lateral · drop superset", note: "Phase 3: grip the frame, lean away — constant tension, deeper stretch at the bottom · same heavy R/L then drop R/L" } },
@@ -91,7 +91,7 @@ const DATA = {
                 { label: "L · drop" }
               ]
             },
-            { name: "Face Pulls", sets: 3, reps: "15", note: "Rear delts + cuff health" },
+            { name: "Face Pulls", sets: 2, reps: "15", note: "Rear delts + cuff health" },
             { name: "Hanging Leg Raise", sets: 2, reps: "12", note: "No swinging", inputMode: "bodyweight_reps" },
             { name: "Cable Woodchop", sets: 2, reps: "10/side", note: "Lateral obliques · the V-cut angle (low-to-high or high-to-low)" },
             { name: "Dead Hang", sets: 2, reps: "max hold", note: "Decompresses spine, grip", inputMode: "time" }
@@ -230,7 +230,7 @@ const DATA = {
             { name: "Barbell Deadlift", sets: 3, reps: "5", note: "Brace hard, stay tight", barbell: true },
             { name: "Front Squat", sets: 3, reps: "6–8", note: "Upright torso · toes out 15–30°, knees chase the toes · sub goblet at total kg if no rack", barbell: true },
             { name: "Push Press", sets: 3, reps: "5", note: "Leg dip → drive overhead", barbell: true },
-            { name: "Hamstring Curl", sets: 3, reps: "12", note: "Slow negative" }
+            { name: "Hamstring Curl", sets: 2, reps: "12", note: "Slow negative" }
           ]
         },
         {
