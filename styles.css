@@ -693,7 +693,7 @@ main {
   gap: 6px;
   margin-top: 6px;
   padding: 3px 8px;
-  background: rgba(56,85,232,0.12);
+  background: rgba(130,134,153,0.12);
   border: 1px solid var(--line-bright);
   border-radius: 4px;
   font-family: 'JetBrains Mono', monospace;
@@ -2003,3 +2003,39 @@ body.rest-active main { padding-bottom: 180px; }
 /* Working-set RIR/tempo cue on the session card */
 .workout-cue { font-size: 12px; line-height: 1.45; color: var(--text-faint); padding: 4px 0 2px; letter-spacing: 0.01em; }
 .workout-cue strong { color: var(--wine-bright); font-weight: 700; }
+
+/* ============================================================
+   UI POLISH PASS — touch feel · numeric stability · press feedback
+   ============================================================ */
+
+/* Kill the grey mobile tap-flash; contain scroll; smooth in-page jumps. */
+* { -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+/* clip (not hidden) still bars horizontal overflow but doesn't turn body into a
+   scroll container — which is what was stopping the topbar + tabs from sticking. */
+body { overscroll-behavior-y: none; overflow-x: clip; }
+
+/* On-brand text selection (wine, not the browser default blue). */
+::selection { background: rgba(232,73,102,0.28); color: var(--text); }
+
+/* Lock digit width so numbers don't shuffle as they update. */
+.stat-value, .day-pill-num, .exercise-spec, .set-input input, .ms-inputs input,
+.set-bar-total, .session-progress-stat, .weight-input input, .rd-num, .rd-chip,
+.fc-date, .fc-sub, .pr-time, .pr-next-line, .pr-ram-row, .pr-caveat,
+.spark, .mob-btn, .sleep-summary {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sticky topbar + tab strip are ~117px tall — keep scroll-into-view clear of them. */
+.card, .exercise-block, .hero { scroll-margin-top: 124px; }
+
+/* Tactile press feedback on the controls you touch every session. */
+.day-pill:active { transform: scale(0.985); }
+.set-input:active { border-color: var(--line-bright); }
+.btn-primary:active, .btn-secondary:active, .mvs-link:active,
+.pr-toggle:active, .mob-btn:active, .day-pill.active:active { transform: scale(0.98); }
+.block-title:active { background: var(--bg-3); }
+
+/* Show focus rings for keyboard users, not on every finger tap. */
+button:focus:not(:focus-visible), .tab:focus:not(:focus-visible),
+input:focus:not(:focus-visible) { outline: none; }
