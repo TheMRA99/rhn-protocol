@@ -819,6 +819,7 @@ function renderWorkout() {
             <button type="button" class="pain-flag ${painOn ? 'on' : ''}" data-painkey="${dKey}::${id}::${exKey}" title="Flag pain on this exercise">⚑</button>
           </div>
           ${ex.note ? `<div class="exercise-note">${ex.note}</div>` : ''}
+          ${ex.sub ? `<div class="exercise-sub"><span class="exercise-sub-tag">TAKEN?</span>${ex.sub}</div>` : ''}
           ${prevHTML}
           ${stallHTML}
           ${bodyHTML}
@@ -1189,6 +1190,7 @@ function renderAllWorkouts() {
               <div class="exercise-spec">${ex.sets} × ${ex.reps}</div>
             </div>
             ${ex.note ? `<div class="exercise-note">${ex.note}</div>` : ''}
+            ${ex.sub ? `<div class="exercise-sub"><span class="exercise-sub-tag">TAKEN?</span>${ex.sub}</div>` : ''}
           </div>
         `).join('')}
       `).join('')}

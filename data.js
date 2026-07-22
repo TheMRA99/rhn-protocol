@@ -65,11 +65,11 @@ const DATA = {
         {
           title: "Lifts",
           exercises: [
-            { name: "Assisted Pull-Up (wide grip)", sets: 2, reps: "6–8", note: "1–2 reps in tank · log reps achieved", inputMode: "bodyweight_reps" },
-            { name: "Chest-Supported Row", sets: 2, reps: "8–10", note: "Drive elbows back · key in one side, app doubles it", barbell: true, bar: 0,
+            { name: "Assisted Pull-Up (wide grip)", sets: 2, reps: "6–8", note: "1–2 reps in tank · log reps achieved", inputMode: "bodyweight_reps", sub: "Machine taken → band-assisted pull-up, or lat pulldown. No bar at all → inverted row under a bar set at hip height." },
+            { name: "Chest-Supported Row", sets: 2, reps: "8–10", note: "Drive elbows back · key in one side, app doubles it", barbell: true, bar: 0, sub: "Station taken → single-arm DB row, hand braced on any bench. Log one side's weight.",
               byPhase: { 3: { name: "Chest-Supported Row · wide elbows", note: "Phase 3: elbows flared ~60°, pull to the upper chest · shifts it to upper back + rear delts · key in one side, app doubles it" } } },
-            { name: "Pendlay Row", sets: 2, reps: "5", note: "Dead-stop on floor each rep · pull explosive to lower chest", barbell: true },
-            { name: "Wide-Grip Lat Pulldown", sets: 3, reps: "10–12", note: "Lats not arms · drive elbows down to your ribs, 2-sec squeeze at the bottom",
+            { name: "Pendlay Row", sets: 2, reps: "5", note: "Dead-stop on floor each rep · pull explosive to lower chest", barbell: true, sub: "No bar/floor space → bent-over DB row, both arms, dead-stop each rep." },
+            { name: "Wide-Grip Lat Pulldown", sets: 3, reps: "10–12", note: "Lats not arms · drive elbows down to your ribs, 2-sec squeeze at the bottom", sub: "Cable queue → pull-ups (banded if needed), or a DB pullover on a bench.",
               byPhase: {
                 2: { sets: 2, note: "Trimmed to 2 sets while the diagonal block runs · lats not arms, 2-sec squeeze at the bottom" },
                 4: { name: "Weighted Pull-Up", reps: "5–8", note: "Phase 4: the pulldown graduates. Belt or DB between the feet · log the ADDED kg (0 = bodyweight) · full hang, chest to the bar line" }
@@ -79,6 +79,7 @@ const DATA = {
               sets: 2,
               reps: "10 ea stage",
               note: "3-sec lower, lead with elbows · heavy R, heavy L, immediately drop weight, drop R, drop L",
+              sub: "Cables taken → DB lateral raise drop set: heavy pair R+L, put them down, straight into a lighter pair R+L.",
               byPhase: { 3: { name: "Lean-Away Cable Lateral · drop superset", note: "Phase 3: grip the frame, lean away — constant tension, deeper stretch at the bottom · same heavy R/L then drop R/L" } },
               inputMode: "multistage",
               stages: [
@@ -88,16 +89,16 @@ const DATA = {
                 { label: "L · drop" }
               ]
             },
-            { name: "Face Pulls", sets: 2, reps: "15", note: "Rear delts + cuff health" },
-            { name: "Hanging Leg Raise", sets: 2, reps: "12", note: "No swinging", inputMode: "bodyweight_reps" },
-            { name: "Cable Woodchop", sets: 2, reps: "10/side", note: "Lateral obliques · the V-cut angle (low-to-high or high-to-low)" },
-            { name: "Dead Hang", sets: 2, reps: "max hold", note: "Decompresses spine, grip", inputMode: "time" }
+            { name: "Face Pulls", sets: 2, reps: "15", note: "Rear delts + cuff health", sub: "Cable taken → band face-pull anchored at eye height, or bent-over DB rear-delt fly." },
+            { name: "Hanging Leg Raise", sets: 2, reps: "12", note: "No swinging", inputMode: "bodyweight_reps", sub: "No free bar → lying leg raise on the floor, hands under the hips." },
+            { name: "Cable Woodchop", sets: 2, reps: "10/side", note: "Lateral obliques · the V-cut angle (low-to-high or high-to-low)", sub: "Cable taken → band woodchop, or a DB/plate Russian twist for the same oblique angle." },
+            { name: "Dead Hang", sets: 2, reps: "max hold", note: "Decompresses spine, grip", inputMode: "time", sub: "No free bar → heavy DB farmer hold for the grip half, or skip it." }
           ]
         },
         {
           title: "Diagonal lats",
           exercises: [
-            { name: "Single-Arm Diagonal Lat Pulldown", sets: 3, reps: "8–10 / side", phases: [2], note: "Phase 2 only. Kneel tall at the high cable, single handle. Pull DOWN and ACROSS toward the opposite hip — the diagonal line catches the lower-outer lat a straight bar misses. 2-sec squeeze, slow return. Same weight both sides." }
+            { name: "Single-Arm Diagonal Lat Pulldown", sets: 3, reps: "8–10 / side", phases: [2], note: "Phase 2 only. Kneel tall at the high cable, single handle. Pull DOWN and ACROSS toward the opposite hip — the diagonal line catches the lower-outer lat a straight bar misses. 2-sec squeeze, slow return. Same weight both sides.", sub: "Cable taken → single-arm DB row pulled ACROSS toward the opposite hip, same diagonal line." }
           ]
         },
         {
@@ -120,13 +121,13 @@ const DATA = {
         {
           title: "Lifts",
           exercises: [
-            { name: "Romanian Deadlift", sets: 3, reps: "6–8", note: "Ribs down, brace before the hinge. Stop where the back starts to round — that's today's range.", barbell: true },
-            { name: "Back Squat", sets: 3, reps: "6–8", note: "Depth over weight. Let your toes point out 15–30° — your natural stance. Cue: knees track over toes, never force toes straight.", barbell: true },
-            { name: "Barbell Hip Thrust (off bench)", sets: 2, reps: "8–10", note: "Glute thickness", barbell: true },
-            { name: "Hip Abduction & Adduction", sets: 2, reps: "15", note: "Glute medius + adductors" },
+            { name: "Romanian Deadlift", sets: 3, reps: "6–8", note: "Ribs down, brace before the hinge. Stop where the back starts to round — that's today's range.", barbell: true, sub: "Bar/rack taken → DB RDL, one heavy DB each hand. Same hinge, same range." },
+            { name: "Back Squat", sets: 3, reps: "6–8", note: "Depth over weight. Let your toes point out 15–30° — your natural stance. Cue: knees track over toes, never force toes straight.", barbell: true, sub: "Rack taken → goblet squat with the heaviest DB you can hold, or DB split squats 8–10/side." },
+            { name: "Barbell Hip Thrust (off bench)", sets: 2, reps: "8–10", note: "Glute thickness", barbell: true, sub: "Bench/bar taken → single DB across the hips on the floor, or single-leg glute bridge 12/side." },
+            { name: "Hip Abduction & Adduction", sets: 2, reps: "15", note: "Glute medius + adductors", sub: "Machine taken → banded lateral walks + side-lying leg raises, 15/side." },
             { name: "Single-Leg Calf Raise", sets: 2, reps: "12/side", note: "Achilles prehab", inputMode: "bodyweight_reps" },
             { name: "Dead Bug", sets: 2, reps: "12", note: "Slow, anti-extension", inputMode: "bodyweight_reps" },
-            { name: "Incline Walk", sets: 1, reps: "15 min", note: "Easy pace · log min, km/h, incline%", inputMode: "treadmill" }
+            { name: "Incline Walk", sets: 1, reps: "15 min", note: "Easy pace · log min, km/h, incline%", inputMode: "treadmill", sub: "Treadmills full → walk outside or take the stairs. Same 15 min, easy pace." }
           ]
         },
         {
@@ -157,15 +158,16 @@ const DATA = {
         {
           title: "Push",
           exercises: [
-            { name: "Incline DB Press", sets: 3, reps: "6–8", note: "Upper chest = lifted look" },
-            { name: "Flat DB Press", sets: 3, reps: "8–10", note: "Mid-chest thickness",
+            { name: "Incline DB Press", sets: 3, reps: "6–8", note: "Upper chest = lifted look", sub: "No incline bench → put plates under one end of a flat bench, or feet-elevated push-ups to failure." },
+            { name: "Flat DB Press", sets: 3, reps: "8–10", note: "Mid-chest thickness", sub: "Benches all taken → floor DB press (same load, shorter range) or push-ups to failure.",
               byPhase: { 4: { name: "Slight-Decline DB Press", note: "Phase 4: bench one notch down (or plates under the head end) · fuller pec stretch, easier on the shoulders" } } },
-            { name: "Seated DB Shoulder Press", sets: 2, reps: "8–10", note: "Front + side delts · laterals ×3/wk + push press cover the rest" },
+            { name: "Seated DB Shoulder Press", sets: 2, reps: "8–10", note: "Front + side delts · laterals ×3/wk + push press cover the rest", sub: "No bench → standing DB press. Brace hard, ribs down, no leg drive." },
             {
               name: "Cable Lateral Raise · drop superset",
               sets: 2,
               reps: "R+L heavy → R+L drop · 10 each",
               note: "3-sec lower, lead with elbows · heavy R, heavy L, immediately drop weight, drop R, drop L",
+              sub: "Cables taken → DB lateral raise drop set: heavy pair R+L, put them down, straight into a lighter pair R+L.",
               byPhase: { 3: { name: "Lean-Away Cable Lateral · drop superset", note: "Phase 3: grip the frame, lean away — constant tension, deeper stretch at the bottom · same heavy R/L then drop R/L" } },
               inputMode: "multistage",
               stages: [
@@ -193,6 +195,7 @@ const DATA = {
               sets: 2,
               reps: "10 ea stage",
               note: "Both arms standard, then both arms sideways · lateral head",
+              sub: "Cables taken → DB overhead extension + bench dips, same rep target per stage.",
               inputMode: "multistage",
               stages: [
                 { label: "R · standard" },
@@ -201,14 +204,14 @@ const DATA = {
                 { label: "L · sideways" }
               ]
             },
-            { name: "Overhead Cable Extension", sets: 2, reps: "10–12", note: "Long head — the part that fills the sleeve" }
+            { name: "Overhead Cable Extension", sets: 2, reps: "10–12", note: "Long head — the part that fills the sleeve", sub: "Cable taken → two-hand DB overhead extension, seated or standing." }
           ]
         },
         {
           title: "Core",
           exercises: [
-            { name: "Cable Crunch", sets: 2, reps: "15–20", note: "Lighter load, higher reps. Breathe OUT on the way down — never hold your breath (that's the cramp). Stop if it seizes." },
-            { name: "Stairmaster · intervals", sets: 1, reps: "30s hard / 60s easy × 6", note: "Log the level you held on the hard bouts + rounds done", inputMode: "interval" }
+            { name: "Cable Crunch", sets: 2, reps: "15–20", note: "Lighter load, higher reps. Breathe OUT on the way down — never hold your breath (that's the cramp). Stop if it seizes.", sub: "Cable taken → weighted floor crunch (DB or plate on the chest), or hanging knee raises." },
+            { name: "Stairmaster · intervals", sets: 1, reps: "30s hard / 60s easy × 6", note: "Log the level you held on the hard bouts + rounds done", inputMode: "interval", sub: "Stairmaster queue → treadmill at a steep incline, bike, or real stairs. Same 30s hard / 60s easy × 6." }
           ]
         }
       ]
@@ -223,30 +226,30 @@ const DATA = {
         {
           title: "Strength",
           exercises: [
-            { name: "Power Clean", sets: 3, reps: "3", note: "Floor → shoulders, explosive · the carry-prep lift", barbell: true },
-            { name: "Barbell Deadlift", sets: 3, reps: "5", note: "Brace hard, stay tight", barbell: true },
-            { name: "Front Squat", sets: 3, reps: "6–8", note: "Upright torso · toes out 15–30°, knees chase the toes · sub goblet at total kg if no rack", barbell: true },
-            { name: "Push Press", sets: 3, reps: "5", note: "Leg dip → drive overhead", barbell: true },
-            { name: "Hamstring Curl", sets: 2, reps: "12", note: "Slow negative" }
+            { name: "Power Clean", sets: 3, reps: "3", note: "Floor → shoulders, explosive · the carry-prep lift", barbell: true, sub: "No platform/bar → DB clean (both hands), or heavy KB swings for the same hip snap." },
+            { name: "Barbell Deadlift", sets: 3, reps: "5", note: "Brace hard, stay tight", barbell: true, sub: "Bar taken → trap-bar, or heavy DB/KB deadlift from the floor." },
+            { name: "Front Squat", sets: 3, reps: "6–8", note: "Upright torso · toes out 15–30°, knees chase the toes · sub goblet at total kg if no rack", barbell: true, sub: "Rack taken → goblet squat, logged at total kg." },
+            { name: "Push Press", sets: 3, reps: "5", note: "Leg dip → drive overhead", barbell: true, sub: "Bar taken → DB push press. Same leg dip, drive overhead." },
+            { name: "Hamstring Curl", sets: 2, reps: "12", note: "Slow negative", sub: "Machine taken → single-leg DB RDL 10/side, or slow bodyweight nordic off a bench." }
           ]
         },
         {
           title: "Conditioning",
           exercises: [
-            { name: "KB Swings", sets: 3, reps: "15", note: "Hinge, not squat · explosive hips" },
-            { name: "Hanging Knee Raises", sets: 2, reps: "12", note: "Spine-loaded core", inputMode: "bodyweight_reps" }
+            { name: "KB Swings", sets: 3, reps: "15", note: "Hinge, not squat · explosive hips", sub: "No KB free → two-hand DB swing, same hinge." },
+            { name: "Hanging Knee Raises", sets: 2, reps: "12", note: "Spine-loaded core", inputMode: "bodyweight_reps", sub: "No free bar → floor knee tucks, hands under the hips." }
           ]
         },
         {
           title: "Core",
           exercises: [
-            { name: "Pallof Press", sets: 2, reps: "12/side", note: "Anti-rotation core" }
+            { name: "Pallof Press", sets: 2, reps: "12/side", note: "Anti-rotation core", sub: "Cable taken → band Pallof anchored at chest height on any rack." }
           ]
         },
         {
           title: "Finish",
           exercises: [
-            { name: "Stairmaster · moderate", sets: 1, reps: "8 min", note: "Cool down · log minutes + level", inputMode: "cardio" }
+            { name: "Stairmaster · moderate", sets: 1, reps: "8 min", note: "Cool down · log minutes + level", inputMode: "cardio", sub: "Any easy cardio — treadmill incline, bike, or stairs. 8 min." }
           ]
         }
       ]
@@ -261,28 +264,29 @@ const DATA = {
         {
           title: "Lat Pulldown · triset",
           exercises: [
-            { name: "Wide Grip Pulldown", sets: 1, reps: "to failure", note: "Heavy · outer lats · 1 all-out set" },
-            { name: "Narrow Grip Pulldown", sets: 1, reps: "to failure", note: "Heavy · inner back, biceps" },
-            { name: "Reverse Grip Pulldown", sets: 1, reps: "to failure", note: "Heavy · lower lats + biceps" }
+            { name: "Wide Grip Pulldown", sets: 1, reps: "to failure", note: "Heavy · outer lats · 1 all-out set", sub: "Cable taken → wide-grip pull-ups to failure (banded if needed)." },
+            { name: "Narrow Grip Pulldown", sets: 1, reps: "to failure", note: "Heavy · inner back, biceps", sub: "Cable taken → close-grip/neutral pull-ups, or single-arm DB row to failure." },
+            { name: "Reverse Grip Pulldown", sets: 1, reps: "to failure", note: "Heavy · lower lats + biceps", sub: "Cable taken → chin-ups (palms toward you) to failure." }
           ]
         },
         {
           title: "Chest · cable fly triset",
           exercises: [
-            { name: "Cable Fly · high-to-low", sets: 2, reps: "10–12", note: "Lower pec line · pull down and across" },
-            { name: "Cable Fly · mid", sets: 2, reps: "10–12", note: "Mid pec · pull straight across" },
-            { name: "Cable Fly · low-to-high", sets: 2, reps: "10–12", note: "Upper pec · pull up and across" }
+            { name: "Cable Fly · high-to-low", sets: 2, reps: "10–12", note: "Lower pec line · pull down and across", sub: "Cables taken → decline DB fly, or a slight-decline push-up." },
+            { name: "Cable Fly · mid", sets: 2, reps: "10–12", note: "Mid pec · pull straight across", sub: "Cables taken → flat DB fly on any bench (or the floor)." },
+            { name: "Cable Fly · low-to-high", sets: 2, reps: "10–12", note: "Upper pec · pull up and across", sub: "Cables taken → incline DB fly, bench at ~30°." }
           ]
         },
         {
           title: "Shoulders",
           exercises: [
-            { name: "Shoulder Press", sets: 2, reps: "8–10", note: "Controlled · 1–2 in tank" },
+            { name: "Shoulder Press", sets: 2, reps: "8–10", note: "Controlled · 1–2 in tank", sub: "Machine/bench taken → standing DB press." },
             {
               name: "Cable Lateral Raise · drop superset",
               sets: 2,
               reps: "10 ea stage",
               note: "Same drop superset as Day 1/3 — heavy R+L then immediately drop",
+              sub: "Cables taken → DB lateral raise drop set: heavy pair R+L, put them down, straight into a lighter pair R+L.",
               byPhase: { 3: { name: "Lean-Away Cable Lateral · drop superset", note: "Phase 3: grip the frame, lean away — constant tension, deeper stretch at the bottom · same heavy R/L then drop R/L" } },
               inputMode: "multistage",
               stages: [
@@ -292,15 +296,15 @@ const DATA = {
                 { label: "L · drop" }
               ]
             },
-            { name: "Reverse Delt Fly", sets: 2, reps: "12–15", note: "Squeeze rear delts" }
+            { name: "Reverse Delt Fly", sets: 2, reps: "12–15", note: "Squeeze rear delts", sub: "Machine taken → bent-over DB rear fly, or band pull-aparts." }
           ]
         },
         {
           title: "Arms",
           exercises: [
-            { name: "Straight Bar Pushdown", sets: 1, reps: "to failure", note: "Heavy · one all-out set · overall tricep mass" },
-            { name: "Spider Curl", sets: 1, reps: "to failure", note: "Heavy · chest on a 45° incline bench, arms hanging · curl to peak, 1-sec squeeze · the bench kills the swing" },
-            { name: "Spider Hammer Curl", sets: 1, reps: "to failure", note: "Heavy · same setup, neutral grip · brachialis + forearm" }
+            { name: "Straight Bar Pushdown", sets: 1, reps: "to failure", note: "Heavy · one all-out set · overall tricep mass", sub: "Cable taken → bench dips to failure, or DB overhead extension." },
+            { name: "Spider Curl", sets: 1, reps: "to failure", note: "Heavy · chest on a 45° incline bench, arms hanging · curl to peak, 1-sec squeeze · the bench kills the swing", sub: "No incline bench → standing DB curl with your back flat on a wall (kills the swing the same way)." },
+            { name: "Spider Hammer Curl", sets: 1, reps: "to failure", note: "Heavy · same setup, neutral grip · brachialis + forearm", sub: "No incline bench → standing hammer curl, back on a wall." }
           ]
         },
         {
@@ -308,13 +312,13 @@ const DATA = {
           exercises: [
             { name: "V-Ups", sets: 1, reps: "10–12", note: "Reach for your toes · breathe OUT on the way up", inputMode: "bodyweight_reps" },
             { name: "Single-Leg V-Ups", sets: 1, reps: "8/side", note: "Alternate legs · opposite hand to raised foot · exhale up", inputMode: "bodyweight_reps" },
-            { name: "Russian Twist · medicine ball", sets: 1, reps: "12/side", note: "Feet up = harder · exhale on each twist · log ball kg" }
+            { name: "Russian Twist · medicine ball", sets: 1, reps: "12/side", note: "Feet up = harder · exhale on each twist · log ball kg", sub: "No med ball → any DB or plate held at the chest." }
           ]
         },
         {
           title: "Zone 2 · optional",
           exercises: [
-            { name: "Incline Walk or Stairmaster · Zone 2", sets: 1, reps: "45–60 min", note: "Conversational pace — can talk, wouldn't sing. Here or on a rest day. VO2max = longevity.", inputMode: "cardio" }
+            { name: "Incline Walk or Stairmaster · Zone 2", sets: 1, reps: "45–60 min", note: "Conversational pace — can talk, wouldn't sing. Here or on a rest day. VO2max = longevity.", inputMode: "cardio", sub: "Machines full → walk outside. Zone 2 needs no equipment at all." }
           ]
         }
       ]
@@ -353,7 +357,7 @@ const DATA = {
         {
           title: "Gym · KB finisher",
           exercises: [
-            { name: "KB Swings · intervals", sets: 4, reps: "30s on / 30s off", note: "20kg max. Tap timer for the 30s on. Push max reps (aim 22+). Last round single-arm alternating if you've got it.", timed: 30 }
+            { name: "KB Swings · intervals", sets: 4, reps: "30s on / 30s off", note: "20kg max. Tap timer for the 30s on. Push max reps (aim 22+). Last round single-arm alternating if you've got it.", timed: 30, sub: "No KB free → two-hand DB swing, or jump squats for the same 30s burst." }
           ]
         }
       ]
@@ -362,15 +366,15 @@ const DATA = {
       id: "mvs",
       special: true,
       name: "Minimum viable session",
-      tagline: "Bad day · 20 min · still counts",
-      blurb: "Tired, short on time, low on sleep? Three lifts, in and out. Showing up is the win — this logs as a full green day.",
+      tagline: "Crowded or bad day · 20 min · still counts",
+      blurb: "Gym packed, tired, or short on time? Three lifts, in and out — all of it doable with two dumbbells and a bench, so a full gym can't block you. Showing up is the win; this logs as a full green day.",
       blocks: [
         {
           title: "The 3",
           exercises: [
             { name: "Goblet Squat", sets: 3, reps: "10", note: "One DB, full depth" },
-            { name: "DB Row", sets: 3, reps: "10/side", note: "One DB, brace on the bench" },
-            { name: "DB Shoulder Press", sets: 3, reps: "10", note: "Standing or seated" }
+            { name: "DB Row", sets: 3, reps: "10/side", note: "One DB, brace on the bench", sub: "No bench free → hinge over and row from a standing split stance." },
+            { name: "DB Shoulder Press", sets: 3, reps: "10", note: "Standing or seated", sub: "No bench free → standing. Brace hard, ribs down." }
           ]
         }
       ]
@@ -442,6 +446,7 @@ const DATA = {
     "Consistency > perfection. 80% for 16 weeks beats 100% for 3.",
     "Protein and veg first. Rice/roti last. Flattens insulin spikes.",
     "Hydrate: 2.5–3 L/day, more on training days and in the heat. Salt your food normally — cramping in this humidity is usually sodium, not magnesium.",
+    "Gym packed? Don't queue and don't bail. Every station-dependent lift has a TAKEN? swap under it — take the swap and keep moving. A swapped session counts exactly the same; standing around waiting for a machine is not training.",
     "Never stack Day 1 + Day 3 (delt overlap).",
     "Never stack Day 2 + Day 4 (leg overlap).",
     "Peak season at work? Flip on Maintain mode below. Minimum viable week: 2 sessions, protein, sleep. Zero guilt."
