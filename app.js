@@ -26,12 +26,17 @@ const defaultState = {
 };
 
 // Default workout per weekday — Sat is Day 1, then forward through the week
+// Day 4 (power: clean, deadlift, front squat) sits on Wednesday, NOT Tuesday.
+// Day 2 is the other leg day on Sunday — Sun→Tue is 48h, exactly the DOMS peak,
+// which was wrecking the power day. Sun→Wed gives 3 days, and Tuesday's upper
+// pump day lands on legs that are still recovering. Heaviest day also now runs
+// straight into the Thu/Fri home days for maximum recovery after.
 const DEFAULT_WEEKDAY_WORKOUT = {
   6: 'day1',     // Sat — back width + side delts
-  0: 'day2',     // Sun — lower posterior + core
+  0: 'day2',     // Sun — lower posterior + core  (LEGS)
   1: 'day3',     // Mon — chest + shoulders + arms
-  2: 'day4',     // Tue — power + conditioning
-  3: 'day5',     // Wed — pump upper volume
+  2: 'day5',     // Tue — pump upper volume (legs still recovering)
+  3: 'day4',     // Wed — power + conditioning  (LEGS, 3 days after day2)
   4: 'homecore', // Thu — rest / home core
   5: 'homecore'  // Fri — rest / home core
 };

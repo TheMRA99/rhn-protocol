@@ -92,7 +92,7 @@ const DATA = {
             { name: "Face Pulls", sets: 2, reps: "15", note: "Rear delts + cuff health", sub: "Cable taken → band face-pull anchored at eye height, or bent-over DB rear-delt fly." },
             { name: "Hanging Leg Raise", sets: 2, reps: "12", note: "No swinging", inputMode: "bodyweight_reps", sub: "No free bar → lying leg raise on the floor, hands under the hips." },
             { name: "Cable Woodchop", sets: 2, reps: "10/side", note: "Lateral obliques · the V-cut angle (low-to-high or high-to-low)", sub: "Cable taken → band woodchop, or a DB/plate Russian twist for the same oblique angle." },
-            { name: "Dead Hang", sets: 1, reps: "max hold", note: "Spinal decompression after a day of sitting · the farmer's carry below now covers the loaded grip work, so one honest hold is enough", inputMode: "time", sub: "No free bar → skip it; the carry covers grip." }
+            { name: "Dead Hang", sets: 1, reps: "max hold", note: "Spinal decompression after a day of sitting, plus grip · one honest max hold is enough", inputMode: "time", sub: "No free bar → heavy DB farmer hold, 40–50 sec." }
           ]
         },
         {
@@ -106,10 +106,7 @@ const DATA = {
           exercises: [
             { name: "Wrist Curl (palms up)", sets: 2, reps: "15", note: "Flexor mass" },
             { name: "Reverse Wrist Curl", sets: 2, reps: "12", note: "Extensor width" },
-            { name: "DB Shrugs", sets: 2, reps: "12–15", note: "1-sec hold at top · trap shelf for V-taper" },
-            { name: "Farmer's Carry", sets: 2, reps: "30–40 m", note: "The 55kg-carry goal, trained directly. Heaviest DBs you can hold — ribs down, shoulders back, walk tall and controlled, no leaning. Grip + traps + braced trunk under load is exactly what carrying a person demands, and nothing else in the week trains it.", inputMode: "carry",
-              sub: "DBs taken → two KBs, or plates held by the lip. No room to walk → heavy DB static hold, 40–50 sec per set.",
-              byPhase: { 4: { name: "Front-Rack Carry", note: "Phase 4: the carry gets specific. Two DBs racked at the shoulders, elbows high, ribs down — that's the exact trunk position of carrying someone on your shoulders." } } }
+            { name: "DB Shrugs", sets: 2, reps: "12–15", note: "1-sec hold at top · trap shelf for V-taper" }
           ]
         }
       ]
@@ -130,7 +127,7 @@ const DATA = {
             { name: "Hip Abduction & Adduction", sets: 2, reps: "15", note: "Glute medius + adductors", sub: "Machine taken → banded lateral walks + side-lying leg raises, 15/side." },
             { name: "Single-Leg Calf Raise", sets: 2, reps: "12/side", note: "Achilles prehab", inputMode: "bodyweight_reps" },
             { name: "Dead Bug", sets: 2, reps: "12", note: "Slow, anti-extension", inputMode: "bodyweight_reps" },
-            { name: "Incline Walk", sets: 1, reps: "15 min", note: "Easy pace · log min, km/h, incline%", inputMode: "treadmill", sub: "Treadmills full → walk outside or take the stairs. Same 15 min, easy pace." }
+            { name: "Incline Walk", sets: 1, reps: "10 min", note: "Easy pace · log min, km/h, incline%. Your daily Zone-2 line already covers the rest — this is just the cooldown.", inputMode: "treadmill", sub: "Treadmills full → walk outside or take the stairs. Same 10 min, easy pace." }
           ]
         },
         {
@@ -162,18 +159,18 @@ const DATA = {
       name: "Chest + shoulders + arms",
       tagline: "Fill the sleeve",
       blurb: "Dense chest, capped delts, arms that fill a sleeve, forearms under a rolled cuff.",
-      warmup: "Arm circles + 15 band pull-aparts · incline DB ramp: half weight × 10 before working sets",
+      warmup: "Arm circles + 15 band pull-aparts · incline DB ramp: half weight × 10, then ~80% × 3. You only get 2 working sets now and both are heavy — the ramp is what makes that safe. Never take a heavy first set cold.",
       blocks: [
         {
           title: "Push",
           exercises: [
-            { name: "Incline DB Press", sets: 3, reps: "6–8", note: "Upper chest = lifted look", sub: "No incline bench → put plates under one end of a flat bench, or feet-elevated push-ups to failure." },
-            { name: "Flat DB Press", sets: 3, reps: "8–10", note: "Mid-chest thickness", sub: "Benches all taken → floor DB press (same load, shorter range) or push-ups to failure.",
+            { name: "Incline DB Press", sets: 2, reps: "6–8", note: "Upper chest = lifted look. Both sets heavy — leave 1 in the tank, not 2. Two heavy sets beat three soft ones, but only if you ramp first (see warm-up).", sub: "No incline bench → put plates under one end of a flat bench, or feet-elevated push-ups to failure." },
+            { name: "Flat DB Press", sets: 2, reps: "8–10", note: "Mid-chest thickness · both sets heavy, 1 in the tank. Day 5's fly triset covers the rest of your chest volume.", sub: "Benches all taken → floor DB press (same load, shorter range) or push-ups to failure.",
               byPhase: { 4: { name: "Slight-Decline DB Press", note: "Phase 4: bench one notch down (or plates under the head end) · fuller pec stretch, easier on the shoulders" } } },
             { name: "Seated DB Shoulder Press", sets: 2, reps: "8–10", note: "Front + side delts · laterals ×3/wk + push press cover the rest", sub: "No bench → standing DB press. Brace hard, ribs down, no leg drive." },
             {
               name: "Cable Lateral Raise · drop superset",
-              sets: 2,
+              sets: 1,
               reps: "R+L heavy → R+L drop · 10 each",
               note: "3-sec lower, lead with elbows · heavy R, heavy L, immediately drop weight, drop R, drop L",
               sub: "Cables taken → DB lateral raise drop set: heavy pair R+L, put them down, straight into a lighter pair R+L.",
@@ -192,8 +189,7 @@ const DATA = {
           title: "Arm Finisher · 1 min each, no rest",
           exercises: [
             { name: "DB Wide Curl", sets: 1, reps: "1 min · max reps", note: "Tap timer when you start", timed: 60 },
-            { name: "Hammer Curl", sets: 1, reps: "1 min · max reps", note: "Tap timer when you start", timed: 60 },
-            { name: "Straight Curl", sets: 1, reps: "1 min · max reps", note: "Tap timer when you start", timed: 60 }
+            { name: "Hammer Curl", sets: 1, reps: "1 min · max reps", note: "Tap timer when you start", timed: 60 }
           ]
         },
         {
@@ -201,7 +197,7 @@ const DATA = {
           exercises: [
             {
               name: "Single-Arm Cable Pushdown · superset",
-              sets: 2,
+              sets: 1,
               reps: "10 ea stage",
               note: "Both arms standard, then both arms sideways · lateral head",
               sub: "Cables taken → DB overhead extension + bench dips, same rep target per stage.",
@@ -219,8 +215,8 @@ const DATA = {
         {
           title: "Core",
           exercises: [
-            { name: "Cable Crunch", sets: 2, reps: "15–20", note: "Lighter load, higher reps. Breathe OUT on the way down — never hold your breath (that's the cramp). Stop if it seizes.", sub: "Cable taken → weighted floor crunch (DB or plate on the chest), or hanging knee raises." },
-            { name: "Stairmaster · intervals", sets: 1, reps: "30s hard / 60s easy × 6", note: "Log the level you held on the hard bouts + rounds done", inputMode: "interval", sub: "Stairmaster queue → treadmill at a steep incline, bike, or real stairs. Same 30s hard / 60s easy × 6." }
+            { name: "Cable Crunch", sets: 1, reps: "15–20", note: "One quality set. Lighter load, higher reps. Breathe OUT on the way down — never hold your breath (that's the cramp). Stop if it seizes.", sub: "Cable taken → weighted floor crunch (DB or plate on the chest), or hanging knee raises." },
+            { name: "Stairmaster · intervals", sets: 1, reps: "30s hard / 60s easy × 4", note: "Log the level you held on the hard bouts + rounds done", inputMode: "interval", sub: "Stairmaster queue → treadmill at a steep incline, bike, or real stairs. Same 30s hard / 60s easy × 4." }
           ]
         }
       ]
@@ -457,7 +453,7 @@ const DATA = {
     "Hydrate: 2.5–3 L/day, more on training days and in the heat. Salt your food normally — cramping in this humidity is usually sodium, not magnesium.",
     "Gym packed? Don't queue and don't bail. Every station-dependent lift has a TAKEN? swap under it — take the swap and keep moving. A swapped session counts exactly the same; standing around waiting for a machine is not training.",
     "Never stack Day 1 + Day 3 (delt overlap).",
-    "Never stack Day 2 + Day 4 (leg overlap).",
+    "Day 2 and Day 4 are both leg days — keep 3 days between them, never 1. The default week runs Day 2 Sunday and Day 4 Wednesday for exactly this reason: 48 hours after squats is peak soreness, and that's what was ruining the power day. Tuesday is upper-body on purpose.",
     "Peak season at work? Flip on Maintain mode below. Minimum viable week: 2 sessions, protein, sleep. Zero guilt."
   ],
 
