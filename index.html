@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=40" />
+<link rel="stylesheet" href="styles.css?v=41" />
 </head>
 <body>
 <header class="topbar">
@@ -66,11 +66,20 @@
 
     <section class="card card-collapsible">
       <header class="card-header">
-        <h2><span class="num">01</span>Morning ritual</h2>
-        <span class="card-meta">6 min · daily</span>
+        <h2><span class="num">01</span>Daily core</h2>
+        <span class="card-meta">3 min · every day</span>
         <span class="card-toggle" aria-hidden="true"></span>
       </header>
       <div id="ritualList" class="info-list"></div>
+    </section>
+
+    <section class="card card-collapsible collapsed">
+      <header class="card-header">
+        <h2><span class="num">01b</span>Mobility reset</h2>
+        <span class="card-meta">Optional · when you have 5 min</span>
+        <span class="card-toggle" aria-hidden="true"></span>
+      </header>
+      <div id="resetList" class="info-list"></div>
     </section>
 
     <section class="card" id="workoutCard" hidden>
@@ -121,21 +130,6 @@
       <div id="officeTripList" class="info-list"></div>
       <div class="block-title">Invisible at the desk</div>
       <div id="officeDeskList" class="info-list"></div>
-    </section>
-
-    <section class="card">
-      <header class="card-header">
-        <h2><span class="num">06</span>Sleep log</h2>
-        <span class="card-meta">Bed time + freshness 1–5</span>
-      </header>
-      <div class="weight-input sleep-input">
-        <input type="time" id="sleepBedInput" />
-        <span class="unit">bed</span>
-        <input type="number" id="sleepFreshInput" min="1" max="5" inputmode="numeric" placeholder="1–5" />
-        <span class="unit">fresh</span>
-        <button class="btn-primary" id="logSleepBtn">Log</button>
-      </div>
-      <div class="sleep-summary" id="sleepSummary"></div>
     </section>
 
     <section class="card prayer-card" id="prayerCard"></section>
@@ -201,6 +195,15 @@
       <p class="hero-sub">75kg → 68–70kg · 20–24% → 12–14% body fat · Trust the process.</p>
     </div>
 
+    <section class="card coach-card">
+      <header class="card-header">
+        <h2>Coach review</h2>
+        <span class="card-meta">for Claude</span>
+      </header>
+      <p class="coach-note">Tap to copy a readable summary of your training — progression, adherence, weight &amp; waist trends — plus the raw data. Paste it into the chat and I'll read it like your coach and tell you what to change.</p>
+      <button class="btn-primary" id="coachCopyBtn">Copy my training data</button>
+    </section>
+
     <section class="card">
       <header class="card-header">
         <h2><span class="num">01</span>Weight log</h2>
@@ -234,15 +237,6 @@
       <div class="progress-stats" id="waistStats"></div>
     </section>
 
-    <section class="card">
-      <header class="card-header">
-        <h2><span class="num">03</span>Sleep</h2>
-        <span class="card-meta">Freshness · lights-out · payoff</span>
-      </header>
-      <div class="chart chart-short" id="sleepChart"></div>
-      <div class="progress-stats" id="sleepStats"></div>
-      <div class="rules" id="sleepCorrelation"></div>
-    </section>
 
     <section class="card">
       <header class="card-header">
@@ -429,7 +423,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=46"></script>
-<script src="app.js?v=43"></script>
+<script src="data.js?v=47"></script>
+<script src="app.js?v=45"></script>
 </body>
 </html>

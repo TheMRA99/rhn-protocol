@@ -2028,6 +2028,23 @@ body.rest-active main { padding-bottom: 180px; }
 .rd-empty, .fc-empty { font-size: 13.5px; line-height: 1.55; color: var(--text-dim); }
 .rd-empty strong, .fc-empty strong { color: var(--text); }
 
+/* One-tap recovery check on the readiness card */
+.rd-feel { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 12px 0 2px; }
+.rd-feel-label { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; font-weight: 600; letter-spacing: 0.04em; color: var(--text-dim); text-transform: uppercase; }
+.rd-feel-dots { display: flex; gap: 6px; }
+.rd-feel-dot {
+  width: 34px; height: 34px; border-radius: 9px;
+  border: 1.5px solid var(--line-bright); background: transparent;
+  color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.rd-feel-dot:hover { border-color: var(--wine-bright); color: var(--text); }
+.rd-feel-dot.on { background: var(--wine-bright); border-color: var(--wine-bright); color: #fff; }
+
+/* Coach-review export card */
+.coach-card { border-left: 3px solid var(--wine-bright); }
+.coach-note { font-size: 13.5px; line-height: 1.55; color: var(--text-dim); margin: 2px 0 14px; }
+
 .forecast-card { border-left: 3px solid var(--cobalt-bright); }
 .fc-main { margin: 6px 0 12px; }
 .fc-date { font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 30px; font-weight: 800; line-height: 1.05; color: var(--text); letter-spacing: -0.01em; }

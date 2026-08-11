@@ -1097,11 +1097,11 @@ function renderWorkout() {
 function renderToday() {
   renderDayPicker();
   renderInfoList('ritualList', DATA.morningRitual);
+  renderInfoList('resetList', DATA.mobilityReset);
   renderInfoList('dailyList', DATA.daily);
   renderInfoList('staminaList', DATA.stamina);
   renderReadiness();
   renderWorkout();
-  renderSleep();
   renderPrayer();
   renderOffice();
   renderModeBanner();
@@ -1118,30 +1118,49 @@ function renderReadiness() {
   if (!el) return;
   const { readiness: r, adjustments } = adaptivePlan();
   const vClass = r.verdict === 'push' ? 'rd-push' : r.verdict === 'hold' ? 'rd-hold' : 'rd-backoff';
+  const header = `<header class="card-header"><h2>Readiness</h2><span class="card-meta">adaptive engine</span></header>`;
 
-  if (!r.hasData) {
-    el.hidden = false;
-    el.innerHTML = `
-      <header class="card-header"><h2>Readiness</h2><span class="card-meta">adaptive engine</span></header>
-      <div class="rd-empty">Log <strong>last night's freshness</strong> on the Sleep card and weigh in daily — the engine reads those to call <em>push · hold · back off</em> and adjusts today automatically.</div>`;
-    return;
-  }
-
-  const factorsHTML = r.factors.map(f =>
-    `<span class="rd-chip ${f.delta >= 0 ? 'pos' : 'neg'}">${f.label} <b>${f.delta > 0 ? '+' : ''}${f.delta}</b></span>`
-  ).join('');
-  const adjHTML = adjustments.map(a => `<li class="rd-adj rd-adj-${a.kind}">${a.text}</li>`).join('');
+  // One-tap recovery check — feeds the engine without a full sleep logger.
+  const todayFresh = +(state.sleep?.[today()]?.fresh) || 0;
+  const feelStrip = `
+    <div class="rd-feel">
+      <span class="rd-feel-label">Feel today</span>
+      <div class="rd-feel-dots" role="group" aria-label="How recovered do you feel, 1 to 5">
+        ${[1, 2, 3, 4, 5].map(n => `<button type="button" class="rd-feel-dot${todayFresh >= n ? ' on' : ''}" data-feel="${n}" aria-label="${n} of 5">${n}</button>`).join('')}
+      </div>
+    </div>`;
 
   el.hidden = false;
-  el.innerHTML = `
-    <header class="card-header"><h2>Readiness</h2><span class="card-meta">adaptive engine</span></header>
-    <div class="rd-top">
-      <div class="rd-score"><span class="rd-num">${r.score}</span><span class="rd-denom">/100</span></div>
-      <div class="rd-verdict ${vClass}">${r.verdict.toUpperCase()}</div>
-    </div>
-    <div class="rd-bar"><div class="rd-bar-fill ${vClass}" style="width:${r.score}%"></div></div>
-    ${factorsHTML ? `<div class="rd-factors">${factorsHTML}</div>` : ''}
-    <ul class="rd-adjs">${adjHTML}</ul>`;
+  if (!r.hasData) {
+    el.innerHTML = header + feelStrip +
+      `<div class="rd-empty">Tap how recovered you feel and weigh in daily — the engine reads those, plus your pain flags and lift trend, to call <em>push · hold · back off</em> and adjust today automatically.</div>`;
+  } else {
+    const factorsHTML = r.factors.map(f =>
+      `<span class="rd-chip ${f.delta >= 0 ? 'pos' : 'neg'}">${f.label} <b>${f.delta > 0 ? '+' : ''}${f.delta}</b></span>`
+    ).join('');
+    const adjHTML = adjustments.map(a => `<li class="rd-adj rd-adj-${a.kind}">${a.text}</li>`).join('');
+    el.innerHTML = header + `
+      <div class="rd-top">
+        <div class="rd-score"><span class="rd-num">${r.score}</span><span class="rd-denom">/100</span></div>
+        <div class="rd-verdict ${vClass}">${r.verdict.toUpperCase()}</div>
+      </div>
+      <div class="rd-bar"><div class="rd-bar-fill ${vClass}" style="width:${r.score}%"></div></div>
+      ${feelStrip}
+      ${factorsHTML ? `<div class="rd-factors">${factorsHTML}</div>` : ''}
+      <ul class="rd-adjs">${adjHTML}</ul>`;
+  }
+
+  el.querySelectorAll('.rd-feel-dot').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const n = +btn.dataset.feel;
+      state.sleep = state.sleep || {};
+      const k = today();
+      const cur = +(state.sleep[k]?.fresh) || 0;
+      state.sleep[k] = { ...(state.sleep[k] || {}), fresh: cur === n ? undefined : n }; // re-tap to clear
+      save();
+      renderReadiness();
+    });
+  });
 }
 
 function renderForecast() {
@@ -1482,8 +1501,8 @@ function forecastTrajectory(targetKg) {
 }
 
 // ----- #1 ADAPTIVE PERIODIZATION ENGINE ------------------------------------
-// Readiness = a composite of what you actually log: last night's freshness,
-// 7-day sleep consistency, recent pain flags, and lift-performance trend.
+// Readiness = a composite of what you actually log: today's recovery tap,
+// its 7-day trend, recent pain flags, and lift-performance trend.
 // One number → push / hold / back off.
 function readinessScore() {
   const factors = [];
@@ -1498,7 +1517,7 @@ function readinessScore() {
   if (lastFresh != null) {
     const d = Math.round((lastFresh - 3) * 12); // 1→−24 … 5→+24
     score += d;
-    factors.push({ label: `Last night ${lastFresh}/5`, delta: d });
+    factors.push({ label: `Feel ${lastFresh}/5`, delta: d });
   }
 
   const recentFresh = sleepDates.slice(-7).map(d => +state.sleep[d]?.fresh).filter(Boolean);
@@ -1506,7 +1525,7 @@ function readinessScore() {
     const avg = recentFresh.reduce((a, b) => a + b, 0) / recentFresh.length;
     const d = Math.round((avg - 3) * 6);
     score += d;
-    factors.push({ label: `7-day sleep ${avg.toFixed(1)}/5`, delta: d });
+    factors.push({ label: `7-day recovery ${avg.toFixed(1)}/5`, delta: d });
   }
 
   const painNames = recentPainExercises();
@@ -1695,7 +1714,7 @@ function detectPatterns() {
     const avg = a => a.reduce((x, y) => x + y, 0) / a.length;
     const ap = avg(prFresh), af = avg(flatFresh);
     if (ap - af >= 0.4) {
-      out.push({ icon: 'sleep', text: `Your PRs land on mornings you rated <strong>${ap.toFixed(1)}/5</strong> fresh — versus ${af.toFixed(1)}/5 on days nothing moved. Sleep is upstream of strength; the nights you protect it are the days you grow.` });
+      out.push({ icon: 'sleep', text: `Your PRs land on days you rated <strong>${ap.toFixed(1)}/5</strong> recovered — versus ${af.toFixed(1)}/5 on days nothing moved. Recovery is upstream of strength; the days you show up fresh are the days you grow.` });
     }
   }
 
@@ -1737,7 +1756,7 @@ function renderPatterns() {
   const head = `<header class="card-header"><h2>Patterns</h2><span class="card-meta">your data, correlated</span></header>`;
   el.hidden = false;
   if (!pats.length) {
-    el.innerHTML = head + `<div class="pt-empty">Watching for links across your logs — sleep ↔ strength, recurring pain, your strongest training days. Real patterns surface here after a few weeks of logging; nothing gets inferred from too little data.</div>`;
+    el.innerHTML = head + `<div class="pt-empty">Watching for links across your logs — recovery ↔ strength, recurring pain, your strongest training days. Real patterns surface here after a few weeks of logging; nothing gets inferred from too little data.</div>`;
     return;
   }
   el.innerHTML = head + `<ul class="pt-list">${pats.map(p => `<li class="pt-item pt-${p.icon}">${p.text}</li>`).join('')}</ul>`;
@@ -2127,138 +2146,151 @@ function renderOffice() {
   });
 }
 
-// ========== SLEEP LOG · bed time + freshness ==========
-function renderSleep() {
-  const summary = document.getElementById('sleepSummary');
-  if (!summary) return;
-  const sleep = state.sleep || {};
-  const dKey = today();
-  const todayEntry = sleep[dKey];
-  if (todayEntry) {
-    const bedIn = document.getElementById('sleepBedInput');
-    const freshIn = document.getElementById('sleepFreshInput');
-    if (bedIn && !bedIn.value) bedIn.value = todayEntry.bed || '';
-    if (freshIn && !freshIn.value) freshIn.value = todayEntry.fresh || '';
-  }
-  // Last-7-entries freshness average
-  const recent = Object.keys(sleep).sort().slice(-7).map(k => sleep[k].fresh).filter(Boolean);
-  if (!recent.length) {
-    summary.innerHTML = '<span class="sleep-note">Log tonight\'s bed time tomorrow morning, with how fresh you woke (1–5).</span>';
-    return;
-  }
-  const avg = recent.reduce((a, b) => a + b, 0) / recent.length;
-  if (avg <= 2.5 && recent.length >= 4) {
-    summary.innerHTML = `<span class="sleep-note warn-note">⚠ Freshness avg ${avg.toFixed(1)} over ${recent.length} days — sleep is the limiter right now, not the program. Lights out 10:15.</span>`;
+// ========== COACH REVIEW · copy a readable digest + raw data ==========
+// Builds a plain-text training summary the user can paste into chat for
+// analysis, with the raw slice appended in a fenced JSON block.
+function buildCoachReport() {
+  const L = [];
+  const wk = weekNumber();
+  const ph = phaseNumber(wk);
+  const start = state.startDate || '—';
+  const daysIn = state.startDate
+    ? Math.round((new Date(today()) - new Date(state.startDate + 'T00:00:00')) / DAY_MS)
+    : 0;
+
+  L.push('RHN PROTOCOL — COACH REVIEW');
+  L.push(`generated ${today()} · week ${wk}/16 · phase ${ph} · started ${start} (${daysIn}d in)`);
+  L.push('');
+
+  // ----- BODY -----
+  const weights = (state.weights || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+  const waists = (state.waists || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+  L.push('BODY');
+  if (weights.length) {
+    const latest = weights.at(-1);
+    const avg = rollingAvgWeight();
+    const startKg = weights.length > 1 ? weights[0].kg : (DATA.startKg ?? latest.kg);
+    const f = forecastTrajectory(DATA.targetKg);
+    const rate = (f && f.slopePerWeek != null) ? `${f.slopePerWeek > 0 ? '+' : ''}${f.slopePerWeek.toFixed(2)} kg/wk` : 'n/a';
+    const net = avg != null ? avg - startKg : 0;
+    L.push(`  Weight: ${latest.kg.toFixed(1)} kg today · 7-day avg ${avg != null ? avg.toFixed(1) : '—'} · trend ${rate} · start ${startKg.toFixed(1)} → net ${net >= 0 ? '+' : ''}${net.toFixed(1)} (${weights.length} logs)`);
+    if (f && f.status === 'ok' && f.projDate) L.push(`  Forecast: ${DATA.targetKg} kg ~${f.projDate} (±${f.bandDays}d) at current rate`);
+    else if (f && f.status === 'reached') L.push('  Forecast: at/under target on the 7-day line');
   } else {
-    summary.innerHTML = `<span class="sleep-note">${recent.length}-day freshness avg · <strong>${avg.toFixed(1)} / 5</strong></span>`;
+    L.push('  Weight: no logs yet');
   }
-}
-
-document.getElementById('logSleepBtn')?.addEventListener('click', () => {
-  const bed = document.getElementById('sleepBedInput').value;
-  const fresh = parseInt(document.getElementById('sleepFreshInput').value);
-  if (!bed && !fresh) { showToast('Enter bed time or freshness'); return; }
-  if (fresh && (fresh < 1 || fresh > 5)) { showToast('Freshness is 1–5'); return; }
-  state.sleep = state.sleep || {};
-  const dKey = today();
-  state.sleep[dKey] = { ...(state.sleep[dKey] || {}), bed: bed || undefined, fresh: fresh || undefined };
-  save();
-  showToast('Sleep logged');
-  renderSleep();
-});
-
-// ========== SLEEP ANALYSIS · Progress tab ==========
-// Bed times cross midnight, so average them relative to noon.
-function bedToNoonMinutes(bed) {
-  if (!bed || !/^\d{2}:\d{2}$/.test(bed)) return null;
-  const [h, m] = bed.split(':').map(Number);
-  return ((h + 12) % 24) * 60 + m;
-}
-function noonMinutesToStr(mins) {
-  const h = (Math.floor(mins / 60) + 12) % 24;
-  const m = Math.round(mins % 60);
-  return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
-}
-
-function renderSleepAnalysis() {
-  const chartEl = document.getElementById('sleepChart');
-  const statsEl = document.getElementById('sleepStats');
-  const corrEl = document.getElementById('sleepCorrelation');
-  if (!chartEl || !statsEl || !corrEl) return;
-
-  const entries = Object.keys(state.sleep || {}).sort().map(d => ({ date: d, ...state.sleep[d] }));
-  if (!entries.length) {
-    chartEl.innerHTML = '<div class="chart-empty">Log bed time + freshness on the Today tab — analysis appears here</div>';
-    statsEl.innerHTML = '';
-    corrEl.innerHTML = '';
-    return;
+  if (waists.length) {
+    const lw = waists.at(-1), sw = waists.length > 1 ? waists[0] : lw;
+    const d = lw.cm - sw.cm;
+    L.push(`  Waist: ${lw.cm.toFixed(1)} cm · start ${sw.cm.toFixed(1)} → ${d >= 0 ? '+' : ''}${d.toFixed(1)} (${waists.length} logs)`);
+  } else {
+    L.push('  Waist: no logs yet');
   }
+  L.push(`  Target: ${DATA.targetKg} kg`);
+  L.push('');
 
-  // Freshness bars · last 14 logged mornings, 2.5 limiter line dashed
-  const recent = entries.filter(e => e.fresh).slice(-14);
-  const W = 1000, H = 150, P = 16;
-  const slotW = (W - 2 * P) / 14;
-  const bars = recent.map((e, i) => {
-    const h = (e.fresh / 5) * (H - 2 * P);
-    const color = e.fresh >= 4 ? '#E84966' : (e.fresh === 3 ? '#828699' : '#5A5E72');
-    return `<rect x="${P + i * slotW + 3}" y="${H - P - h}" width="${Math.max(slotW - 6, 6)}" height="${h}" rx="3" fill="${color}"/>`;
-  }).join('');
-  const refY = H - P - (2.5 / 5) * (H - 2 * P);
-  chartEl.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-    <line x1="${P}" y1="${refY}" x2="${W - P}" y2="${refY}" stroke="#3C4156" stroke-dasharray="4 6"/>
-    ${bars}
-  </svg>`;
+  // ----- ADHERENCE -----
+  const wname = id => (DATA.workouts.find(w => w.id === id)?.name) || id;
+  const win = 28;
+  const recentSess = (state.sessions || []).filter(s => daysAgo(s.date) <= win);
+  const byW = {};
+  for (const s of recentSess) byW[s.workoutId] = (byW[s.workoutId] || 0) + 1;
+  L.push(`ADHERENCE (last ${win} days)`);
+  L.push(`  Sessions logged: ${recentSess.length}`);
+  const parts = Object.entries(byW).sort((a, b) => b[1] - a[1]).map(([id, n]) => `${wname(id)} ×${n}`);
+  if (parts.length) L.push(`  By session: ${parts.join(' · ')}`);
+  const allSess = (state.sessions || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+  if (allSess.length) {
+    const last = allSess.at(-1);
+    L.push(`  Last session: ${last.date} (${wname(last.workoutId)}) · ${daysAgo(last.date)}d ago · ${allSess.length} all-time`);
+  }
+  L.push('');
 
-  // Stats: 7-day freshness + trend vs prior 7 · avg lights-out · % in bed by 22:30
-  const freshEntries = entries.filter(e => e.fresh);
-  const last7 = freshEntries.slice(-7).map(e => e.fresh);
-  const prev7 = freshEntries.slice(-14, -7).map(e => e.fresh);
-  const avg7 = last7.length ? last7.reduce((a, b) => a + b, 0) / last7.length : null;
-  const avgPrev = prev7.length ? prev7.reduce((a, b) => a + b, 0) / prev7.length : null;
-  const trend = (avg7 != null && avgPrev != null) ? avg7 - avgPrev : null;
-  const beds = entries.map(e => bedToNoonMinutes(e.bed)).filter(v => v != null);
-  const avgBed = beds.length ? beds.reduce((a, b) => a + b, 0) / beds.length : null;
-  const onTime = beds.length ? Math.round((beds.filter(v => v <= 630).length / beds.length) * 100) : null; // 630 = 22:30
+  // ----- STRENGTH PROGRESSION -----
+  const all = collectExerciseHistory();
+  const strength = all.filter(h => h.mode === 'weight_reps' || h.mode === 'multistage')
+    .sort((a, b) => (a.workoutName + a.ex.name).localeCompare(b.workoutName + b.ex.name));
+  L.push('STRENGTH — best set: first → latest (sessions · trend)');
+  if (!strength.length) L.push('  No strength sets logged yet.');
+  for (const h of strength) {
+    const first = h.entries[0], last = h.entries.at(-1);
+    const arrow = last.score > first.score + 0.001 ? '↑' : last.score < first.score - 0.001 ? '↓' : '→';
+    const stalled = h.entries.length >= 4 &&
+      Math.max(...h.entries.slice(-3).map(e => e.score)) <= Math.max(...h.entries.slice(0, -3).map(e => e.score)) + 0.001;
+    L.push(`  ${h.ex.name} [${h.workoutName}]: ${formatPrev(first.best, h.mode, h.ex)} → ${formatPrev(last.best, h.mode, h.ex)} ${arrow} (${h.entries.length}${stalled ? ' · STALLING' : ''})`);
+  }
+  L.push('');
 
-  statsEl.innerHTML = `
-    <div class="progress-stat">
-      <div class="progress-stat-label">7-day freshness</div>
-      <div class="progress-stat-value">${avg7 != null ? avg7.toFixed(1) : '—'}${trend != null ? `<span class="stat-trend">${trend > 0.05 ? '↑' : trend < -0.05 ? '↓' : '→'}</span>` : ''}</div>
-    </div>
-    <div class="progress-stat">
-      <div class="progress-stat-label">Avg lights-out</div>
-      <div class="progress-stat-value">${avgBed != null ? noonMinutesToStr(avgBed) : '—'}</div>
-    </div>
-    <div class="progress-stat">
-      <div class="progress-stat-label">In bed by 22:30</div>
-      <div class="progress-stat-value ${onTime != null && onTime >= 70 ? 'green' : ''}">${onTime != null ? onTime + '%' : '—'}</div>
-    </div>
-  `;
-
-  // Sleep × lifts payoff: of every lift-vs-last-session comparison, how often
-  // did you improve after a fresh morning (4–5) vs a tired one (1–3)?
-  const hist = collectExerciseHistory();
-  let freshImp = 0, freshTot = 0, tiredImp = 0, tiredTot = 0;
-  for (const h of hist) {
-    for (let i = 1; i < h.entries.length; i++) {
-      const f = state.sleep?.[h.entries[i].date]?.fresh;
-      if (!f) continue;
-      const improved = h.entries[i].score > h.entries[i - 1].score;
-      if (f >= 4) { freshTot++; if (improved) freshImp++; }
-      else { tiredTot++; if (improved) tiredImp++; }
+  // ----- OTHER LOGGED (conditioning / timed / cardio) -----
+  const other = all.filter(h => h.mode !== 'weight_reps' && h.mode !== 'multistage')
+    .sort((a, b) => (a.workoutName + a.ex.name).localeCompare(b.workoutName + b.ex.name));
+  if (other.length) {
+    L.push('OTHER LOGGED (latest)');
+    for (const h of other) {
+      const last = h.entries.at(-1);
+      L.push(`  ${h.ex.name} [${h.workoutName}]: ${formatPrev(last.best, h.mode, h.ex)} (${h.entries.length})`);
     }
+    L.push('');
   }
-  if (freshTot >= 5 && tiredTot >= 5) {
-    const fr = Math.round((freshImp / freshTot) * 100);
-    const tr = Math.round((tiredImp / tiredTot) * 100);
-    corrEl.innerHTML = `
-      <div class="rule"><div class="rule-num">A</div><div class="rule-body">After <strong>fresh mornings (4–5)</strong> you improved on <strong>${fr}%</strong> of lifts (${freshImp} of ${freshTot}).</div></div>
-      <div class="rule"><div class="rule-num">B</div><div class="rule-body">After <strong>tired mornings (1–3)</strong>: <strong>${tr}%</strong> (${tiredImp} of ${tiredTot}).${fr > tr ? ' Sleep is paying you in kilograms — protect the 10:15 lights-out.' : ''}</div></div>
-    `;
-  } else {
-    corrEl.innerHTML = `<div class="rule"><div class="rule-num">··</div><div class="rule-body">Sleep × lifts payoff unlocks after ~2 weeks of logging both sleep and sessions (needs 5+ lift comparisons in each bucket · currently ${freshTot} fresh / ${tiredTot} tired).</div></div>`;
+
+  // ----- PAIN + SWAPS -----
+  const painNames = new Set();
+  for (const k of Object.keys(state.pain || {})) {
+    if (!state.pain[k]) continue;
+    const p = k.split('::'), date = p[0], wid = p[1], exKey = p.slice(2).join('::');
+    if (daysAgo(date) > 30) continue;
+    const w = DATA.workouts.find(x => x.id === wid);
+    const ex = w ? findExerciseByKey(w, exKey) : null;
+    painNames.add(`${ex ? ex.name : exKey} (${date})`);
   }
+  L.push(`PAIN FLAGS (30d): ${painNames.size ? [...painNames].join(' · ') : 'none'}`);
+  const swapCount = {};
+  for (const k of Object.keys(state.swaps || {})) {
+    if (!state.swaps[k]) continue;
+    const exKey = k.split('::').slice(2).join('::');
+    swapCount[exKey] = (swapCount[exKey] || 0) + 1;
+  }
+  const swaps = Object.entries(swapCount).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ×${n}`);
+  L.push(`EQUIPMENT SWAPS: ${swaps.length ? swaps.join(' · ') : 'none'}`);
+  L.push('');
+
+  // ----- RAW slice for parsing -----
+  const raw = {
+    generated: today(), weekNumber: wk, phase: ph, startDate: state.startDate,
+    baseline: state.baseline, targetKg: DATA.targetKg, startKg: DATA.startKg,
+    weights: state.weights, waists: state.waists, sessions: state.sessions,
+    pain: state.pain, swaps: state.swaps, recovery: state.sleep, setLog: state.setLog
+  };
+  L.push('--- RAW DATA (for Claude to parse) ---');
+  L.push('```json');
+  L.push(JSON.stringify(raw));
+  L.push('```');
+
+  return L.join('\n');
 }
+
+document.getElementById('coachCopyBtn')?.addEventListener('click', async () => {
+  const text = buildCoachReport();
+  let ok = false;
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      ok = true;
+    }
+  } catch (_) { ok = false; }
+  if (!ok) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { ok = document.execCommand('copy'); } catch (_) { ok = false; }
+    document.body.removeChild(ta);
+  }
+  showToast(ok ? 'Copied — paste it into the chat' : 'Copy blocked — long-press Export instead');
+});
 
 // ========== DATA BACKUP · export / import ==========
 document.getElementById('exportBtn')?.addEventListener('click', () => {
@@ -2337,7 +2369,6 @@ function renderProgress() {
   renderForecast();
   renderPatterns();
   renderWaist();
-  renderSleepAnalysis();
   renderWeekGrid();
   renderHistory();
   renderMobility();

@@ -5,7 +5,12 @@ const DATA = {
   totalWeeks: 16,
 
   morningRitual: [
-    { name: "Stomach Vacuum", spec: "2 × 30 sec", note: "Inner core, waist control" },
+    { name: "Stomach Vacuum", spec: "3 × 30 sec", note: "Inner core, waist control · pull the navel to the spine, hold, breathe shallow. Your daily non-negotiable." },
+    { name: "Core circuit", spec: "1 round", note: "20 push-ups → 1-min plank → 20 push-ups → 1-min reverse plank · no rest between. Add a round when it stops being hard." }
+  ],
+
+  // Optional mobility — the old long ritual, kept for days with 5 spare minutes.
+  mobilityReset: [
     { name: "Lower-lumbar Cat-Cow", spec: "8–10 slow", note: "Drive it from the PELVIS (tuck → arch), not the upper back. Exhale into the tuck. Stop if you feel a pinch or pain ≥3." },
     { name: "Child's Pose", spec: "30–45 sec", note: "Hips to heels, arms long, breathe into the low back and let it decompress. Stop if you feel a pinch or pain ≥3." },
     { name: "Couch Stretch", spec: "30 sec / side", note: "Hip flexor release · fixes the desk-sit pain at the front of your hip" },
@@ -72,7 +77,7 @@ const DATA = {
             { name: "Wide-Grip Lat Pulldown", sets: 3, reps: "10–12", note: "Lats not arms · drive elbows down to your ribs, 2-sec squeeze at the bottom", sub: "Cable queue → pull-ups (banded if needed), or a DB pullover on a bench.",
               byPhase: {
                 2: { sets: 2, note: "Trimmed to 2 sets while the diagonal block runs · lats not arms, 2-sec squeeze at the bottom" },
-                4: { name: "Weighted Pull-Up", reps: "5–8", note: "Phase 4: the pulldown graduates. Belt or DB between the feet · log the ADDED kg (0 = bodyweight) · full hang, chest to the bar line" }
+                4: { sets: 2, reps: "8–10", note: "Phase 4: slow tempo — 3-sec negative, 1-sec pause at the stretch · lats not arms" }
               } },
             {
               name: "Cable Lateral Raise · drop superset",
@@ -189,7 +194,8 @@ const DATA = {
           title: "Arm Finisher · 1 min each, no rest",
           exercises: [
             { name: "DB Wide Curl", sets: 1, reps: "1 min · max reps", note: "Tap timer when you start", timed: 60 },
-            { name: "Hammer Curl", sets: 1, reps: "1 min · max reps", note: "Tap timer when you start", timed: 60 }
+            { name: "Hammer Curl", sets: 1, reps: "1 min · max reps", note: "Tap timer when you start", timed: 60 },
+            { name: "Straight Curl", sets: 1, reps: "1 min · max reps", note: "Tap timer when you start", timed: 60 }
           ]
         },
         {
@@ -197,7 +203,7 @@ const DATA = {
           exercises: [
             {
               name: "Single-Arm Cable Pushdown · superset",
-              sets: 1,
+              sets: 2,
               reps: "10 ea stage",
               note: "Both arms standard, then both arms sideways · lateral head",
               sub: "Cables taken → DB overhead extension + bench dips, same rep target per stage.",
@@ -209,7 +215,7 @@ const DATA = {
                 { label: "L · sideways" }
               ]
             },
-            { name: "Overhead Cable Extension", sets: 2, reps: "10–12", note: "Long head — the part that fills the sleeve", sub: "Cable taken → two-hand DB overhead extension, seated or standing." }
+            { name: "Overhead Cable Extension", sets: 1, reps: "10–12", note: "Long head — the part that fills the sleeve", sub: "Cable taken → two-hand DB overhead extension, seated or standing." }
           ]
         },
         {
