@@ -330,38 +330,35 @@ const DATA = {
     {
       id: "homecore",
       name: "Home core",
-      tagline: "Compulsory · 20 min",
-      blurb: "Mandatory rest-day work. Core circuit + power at home; KB Swings at the gym. No skipping.",
+      tagline: "Rest day · 15 min",
+      blurb: "This is a REST day. Four core sets on the floor is the whole requirement — everything below that is take-it-or-leave-it. Your gym days already carry the core volume; this is here to keep the streak and the habit, not to be a sixth session.",
       blocks: [
         {
-          title: "Core circuit",
+          title: "Core · floor circuit",
           exercises: [
-            { name: "Hollow Hold", sets: 1, reps: "20 sec", note: "Arms over, legs straight · one honest set, not two lazy ones", inputMode: "time" },
-            { name: "Dead Bug", sets: 1, reps: "12", note: "Opposite arm/leg", inputMode: "bodyweight_reps" },
-            { name: "Crunches", sets: 1, reps: "15–20", note: "Slow · breathe OUT as you curl up", inputMode: "bodyweight_reps" },
-            { name: "Knee Tucks", sets: 1, reps: "12–15", note: "Seated · pull knees to chest, exhale", inputMode: "bodyweight_reps" },
-            { name: "Side Plank", sets: 1, reps: "30 sec/side", note: "Hips high", inputMode: "time" },
-            { name: "Superman Hold", sets: 1, reps: "20 sec", note: "Lower back + glutes", inputMode: "time" }
+            { name: "Hollow Hold", sets: 1, reps: "20–30 sec", note: "Arms over, legs straight, low back pressed into the floor", inputMode: "time" },
+            { name: "Dead Bug", sets: 1, reps: "12 / side", note: "Opposite arm and leg, slow · anti-extension, the one that fights the desk-sit arch", inputMode: "bodyweight_reps" },
+            { name: "Side Plank", sets: 1, reps: "30 sec / side", note: "Hips high · obliques, and the waist line you're actually chasing", inputMode: "time" },
+            { name: "Superman Hold", sets: 1, reps: "20 sec", note: "Lower back + glutes · the direct counter to a week in the chair", inputMode: "time" }
           ]
         },
         {
           title: "Power · explosive",
           exercises: [
-            { name: "Explosive Push-Ups", sets: 2, reps: "10", note: "Drive hands off the floor", inputMode: "bodyweight_reps" },
-            { name: "Jump Squats", sets: 2, reps: "10", note: "Land soft, reset, jump", inputMode: "bodyweight_reps" }
+            { name: "Explosive Push-Ups", sets: 1, reps: "10", note: "Drive the hands off the floor · one crisp set, stop the moment they stop leaving the ground", inputMode: "bodyweight_reps" },
+            { name: "Jump Squats", sets: 1, reps: "10", note: "Land soft, reset, jump. Thursday sits the day after Day 4's cleans and squats — if the legs are still cooked, skip this one outright. It is not worth a stiff Saturday.", inputMode: "bodyweight_reps" }
           ]
         },
         {
           title: "Vertical pull · ONE home day only",
           exercises: [
-            { name: "Pull-Ups", sets: 3, reps: "max", note: "Wide-ish, palms away · lats + width. Assisted band if needed. Ran this yesterday? Skip the pull block today — lats need 48h before Saturday's back day.", inputMode: "bodyweight_reps" },
-            { name: "Chin-Ups", sets: 2, reps: "max", note: "Palms toward you · biceps + lats", inputMode: "bodyweight_reps" }
+            { name: "Pull-Ups", sets: 2, reps: "max", note: "Wide-ish, palms away · lats + width. Band-assisted if needed. ONE of the two home days only — never both, and never the day before Saturday's back day.", inputMode: "bodyweight_reps", sub: "No bar → band pulldowns, or skip. This block is optional by design." }
           ]
         },
         {
           title: "Gym · KB finisher",
           exercises: [
-            { name: "KB Swings · intervals", sets: 4, reps: "30s on / 30s off", note: "20kg max. Tap timer for the 30s on. Push max reps (aim 22+). Last round single-arm alternating if you've got it.", timed: 30, sub: "No KB free → two-hand DB swing, or jump squats for the same 30s burst." }
+            { name: "KB Swings · intervals", sets: 2, reps: "30s on / 30s off", note: "Only if you're already at the gym — don't make a trip for it. 20kg max, tap the timer for the 30s on, push max reps (aim 22+).", timed: 30, sub: "No KB free → two-hand DB swing. Not at the gym → skip it, the day still counts." }
           ]
         }
       ]
