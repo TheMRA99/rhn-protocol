@@ -316,6 +316,11 @@ function inputFieldsForMode(mode) {
         { key: 'min', label: 'min', width: 50, inputmode: 'decimal' },
         { key: 'level', label: 'level', width: 54, inputmode: 'numeric' }
       ];
+    case 'carry':
+      return [
+        { key: 'kg', label: 'kg/hand', width: 56, inputmode: 'decimal' },
+        { key: 'm', label: 'm', width: 46, inputmode: 'numeric' }
+      ];
     case 'weight_reps':
     default:
       return [
@@ -381,6 +386,8 @@ function formatPrev(set, mode, ex) {
       return `lvl ${set.level || '–'} · ${set.rounds || '–'} rds`;
     case 'cardio':
       return `${set.min || '–'} min · lvl ${set.level || '–'}`;
+    case 'carry':
+      return `${set.kg || '–'} kg/hand × ${set.m || '–'} m`;
     case 'multistage': {
       // pull stage0 as the headline
       const s0 = set.stage0;
@@ -450,6 +457,7 @@ function isCurrentBeating(currentSets, prev, mode) {
     if (mode === 'bodyweight_reps') return parseFloat(s.reps || 0);
     if (mode === 'time') return parseFloat(s.sec || 0);
     if (mode === 'time_speed') return parseFloat(s.min || 0) * (parseFloat(s.spm || 0) || 1);
+    if (mode === 'carry') return parseFloat(s.kg || 0) * (parseFloat(s.m || 0) || 1);
     if (mode === 'multistage') {
       // drop supersets keep their numbers in stage0..N — headline on the heavy stage
       const s0 = s.stage0 || {};
@@ -1843,6 +1851,7 @@ function setScore(s, mode, ex) {
     case 'treadmill': return parseFloat(s.min || 0) * (parseFloat(s.kmh || 0) || 1) * (1 + (parseFloat(s.incline || 0) || 0) / 100);
     case 'interval': return (parseFloat(s.level || 0) || 0) * 100 + (parseFloat(s.rounds || 0) || 0);
     case 'cardio': return (parseFloat(s.level || 0) || 0) * 100 + (parseFloat(s.min || 0) || 0);
+    case 'carry': return (parseFloat(s.kg || 0) || 0) * (parseFloat(s.m || 0) || 1);
     case 'multistage': {
       const s0 = s.stage0 || {};
       return parseFloat(s0.kg || 0) * (parseFloat(s0.reps || 0) || 1);

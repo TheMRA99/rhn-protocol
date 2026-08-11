@@ -92,7 +92,7 @@ const DATA = {
             { name: "Face Pulls", sets: 2, reps: "15", note: "Rear delts + cuff health", sub: "Cable taken → band face-pull anchored at eye height, or bent-over DB rear-delt fly." },
             { name: "Hanging Leg Raise", sets: 2, reps: "12", note: "No swinging", inputMode: "bodyweight_reps", sub: "No free bar → lying leg raise on the floor, hands under the hips." },
             { name: "Cable Woodchop", sets: 2, reps: "10/side", note: "Lateral obliques · the V-cut angle (low-to-high or high-to-low)", sub: "Cable taken → band woodchop, or a DB/plate Russian twist for the same oblique angle." },
-            { name: "Dead Hang", sets: 2, reps: "max hold", note: "Decompresses spine, grip", inputMode: "time", sub: "No free bar → heavy DB farmer hold for the grip half, or skip it." }
+            { name: "Dead Hang", sets: 1, reps: "max hold", note: "Spinal decompression after a day of sitting · the farmer's carry below now covers the loaded grip work, so one honest hold is enough", inputMode: "time", sub: "No free bar → skip it; the carry covers grip." }
           ]
         },
         {
@@ -106,7 +106,10 @@ const DATA = {
           exercises: [
             { name: "Wrist Curl (palms up)", sets: 2, reps: "15", note: "Flexor mass" },
             { name: "Reverse Wrist Curl", sets: 2, reps: "12", note: "Extensor width" },
-            { name: "DB Shrugs", sets: 2, reps: "12–15", note: "1-sec hold at top · trap shelf for V-taper" }
+            { name: "DB Shrugs", sets: 2, reps: "12–15", note: "1-sec hold at top · trap shelf for V-taper" },
+            { name: "Farmer's Carry", sets: 2, reps: "30–40 m", note: "The 55kg-carry goal, trained directly. Heaviest DBs you can hold — ribs down, shoulders back, walk tall and controlled, no leaning. Grip + traps + braced trunk under load is exactly what carrying a person demands, and nothing else in the week trains it.", inputMode: "carry",
+              sub: "DBs taken → two KBs, or plates held by the lip. No room to walk → heavy DB static hold, 40–50 sec per set.",
+              byPhase: { 4: { name: "Front-Rack Carry", note: "Phase 4: the carry gets specific. Two DBs racked at the shoulders, elbows high, ribs down — that's the exact trunk position of carrying someone on your shoulders." } } }
           ]
         }
       ]
@@ -128,6 +131,12 @@ const DATA = {
             { name: "Single-Leg Calf Raise", sets: 2, reps: "12/side", note: "Achilles prehab", inputMode: "bodyweight_reps" },
             { name: "Dead Bug", sets: 2, reps: "12", note: "Slow, anti-extension", inputMode: "bodyweight_reps" },
             { name: "Incline Walk", sets: 1, reps: "15 min", note: "Easy pace · log min, km/h, incline%", inputMode: "treadmill", sub: "Treadmills full → walk outside or take the stairs. Same 15 min, easy pace." }
+          ]
+        },
+        {
+          title: "Single-leg · even the sides",
+          exercises: [
+            { name: "DB Split Squat", sets: 2, reps: "8–10 / side", note: "Slot this in after the squat, before the walk. Your knee-to-wall test read 13cm left vs 16cm right — the left ankle is the tighter side, and a bilateral squat lets the better side quietly take over. This doesn't. Lead with the LEFT every time and let it set the depth the right has to match, never the other way round. Also the single-leg strength a loaded carry actually runs on.", sub: "No space or DBs → bodyweight split squat, or rear foot up on a bench to make it harder." }
           ]
         },
         {
