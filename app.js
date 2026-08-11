@@ -15,6 +15,8 @@ const defaultState = {
   baseline: { weight: 75, waist: 86, kneeL: 13, kneeR: 16, hipIR: 'normal' },
   mobility: [],        // [{ date, test, value }] — 4-weekly mobility milestones
   pain: {},            // { "date::workout::exKey": true } — pain flags for pattern-spotting
+  swaps: {},           // { "date::workout::exKey": true } — exercise swapped to its sub (equipment taken)
+  cableMachine: {},    // { "date::workout::exKey": "1"|"2" } — which cable stack (the two stacks number differently)
   workoutByDate: {},   // { "2026-04-29": "day3", ... }
   setLog: {},
   daily: {},
@@ -194,11 +196,20 @@ function setSelectedWorkoutForToday(id) {
   state.selectedWorkout = id;
 }
 
+// Cable-stack lifts: the gym's two stacks are numbered on different scales, so a
+// bare "40" is ambiguous. These get an M1/M2 tag stamped onto each logged set.
+function usesCableStack(ex) {
+  if (ex.cable === true) return true;
+  if (ex.cable === false) return false;
+  return /\b(cable|pulldown|pushdown|face pull)/i.test(ex.name || '');
+}
+
 function findExerciseByKey(workout, exKey) {
-  const sep = exKey.indexOf('::');
+  const clean = exKey.replace(/~sub$/, ''); // swapped-exercise logs live under a ~sub slot
+  const sep = clean.indexOf('::');
   if (sep < 0) return null;
-  const blockTitle = exKey.slice(0, sep);
-  const idx = +exKey.slice(sep + 2);
+  const blockTitle = clean.slice(0, sep);
+  const idx = +clean.slice(sep + 2);
   const block = workout.blocks.find(b => b.title === blockTitle);
   return block ? block.exercises[idx] : null;
 }
@@ -356,6 +367,7 @@ function findPreviousBest(workoutId, exKey) {
 
 function formatPrev(set, mode, ex) {
   if (!set) return '';
+  const mTag = set.m ? ` · M${set.m}` : ''; // which cable stack, if tagged
   switch (mode) {
     case 'bodyweight_reps':
       return `${set.reps || '–'} reps`;
@@ -373,15 +385,15 @@ function formatPrev(set, mode, ex) {
       // pull stage0 as the headline
       const s0 = set.stage0;
       if (!s0) return 'logged';
-      return `${s0.kg || '–'} kg × ${s0.reps || '–'}`;
+      return `${s0.kg || '–'} kg × ${s0.reps || '–'}${mTag}`;
     }
     default:
       if (ex?.barbell) {
         const side = parseFloat(set.kg);
         const total = !isNaN(side) ? ((ex.bar ?? 20) + 2 * side) : null;
-        return `${set.kg || '–'} /side × ${set.reps || '–'}${total != null ? ` (${total} total)` : ''}`;
+        return `${set.kg || '–'} /side × ${set.reps || '–'}${total != null ? ` (${total} total)` : ''}${mTag}`;
       }
-      return `${set.kg || '–'} kg × ${set.reps || '–'}`;
+      return `${set.kg || '–'} kg × ${set.reps || '–'}${mTag}`;
   }
 }
 
@@ -415,8 +427,11 @@ function refreshSessionProgress() {
   const log = state.setLog[dKey] && state.setLog[dKey][id] ? state.setLog[dKey][id] : {};
   let total = 0, done = 0;
   w.blocks.forEach(block => {
+    if (block.gated && !gateActive(block.gated)) return; // hidden blocks don't count
     block.exercises.forEach((ex, exIdx) => {
-      const exKey = `${block.title}::${exIdx}`;
+      const baseKey = `${block.title}::${exIdx}`;
+      const swapped = !!(ex.sub && state.swaps && state.swaps[`${dKey}::${id}::${baseKey}`]);
+      const exKey = baseKey + (swapped ? '~sub' : '');
       const sets = log[exKey] || [];
       total += ex.sets;
       for (let s = 0; s < ex.sets; s++) {
@@ -729,7 +744,12 @@ function renderWorkout() {
       </button>
       <div class="exercise-block-body">
     ${block.exercises.map((ex, exIdx) => {
-      const exKey = `${block.title}::${exIdx}`;
+      const baseExKey = `${block.title}::${exIdx}`;
+      const swapKey = `${dKey}::${id}::${baseExKey}`;
+      const swapped = !!(ex.sub && state.swaps && state.swaps[swapKey]);
+      // Swapped work logs under its own ~sub slot and drops barbell math (the sub is a DB/band/bodyweight move).
+      const exKey = baseExKey + (swapped ? '~sub' : '');
+      const exForLog = swapped ? { ...ex, barbell: false } : ex;
       const exLog = log[exKey] || [];
       const mode = ex.inputMode || 'weight_reps';
       const prev = findPreviousBest(id, exKey);
@@ -744,7 +764,7 @@ function renderWorkout() {
           if (setData.done) doneSets += 1;
           const stagesHTML = ex.stages.map((stage, si) => {
             const sd = setData[`stage${si}`] || {};
-            const suggKg = suggestedKgFor(id, exKey, ex, si);
+            const suggKg = suggestedKgFor(id, exKey, exForLog, si);
             const kgPh = suggKg != null ? String(suggKg) : 'kg';
             return `
               <div class="ms-stage" data-stage="${si}">
@@ -767,8 +787,8 @@ function renderWorkout() {
         bodyHTML = `<div class="ms-sets">${setsHTML}</div>`;
       } else {
         const fields = inputFieldsForMode(mode);
-        const suggKg = (mode === 'weight_reps') ? suggestedKgFor(id, exKey, ex) : null;
-        const isBarbell = ex.barbell === true;
+        const suggKg = (mode === 'weight_reps') ? suggestedKgFor(id, exKey, exForLog) : null;
+        const isBarbell = exForLog.barbell === true;
         const barWeight = ex.bar ?? 20;
         let setRows = '';
         for (let s = 0; s < ex.sets; s++) {
@@ -805,23 +825,43 @@ function renderWorkout() {
       }
 
       const prevHTML = prev
-        ? `<div class="exercise-prev ${beating ? 'beaten' : ''}" title="From ${fmtDate(prev.date)}">last · ${formatPrev(prev.set, mode, ex)}${beating ? ' · beaten' : ''}</div>`
+        ? `<div class="exercise-prev ${beating ? 'beaten' : ''}" title="From ${fmtDate(prev.date)}">last · ${formatPrev(prev.set, mode, exForLog)}${beating ? ' · beaten' : ''}</div>`
         : '';
-      const stallHTML = isStalled(id, exKey, ex)
+      const stallHTML = isStalled(id, exKey, exForLog)
         ? `<div class="exercise-stall">Stalled 3 sessions. Pick one: drop load 10% &amp; rebuild · swap a variation · or fix sleep + food first.</div>`
         : '';
       const painOn = !!(state.pain && state.pain[`${dKey}::${id}::${exKey}`]);
+      const cable = usesCableStack(ex) && !swapped;
+      const mKey = `${dKey}::${id}::${exKey}`;
+      const mSel = cable ? (state.cableMachine?.[mKey] || '') : '';
+      const machineHTML = cable ? `
+          <div class="cable-machine" data-mkey="${mKey}">
+            <span class="cable-machine-label">STACK</span>
+            <button type="button" class="cm-chip ${mSel === '1' ? 'on' : ''}" data-m="1">M1</button>
+            <button type="button" class="cm-chip ${mSel === '2' ? 'on' : ''}" data-m="2">M2</button>
+            <span class="cable-machine-hint">which stack? the two number differently</span>
+          </div>` : '';
+      const swapBtn = ex.sub
+        ? `<button type="button" class="swap-btn ${swapped ? 'on' : ''}" data-swapkey="${swapKey}" title="${swapped ? 'Swap back to the prescribed lift' : 'Taken? Swap to the alternative'}">⇄</button>`
+        : '';
+      const subHTML = ex.sub
+        ? (swapped
+            ? `<div class="exercise-sub active"><span class="exercise-sub-tag">DOING INSTEAD</span>${ex.sub}</div>`
+            : `<div class="exercise-sub"><span class="exercise-sub-tag">TAKEN?</span>${ex.sub}<span class="exercise-sub-cta"> · tap ⇄ to swap</span></div>`)
+        : '';
       return `
-        <div class="exercise">
+        <div class="exercise ${swapped ? 'is-swapped' : ''}">
           <div class="exercise-head">
-            <div class="exercise-name">${ex.name}</div>
+            <div class="exercise-name">${ex.name}${swapped ? ' <span class="swapped-tag">SWAPPED</span>' : ''}</div>
             <div class="exercise-spec">${ex.sets} × ${ex.reps}</div>
+            ${swapBtn}
             <button type="button" class="pain-flag ${painOn ? 'on' : ''}" data-painkey="${dKey}::${id}::${exKey}" title="Flag pain on this exercise">⚑</button>
           </div>
           ${ex.note ? `<div class="exercise-note">${ex.note}</div>` : ''}
-          ${ex.sub ? `<div class="exercise-sub"><span class="exercise-sub-tag">TAKEN?</span>${ex.sub}</div>` : ''}
+          ${subHTML}
           ${prevHTML}
           ${stallHTML}
+          ${machineHTML}
           ${bodyHTML}
         </div>
       `;
@@ -871,6 +911,9 @@ function renderWorkout() {
             if (tot) tot.textContent = barTotalText(input.value, ex.bar ?? 20);
           }
         }
+        // Stamp the chosen cable stack onto this set so the number stays interpretable.
+        const mSel = state.cableMachine?.[`${dKey}::${id}::${exKey}`];
+        if (mSel) setData.m = mSel;
         if (setData.done) row.classList.add('done');
         else row.classList.remove('done');
         save();
@@ -990,6 +1033,36 @@ function renderWorkout() {
       if (state.pain[key]) { delete state.pain[key]; btn.classList.remove('on'); }
       else { state.pain[key] = true; btn.classList.add('on'); showToast('Pain flagged — ease off, no hero sets'); }
       save();
+    });
+  });
+
+  // Exercise swap — equipment taken → do the alternative, logged to its own slot
+  list.querySelectorAll('.swap-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.swapkey;
+      state.swaps = state.swaps || {};
+      if (state.swaps[key]) { delete state.swaps[key]; showToast('Back to the prescribed lift'); }
+      else { state.swaps[key] = true; showToast('Swapped — your numbers log separately'); }
+      save();
+      renderWorkout();
+    });
+  });
+
+  // Cable-stack tag — remember which machine, stamp it onto this session's sets
+  list.querySelectorAll('.cable-machine').forEach(row => {
+    const mKey = row.dataset.mkey;
+    const exKey = mKey.split('::').slice(2).join('::');
+    row.querySelectorAll('.cm-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        state.cableMachine = state.cableMachine || {};
+        const m = chip.dataset.m;
+        if (state.cableMachine[mKey] === m) delete state.cableMachine[mKey];
+        else state.cableMachine[mKey] = m;
+        const sets = state.setLog[dKey]?.[id]?.[exKey];
+        if (Array.isArray(sets)) sets.forEach(s => { if (s) s.m = state.cableMachine[mKey]; });
+        save();
+        renderWorkout();
+      });
     });
   });
 

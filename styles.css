@@ -1896,6 +1896,75 @@ body.rest-active main { padding-bottom: 180px; }
 .pain-flag:hover { color: var(--text-dim); border-color: var(--line-bright); }
 .pain-flag.on { color: var(--rust); border-color: var(--rust); background: rgba(220,38,38,0.12); }
 
+/* Exercise swap control (equipment taken → alternative) */
+.swap-btn {
+  flex: 0 0 auto;
+  font-size: 14px;
+  line-height: 1;
+  padding: 4px 7px;
+  border-radius: 7px;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text-faint);
+  transition: color 0.15s, border-color 0.15s, background 0.15s, transform 0.12s;
+}
+.swap-btn:hover { color: var(--cobalt-bright); border-color: var(--line-bright); }
+.swap-btn:active { transform: scale(0.9); }
+.swap-btn.on { color: var(--cobalt-bright); border-color: var(--cobalt-bright); background: rgba(130,134,153,0.16); }
+.swapped-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--cobalt-bright);
+  border: 1px solid var(--cobalt-bright);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: 7px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.exercise.is-swapped .exercise-name { color: var(--text-dim); }
+.exercise.is-swapped { background: linear-gradient(90deg, rgba(130,134,153,0.06), transparent 60%); }
+.exercise-sub.active {
+  background: rgba(130,134,153,0.14);
+  border-left-color: var(--cobalt-bright);
+  color: var(--text);
+}
+.exercise-sub.active .exercise-sub-tag { color: var(--cobalt-bright); }
+.exercise-sub-cta { color: var(--text-faint); font-style: italic; }
+
+/* Cable-stack tag (the two stacks number differently) */
+.cable-machine {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.cable-machine-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+}
+.cm-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 7px;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  transition: color 0.15s, border-color 0.15s, background 0.15s, transform 0.12s;
+}
+.cm-chip:active { transform: scale(0.94); }
+.cm-chip.on { color: #fff; background: var(--cobalt-bright); border-color: var(--cobalt-bright); }
+.cable-machine-hint { font-size: 11px; color: var(--text-faint); font-style: italic; }
+@media (max-width: 600px) { .cable-machine-hint { flex-basis: 100%; margin-top: -2px; } }
+
 /* ===== DISCLAIMER ===== */
 .disclaimer-line {
   padding: 4px 4px 22px;
