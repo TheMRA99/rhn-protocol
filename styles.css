@@ -2095,6 +2095,28 @@ body.rest-active main { padding-bottom: 180px; }
 .workout-cue strong { color: var(--wine-bright); font-weight: 700; }
 
 /* ============================================================
+   MOBILE ERGONOMICS — logging with sweaty hands, one-handed
+   ============================================================ */
+
+/* iOS Safari zooms the whole page when you focus an input under 16px.
+   Every set entry was triggering it. 16px is the floor, not a preference. */
+.set-input input,
+.ms-inputs input,
+.weight-input input,
+.sleep-input input,
+.sleep-input input[type="time"],
+.plate-input input { font-size: 16px; }
+
+/* Tap targets: the flag/swap buttons rendered ~23px, well under the 44px
+   floor. Expand the hit area with a pseudo-element so the visual stays
+   compact but the thumb target doesn't. Insets stay inside the flex gap
+   so neighbouring buttons never steal each other's taps. */
+.pain-flag, .swap-btn { position: relative; }
+.pain-flag::after,
+.swap-btn::after { content: ''; position: absolute; inset: -9px -6px; }
+.cm-chip { padding: 8px 14px; }
+
+/* ============================================================
    UI POLISH PASS — touch feel · numeric stability · press feedback
    ============================================================ */
 

@@ -234,8 +234,7 @@ const DATA = {
             { name: "Power Clean", sets: 3, reps: "3", note: "Floor → shoulders, explosive · the carry-prep lift", barbell: true, sub: "No platform/bar → DB clean (both hands), or heavy KB swings for the same hip snap." },
             { name: "Barbell Deadlift", sets: 3, reps: "5", note: "Brace hard, stay tight", barbell: true, sub: "Bar taken → trap-bar, or heavy DB/KB deadlift from the floor." },
             { name: "Front Squat", sets: 3, reps: "6–8", note: "Upright torso · toes out 15–30°, knees chase the toes · sub goblet at total kg if no rack", barbell: true, sub: "Rack taken → goblet squat, logged at total kg." },
-            { name: "Push Press", sets: 3, reps: "5", note: "Leg dip → drive overhead", barbell: true, sub: "Bar taken → DB push press. Same leg dip, drive overhead." },
-            { name: "Hamstring Curl", sets: 2, reps: "12", note: "Slow negative", sub: "Machine taken → single-leg DB RDL 10/side, or slow bodyweight nordic off a bench." }
+            { name: "Push Press", sets: 3, reps: "5", note: "Leg dip → drive overhead", barbell: true, sub: "Bar taken → DB push press. Same leg dip, drive overhead." }
           ]
         },
         {
@@ -337,12 +336,12 @@ const DATA = {
         {
           title: "Core circuit",
           exercises: [
-            { name: "Hollow Hold", sets: 2, reps: "20 sec", note: "Arms over, legs straight", inputMode: "time" },
-            { name: "Dead Bug", sets: 2, reps: "12", note: "Opposite arm/leg", inputMode: "bodyweight_reps" },
-            { name: "Crunches", sets: 2, reps: "15–20", note: "Slow · breathe OUT as you curl up", inputMode: "bodyweight_reps" },
-            { name: "Knee Tucks", sets: 2, reps: "12–15", note: "Seated · pull knees to chest, exhale", inputMode: "bodyweight_reps" },
-            { name: "Side Plank", sets: 2, reps: "30 sec/side", note: "Hips high", inputMode: "time" },
-            { name: "Superman Hold", sets: 2, reps: "20 sec", note: "Lower back + glutes", inputMode: "time" }
+            { name: "Hollow Hold", sets: 1, reps: "20 sec", note: "Arms over, legs straight · one honest set, not two lazy ones", inputMode: "time" },
+            { name: "Dead Bug", sets: 1, reps: "12", note: "Opposite arm/leg", inputMode: "bodyweight_reps" },
+            { name: "Crunches", sets: 1, reps: "15–20", note: "Slow · breathe OUT as you curl up", inputMode: "bodyweight_reps" },
+            { name: "Knee Tucks", sets: 1, reps: "12–15", note: "Seated · pull knees to chest, exhale", inputMode: "bodyweight_reps" },
+            { name: "Side Plank", sets: 1, reps: "30 sec/side", note: "Hips high", inputMode: "time" },
+            { name: "Superman Hold", sets: 1, reps: "20 sec", note: "Lower back + glutes", inputMode: "time" }
           ]
         },
         {
