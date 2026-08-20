@@ -237,23 +237,21 @@ const DATA = {
         {
           title: "Strength",
           exercises: [
-            { name: "Power Clean", sets: 3, reps: "3", note: "Floor → shoulders, explosive · the carry-prep lift", barbell: true, sub: "No platform/bar → DB clean (both hands), or heavy KB swings for the same hip snap." },
-            { name: "Barbell Deadlift", sets: 3, reps: "5", note: "Brace hard, stay tight", barbell: true, sub: "Bar taken → trap-bar, or heavy DB/KB deadlift from the floor." },
-            { name: "Front Squat", sets: 3, reps: "6–8", note: "Upright torso · toes out 15–30°, knees chase the toes · sub goblet at total kg if no rack", barbell: true, sub: "Rack taken → goblet squat, logged at total kg." },
-            { name: "Push Press", sets: 3, reps: "5", note: "Leg dip → drive overhead", barbell: true, sub: "Bar taken → DB push press. Same leg dip, drive overhead." }
+            { name: "Clean → Push Press → Front Squat · complex", sets: 3, reps: "3 each · unbroken", note: "One bar, no drop — 3 power cleans → 3 push press → 3 front squats = 1 set, ×3. Load off your PUSH PRESS (the weak link); if set 3 turns sloppy, drop 5–10% next week. Reset the clean from the floor each round. Do this FIRST, while fresh. Log the bar weight. Worth trying: Clean → Front Squat → Push Press — the bar's already racked after the clean, so you squat fresh and press last.", barbell: true, sub: "No platform/bar → DB clean-to-press + goblet squat, same 3-each unbroken flow." },
+            { name: "Barbell Deadlift", sets: 3, reps: "5", note: "AFTER the complex — and not a grind. Stop at RPE 7 (≈3 clean reps left in the tank). The clean already trained the pull; this is axial load, not a max-out. Brace hard, stay tight.", barbell: true, sub: "Bar taken → trap-bar, or heavy DB/KB deadlift from the floor. Same submaximal feel." }
           ]
         },
         {
           title: "Conditioning",
           exercises: [
-            { name: "KB Swings", sets: 3, reps: "15", note: "Hinge, not squat · explosive hips", sub: "No KB free → two-hand DB swing, same hinge." },
+            { name: "KB Swings", sets: 2, reps: "15", note: "Hinge, not squat · explosive hips", sub: "No KB free → two-hand DB swing, same hinge." },
             { name: "Hanging Knee Raises", sets: 2, reps: "12", note: "Spine-loaded core", inputMode: "bodyweight_reps", sub: "No free bar → floor knee tucks, hands under the hips." }
           ]
         },
         {
           title: "Core",
           exercises: [
-            { name: "Pallof Press", sets: 2, reps: "12/side", note: "Anti-rotation core", sub: "Cable taken → band Pallof anchored at chest height on any rack." }
+            { name: "Pallof Press", sets: 2, reps: "12/side", note: "Anti-rotation core", cable: true, sub: "Cable taken → band Pallof anchored at chest height on any rack." }
           ]
         },
         {
