@@ -410,6 +410,47 @@ main {
   color: var(--text);
   text-transform: none;
 }
+/* Done-this-week + next-up markers on the day pills */
+.day-pill.done { border-color: var(--wine); background: rgba(200,51,75,0.06); }
+.day-pill.done .day-pill-name { color: var(--text-dim); }
+.day-pill-check {
+  display: inline-block; margin-left: 6px; color: var(--wine-bright); font-weight: 700;
+}
+.day-pill.next:not(.active) { border-color: var(--line-bright); box-shadow: inset 0 0 0 1px var(--line-bright); }
+.day-pill.next .day-pill-num::after {
+  content: 'NEXT'; margin-left: 6px; font-size: 8.5px; letter-spacing: 0.1em;
+  color: var(--wine-bright); font-weight: 700;
+}
+
+/* "This week" status line under the picker */
+.week-status {
+  margin-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: var(--text-dim); letter-spacing: 0.02em;
+}
+.week-status strong { color: var(--text); font-weight: 700; }
+
+/* Weekly log — days hit vs missed, per program week */
+.weekly-log { display: flex; flex-direction: column; }
+.wl-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 0; border-bottom: 1px solid var(--line);
+}
+.wl-row:last-child { border-bottom: none; }
+.wl-wk { flex: 0 0 96px; font-size: 13px; font-weight: 600; color: var(--text-dim); }
+.wl-days { display: flex; gap: 6px; flex: 1; }
+.wl-day {
+  width: 26px; height: 26px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+}
+.wl-day.hit { background: var(--wine); color: #fff; }
+.wl-day.miss { background: transparent; border: 1px solid var(--line-bright); color: var(--text-faint); }
+.wl-count {
+  flex: 0 0 auto; font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+  font-weight: 700; color: var(--text-dim); min-width: 32px; text-align: right;
+}
+.wl-count.full { color: var(--wine-bright); }
+.wl-count.zero { color: var(--text-faint); }
 
 /* ========== CARD ========== */
 .card {
@@ -1965,6 +2006,17 @@ body.rest-active main { padding-bottom: 180px; }
 .cable-machine-hint { font-size: 11px; color: var(--text-faint); font-style: italic; }
 @media (max-width: 600px) { .cable-machine-hint { flex-basis: 100%; margin-top: -2px; } }
 
+/* Machine selector for multi-machine cardio (treadmill / stairmaster / bike …) */
+.machine-select { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
+.mac-chip {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+  padding: 4px 12px; border-radius: 7px; background: var(--bg-3);
+  border: 1px solid var(--line); color: var(--text-dim);
+  transition: color .15s, border-color .15s, background .15s, transform .12s;
+}
+.mac-chip:active { transform: scale(0.94); }
+.mac-chip.on { color: #fff; background: var(--wine-bright); border-color: var(--wine-bright); }
+
 /* ===== DISCLAIMER ===== */
 .disclaimer-line {
   padding: 4px 4px 22px;
@@ -2131,7 +2183,7 @@ body.rest-active main { padding-bottom: 180px; }
 .pain-flag, .swap-btn { position: relative; }
 .pain-flag::after,
 .swap-btn::after { content: ''; position: absolute; inset: -9px -6px; }
-.cm-chip { padding: 8px 14px; }
+.cm-chip, .mac-chip { padding: 8px 14px; }
 
 /* ============================================================
    UI POLISH PASS — touch feel · numeric stability · press feedback

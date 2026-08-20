@@ -134,7 +134,7 @@ const DATA = {
             { name: "Hip Abduction & Adduction", sets: 2, reps: "15", note: "Glute medius + adductors", sub: "Machine taken → banded lateral walks + side-lying leg raises, 15/side." },
             { name: "Single-Leg Calf Raise", sets: 2, reps: "12/side", note: "Achilles prehab", inputMode: "bodyweight_reps" },
             { name: "Dead Bug", sets: 2, reps: "12", note: "Slow, anti-extension", inputMode: "bodyweight_reps" },
-            { name: "Incline Walk", sets: 1, reps: "10 min", note: "Easy pace · log min, km/h, incline%. Your daily Zone-2 line already covers the rest — this is just the cooldown.", inputMode: "treadmill", sub: "Treadmills full → walk outside or take the stairs. Same 10 min, easy pace." }
+            { name: "Incline Walk", sets: 1, reps: "10 min", note: "Easy pace · log min, km/h, incline%. Your daily Zone-2 line already covers the rest — this is just the cooldown.", inputMode: "treadmill", machines: ["Treadmill", "Outdoor", "Stairs"], sub: "Treadmills full → walk outside or take the stairs. Same 10 min, easy pace." }
           ]
         },
         {
@@ -224,7 +224,7 @@ const DATA = {
           title: "Core",
           exercises: [
             { name: "Cable Crunch", sets: 1, reps: "15–20", note: "One quality set. Lighter load, higher reps. Breathe OUT on the way down — never hold your breath (that's the cramp). Stop if it seizes.", sub: "Cable taken → weighted floor crunch (DB or plate on the chest), or hanging knee raises." },
-            { name: "Stairmaster · intervals", sets: 1, reps: "30s hard / 60s easy × 4", note: "Log the level you held on the hard bouts + rounds done", inputMode: "interval", sub: "Stairmaster queue → treadmill at a steep incline, bike, or real stairs. Same 30s hard / 60s easy × 4." }
+            { name: "Stairmaster · intervals", sets: 1, reps: "30s hard / 60s easy × 4", note: "Log the level you held on the hard bouts + rounds done", inputMode: "interval", machines: ["Stairmaster", "Treadmill", "Bike", "Stairs"], sub: "Stairmaster queue → treadmill at a steep incline, bike, or real stairs. Same 30s hard / 60s easy × 4." }
           ]
         }
       ]
@@ -259,7 +259,7 @@ const DATA = {
         {
           title: "Finish",
           exercises: [
-            { name: "Stairmaster · moderate", sets: 1, reps: "8 min", note: "Cool down · log minutes + level", inputMode: "cardio", sub: "Any easy cardio — treadmill incline, bike, or stairs. 8 min." }
+            { name: "Stairmaster · moderate", sets: 1, reps: "8 min", note: "Cool down · log minutes + level", inputMode: "cardio", machines: ["Stairmaster", "Treadmill", "Bike"], sub: "Any easy cardio — treadmill incline, bike, or stairs. 8 min." }
           ]
         }
       ]
@@ -328,7 +328,7 @@ const DATA = {
         {
           title: "Zone 2 · optional",
           exercises: [
-            { name: "Incline Walk or Stairmaster · Zone 2", sets: 1, reps: "45–60 min", note: "Conversational pace — can talk, wouldn't sing. Here or on a rest day. VO2max = longevity.", inputMode: "cardio", sub: "Machines full → walk outside. Zone 2 needs no equipment at all." }
+            { name: "Incline Walk or Stairmaster · Zone 2", sets: 1, reps: "45–60 min", note: "Conversational pace — can talk, wouldn't sing. Here or on a rest day. VO2max = longevity.", inputMode: "cardio", machines: ["Incline walk", "Stairmaster", "Bike", "Outdoor"], sub: "Machines full → walk outside. Zone 2 needs no equipment at all." }
           ]
         }
       ]

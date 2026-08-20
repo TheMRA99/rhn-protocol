@@ -19,6 +19,7 @@ const defaultState = {
   pain: {},            // { "date::workout::exKey": true } — pain flags for pattern-spotting
   swaps: {},           // { "date::workout::exKey": true } — exercise swapped to its sub (equipment taken)
   cableMachine: {},    // { "date::workout::exKey": "1"|"2" } — which cable stack (the two stacks number differently)
+  exMachine: {},       // { "date::workout::exKey": "Stairmaster" } — which machine for multi-machine cardio
   workoutByDate: {},   // { "2026-04-29": "day3", ... }
   dayCursor: null,     // last numbered day you completed — drives the sequential default
   setLog: {},
@@ -141,6 +142,31 @@ function weekForDate(dateStr) {
   return Math.min(16, Math.max(1, Math.floor(diffDays / 7) + 1));
 }
 
+// The [start, end) date window of a program week (each week = 7 days from startDate).
+function weekWindow(weekNum) {
+  const start = new Date((state.startDate || today()) + 'T00:00:00');
+  const ws = new Date(start.getTime() + (weekNum - 1) * 7 * 86400000);
+  const we = new Date(ws.getTime() + 7 * 86400000);
+  return { start: localIso(ws), end: localIso(we) };
+}
+
+// Which numbered days (day1..day5) you actually completed in a given program week.
+// Date-windowed off startDate, so old logs / restarts can't leak into the count.
+function daysDoneInWeek(weekNum) {
+  const { start, end } = weekWindow(weekNum);
+  const done = new Set();
+  for (const s of (state.sessions || [])) {
+    if (DAY_SEQUENCE.includes(s.workoutId) && s.date >= start && s.date < end) done.add(s.workoutId);
+  }
+  return done;
+}
+
+// Lowest-numbered day you haven't done yet THIS week (null once all five are in).
+function nextDayThisWeek() {
+  const done = daysDoneInWeek(weekNumber());
+  return DAY_SEQUENCE.find(id => !done.has(id)) || null;
+}
+
 // Resolve a workout to a phase: keep every exercise that has no `phases` tag, or
 // whose `phases` list includes the active phase; drop blocks left empty. NOTE:
 // phase-specific exercises must always be APPENDED at the end of a block or live
@@ -218,20 +244,16 @@ function getSelectedWorkoutForToday() {
   if (state.workoutByDate && state.workoutByDate[dKey]) {
     return state.workoutByDate[dKey];
   }
-  // No pick yet today → suggest the next numbered day after the last one you did.
-  const last = state.dayCursor;
-  if (!last || !DAY_SEQUENCE.includes(last)) return 'day1'; // square one
-  const i = DAY_SEQUENCE.indexOf(last);
-  return DAY_SEQUENCE[(i + 1) % DAY_SEQUENCE.length];
+  // No pick yet today → suggest the next day you still owe THIS week. Each week
+  // is a fresh Day 1→5 attempt, so missed days don't carry over — a new week
+  // resets to Day 1. All five already done → suggest a Home / rest day.
+  return nextDayThisWeek() || 'homecore';
 }
 
 function setSelectedWorkoutForToday(id) {
   state.workoutByDate = state.workoutByDate || {};
   state.workoutByDate[today()] = id;
   state.selectedWorkout = id;
-  // Picking a numbered day advances the sequence anchor; Home/rest days don't,
-  // so after a rest day the next default is still the next numbered day.
-  if (DAY_SEQUENCE.includes(id)) state.dayCursor = id;
 }
 
 // Cable-stack lifts: the gym's two stacks are numbered on different scales, so a
@@ -411,19 +433,20 @@ function findPreviousBest(workoutId, exKey) {
 function formatPrev(set, mode, ex) {
   if (!set) return '';
   const mTag = set.m ? ` · M${set.m}` : ''; // which cable stack, if tagged
+  const macTag = set.mac ? ` · ${set.mac}` : ''; // which machine, if tagged
   switch (mode) {
     case 'bodyweight_reps':
       return `${set.reps || '–'} reps`;
     case 'time':
       return `${set.sec || '–'} s`;
     case 'time_speed':
-      return `${set.min || '–'} min · ${set.spm || '–'} spm`;
+      return `${set.min || '–'} min · ${set.spm || '–'} spm${macTag}`;
     case 'treadmill':
-      return `${set.min || '–'} min · ${set.kmh || '–'} km/h · ${set.incline || '–'}%`;
+      return `${set.min || '–'} min · ${set.kmh || '–'} km/h · ${set.incline || '–'}%${macTag}`;
     case 'interval':
-      return `lvl ${set.level || '–'} · ${set.rounds || '–'} rds`;
+      return `lvl ${set.level || '–'} · ${set.rounds || '–'} rds${macTag}`;
     case 'cardio':
-      return `${set.min || '–'} min · lvl ${set.level || '–'}`;
+      return `${set.min || '–'} min · lvl ${set.level || '–'}${macTag}`;
     case 'carry':
       return `${set.kg || '–'} kg/hand × ${set.m || '–'} m`;
     case 'multistage': {
@@ -712,12 +735,30 @@ function computeStreak() {
 // ========== TODAY: DAY PICKER ==========
 function renderDayPicker() {
   const wrap = document.getElementById('dayPicker');
-  wrap.innerHTML = DATA.workouts.filter(w => !w.special).map((w, i) => `
-    <button class="day-pill ${state.selectedWorkout === w.id ? 'active' : ''}" data-id="${w.id}">
-      <div class="day-pill-num">${w.id === 'homecore' ? 'Home · core' : 'Day 0' + (i + 1)}</div>
+  const done = daysDoneInWeek(weekNumber());
+  const next = nextDayThisWeek();
+  wrap.innerHTML = DATA.workouts.filter(w => !w.special).map((w, i) => {
+    const isDone = done.has(w.id);
+    const cls = ['day-pill'];
+    if (state.selectedWorkout === w.id) cls.push('active');
+    if (isDone) cls.push('done');
+    if (w.id === next) cls.push('next');
+    return `
+    <button class="${cls.join(' ')}" data-id="${w.id}">
+      <div class="day-pill-num">${w.id === 'homecore' ? 'Home · core' : 'Day 0' + (i + 1)}${isDone ? '<span class="day-pill-check">✓</span>' : ''}</div>
       <div class="day-pill-name">${w.name.split('+')[0].trim()}</div>
-    </button>
-  `).join('');
+    </button>`;
+  }).join('');
+
+  // "This week" status line under the picker: how many of Day 1–5 are in, next up.
+  const statusEl = document.getElementById('weekStatus');
+  if (statusEl) {
+    const n = done.size;
+    const nextLabel = next ? 'Day ' + (DAY_SEQUENCE.indexOf(next) + 1) : null;
+    statusEl.innerHTML = `Week ${weekNumber()} · <strong>${n}/5</strong> done`
+      + (n >= 5 ? ' · week complete 🔥' : (nextLabel ? ` · next up <strong>${nextLabel}</strong>` : ''));
+  }
+
   wrap.querySelectorAll('.day-pill').forEach(b => {
     b.addEventListener('click', () => {
       setSelectedWorkoutForToday(b.dataset.id);
@@ -887,6 +928,13 @@ function renderWorkout() {
             <button type="button" class="cm-chip ${mSel === '2' ? 'on' : ''}" data-m="2">M2</button>
             <span class="cable-machine-hint">which stack? the two number differently</span>
           </div>` : '';
+      const macSel = (ex.machines && !swapped) ? (state.exMachine?.[mKey] || '') : '';
+      const machineSelHTML = (ex.machines && !swapped) ? `
+          <div class="machine-select" data-mackey="${mKey}">
+            <span class="cable-machine-label">MACHINE</span>
+            ${ex.machines.map(m => `<button type="button" class="mac-chip ${macSel === m ? 'on' : ''}" data-mac="${m}">${m}</button>`).join('')}
+            <span class="cable-machine-hint">tag which one — the numbers differ per machine</span>
+          </div>` : '';
       const swapBtn = ex.sub
         ? `<button type="button" class="swap-btn ${swapped ? 'on' : ''}" data-swapkey="${swapKey}" title="${swapped ? 'Swap back to the prescribed lift' : 'Taken? Swap to the alternative'}">⇄</button>`
         : '';
@@ -908,6 +956,7 @@ function renderWorkout() {
           ${prevHTML}
           ${stallHTML}
           ${machineHTML}
+          ${machineSelHTML}
           ${bodyHTML}
         </div>
       `;
@@ -960,6 +1009,8 @@ function renderWorkout() {
         // Stamp the chosen cable stack onto this set so the number stays interpretable.
         const mSel = state.cableMachine?.[`${dKey}::${id}::${exKey}`];
         if (mSel) setData.m = mSel;
+        const macSel = state.exMachine?.[`${dKey}::${id}::${exKey}`];
+        if (macSel) setData.mac = macSel;
         if (setData.done) row.classList.add('done');
         else row.classList.remove('done');
         save();
@@ -1112,6 +1163,25 @@ function renderWorkout() {
     });
   });
 
+  // Machine tag — remember which machine (treadmill / stairmaster / bike …) so a
+  // multi-machine cardio log stays accurate; stamp it onto this session's sets.
+  list.querySelectorAll('.machine-select').forEach(row => {
+    const macKey = row.dataset.mackey;
+    const exKey = macKey.split('::').slice(2).join('::');
+    row.querySelectorAll('.mac-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        state.exMachine = state.exMachine || {};
+        const m = chip.dataset.mac;
+        if (state.exMachine[macKey] === m) delete state.exMachine[macKey];
+        else state.exMachine[macKey] = m;
+        const sets = state.setLog[dKey]?.[id]?.[exKey];
+        if (Array.isArray(sets)) sets.forEach(s => { if (s) s.mac = state.exMachine[macKey]; });
+        save();
+        renderWorkout();
+      });
+    });
+  });
+
   const btn = document.getElementById('finishWorkoutBtn');
   const isLogged = state.sessions.some(s => s.date === dKey && s.workoutId === id);
   btn.textContent = isLogged ? 'Session logged' : 'Mark session complete';
@@ -1119,7 +1189,6 @@ function renderWorkout() {
   btn.onclick = () => {
     if (isLogged) return;
     state.sessions.push({ date: dKey, workoutId: id, name: w.name });
-    if (DAY_SEQUENCE.includes(id)) state.dayCursor = id; // advance the sequence
     save();
     showToast('Session logged');
     renderWorkout();
@@ -2405,8 +2474,31 @@ function renderProgress() {
   renderWaist();
   renderWeekGrid();
   renderHistory();
+  renderWeeklyLog();
   renderMobility();
   renderPhases();
+}
+
+// Per-week completion record — which of Day 1–5 you hit vs missed each week.
+function renderWeeklyLog() {
+  const el = document.getElementById('weeklyLog');
+  if (!el) return;
+  const cur = weekNumber();
+  const rows = [];
+  for (let wk = cur; wk >= 1; wk--) {
+    const done = daysDoneInWeek(wk);
+    const dots = DAY_SEQUENCE.map((id, i) =>
+      `<span class="wl-day ${done.has(id) ? 'hit' : 'miss'}" title="Day ${i + 1} ${done.has(id) ? 'done' : 'missed'}">${i + 1}</span>`
+    ).join('');
+    const n = done.size;
+    const label = wk === cur ? `Week ${wk} · now` : `Week ${wk}`;
+    rows.push(`<div class="wl-row">
+      <div class="wl-wk">${label}</div>
+      <div class="wl-days">${dots}</div>
+      <div class="wl-count ${n >= 5 ? 'full' : n === 0 ? 'zero' : ''}">${n}/5</div>
+    </div>`);
+  }
+  el.innerHTML = rows.join('');
 }
 
 // ========== NUTRITION ==========

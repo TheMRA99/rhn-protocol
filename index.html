@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=41" />
+<link rel="stylesheet" href="styles.css?v=43" />
 </head>
 <body>
 <header class="topbar">
@@ -59,6 +59,7 @@
       <h1 class="hero-title" id="todayTitle">Today's session</h1>
       <p class="hero-sub" id="todaySub">Pick what fits your week. Don't stack delts back-to-back.</p>
       <div class="day-picker" id="dayPicker"></div>
+      <div class="week-status" id="weekStatus"></div>
       <button class="mvs-link" id="mvsLink">Gym packed or wrecked? Log a 20-min minimum session →</button>
     </div>
 
@@ -249,7 +250,15 @@
 
     <section class="card">
       <header class="card-header">
-        <h2><span class="num">05</span>Session history</h2>
+        <h2><span class="num">05</span>Weekly log</h2>
+        <span class="card-meta">Days hit vs missed</span>
+      </header>
+      <div id="weeklyLog" class="weekly-log"></div>
+    </section>
+
+    <section class="card">
+      <header class="card-header">
+        <h2><span class="num">06</span>Session history</h2>
         <span class="card-meta">Recent</span>
       </header>
       <div id="sessionHistory" class="history"></div>
@@ -257,7 +266,7 @@
 
     <section class="card">
       <header class="card-header">
-        <h2><span class="num">06</span>Mobility milestones</h2>
+        <h2><span class="num">07</span>Mobility milestones</h2>
         <span class="card-meta">Re-test every 4 weeks</span>
       </header>
       <div id="mobilityList"></div>
@@ -265,7 +274,7 @@
 
     <section class="card">
       <header class="card-header">
-        <h2><span class="num">07</span>Timeline</h2>
+        <h2><span class="num">08</span>Timeline</h2>
         <span class="card-meta">What to expect</span>
       </header>
       <div class="phases" id="phases"></div>
@@ -423,7 +432,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=50"></script>
-<script src="app.js?v=46"></script>
+<script src="data.js?v=51"></script>
+<script src="app.js?v=48"></script>
 </body>
 </html>
