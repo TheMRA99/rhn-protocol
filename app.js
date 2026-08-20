@@ -1,6 +1,8 @@
 // THE RED HOOD × NIGHTWING PROTOCOL — app logic
 
 const STORAGE_KEY = 'rhn-protocol-v1';
+const SHADOW_KEY = STORAGE_KEY + ':shadow';   // mirror of the last good save
+const SNAP_PREFIX = STORAGE_KEY + ':snap:';   // dated point-in-time snapshots
 
 const defaultState = {
   startDate: null,
@@ -18,6 +20,7 @@ const defaultState = {
   swaps: {},           // { "date::workout::exKey": true } — exercise swapped to its sub (equipment taken)
   cableMachine: {},    // { "date::workout::exKey": "1"|"2" } — which cable stack (the two stacks number differently)
   workoutByDate: {},   // { "2026-04-29": "day3", ... }
+  dayCursor: null,     // last numbered day you completed — drives the sequential default
   setLog: {},
   daily: {},
   ritual: {},
@@ -25,28 +28,25 @@ const defaultState = {
   ramadan: false      // #4 fasting engine: post-iftar training, hold load, pause deficit
 };
 
-// Default workout per weekday — Sat is Day 1, then forward through the week
-// Day 4 (power: clean, deadlift, front squat) sits on Wednesday, NOT Tuesday.
-// Day 2 is the other leg day on Sunday — Sun→Tue is 48h, exactly the DOMS peak,
-// which was wrecking the power day. Sun→Wed gives 3 days, and Tuesday's upper
-// pump day lands on legs that are still recovering. Heaviest day also now runs
-// straight into the Thu/Fri home days for maximum recovery after.
-const DEFAULT_WEEKDAY_WORKOUT = {
-  6: 'day1',     // Sat — back width + side delts
-  0: 'day2',     // Sun — lower posterior + core  (LEGS)
-  1: 'day3',     // Mon — chest + shoulders + arms
-  2: 'day5',     // Tue — pump upper volume (legs still recovering)
-  3: 'day4',     // Wed — power + conditioning  (LEGS, 3 days after day2)
-  4: 'homecore', // Thu — rest / home core
-  5: 'homecore'  // Fri — rest / home core
-};
+// Program days run in numeric sequence. The app no longer maps a fixed weekday
+// to each day — office days shift, so the default just advances Day 1 → 2 → 3
+// → 4 → 5 as you complete them (the picker still lets you choose any day, and
+// you slot rest / Home-core days in whenever you need one). Keep a rest or easy
+// Home day between Day 2 and Day 4 — both are leg days.
+const DAY_SEQUENCE = ['day1', 'day2', 'day3', 'day4', 'day5'];
 
 let state = load();
 
 function load() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return seed();
+    let raw = localStorage.getItem(STORAGE_KEY);
+    // Primary key gone (browser cleared it / storage evicted) but a backup exists?
+    // Recover from the shadow mirror instead of starting empty.
+    if (!raw) {
+      const shadow = localStorage.getItem(SHADOW_KEY);
+      if (shadow) { localStorage.setItem(STORAGE_KEY, shadow); raw = shadow; }
+      else return seed();
+    }
     const parsed = JSON.parse(raw);
     const merged = { ...defaultState, ...parsed };
     // Onboarding is gone — everyone is onboarded with a hard-coded baseline.
@@ -60,6 +60,11 @@ function load() {
     }
     return merged;
   } catch (e) {
+    // Primary corrupt — try the shadow mirror before giving up.
+    try {
+      const shadow = localStorage.getItem(SHADOW_KEY);
+      if (shadow) return { ...defaultState, ...JSON.parse(shadow), onboarded: true };
+    } catch (_) { /* shadow also unreadable */ }
     return seed();
   }
 }
@@ -71,7 +76,29 @@ function seed() {
 }
 
 function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  const json = JSON.stringify(state);
+  localStorage.setItem(STORAGE_KEY, json);
+  // Auto-backup: a mirror + a per-day snapshot, so a cleared key or a bad edit
+  // can't silently wipe the log. Only back up when there's real data — never let
+  // an empty/reset state overwrite a good backup.
+  try {
+    if (state.setLog && Object.keys(state.setLog).length) {
+      localStorage.setItem(SHADOW_KEY, json);
+      localStorage.setItem(SNAP_PREFIX + today(), json);
+      pruneSnapshots(7);
+    }
+  } catch (e) { /* storage full/blocked — the primary save already succeeded */ }
+}
+
+// Keep only the most recent N dated snapshots.
+function pruneSnapshots(keep) {
+  const snaps = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith(SNAP_PREFIX)) snaps.push(k);
+  }
+  snaps.sort(); // dated keys sort chronologically
+  while (snaps.length > keep) localStorage.removeItem(snaps.shift());
 }
 
 // Local-timezone date — toISOString() is UTC, which made "today" flip at 8am SGT
@@ -146,7 +173,7 @@ function phaseWorkouts(phase) {
 
 // Deloads land at weeks 8 and 14; week 8 also runs a diet break.
 function isDeloadWeek(n) { return n === 8 || n === 14; }
-function isDietBreakWeek(n) { return n === 8; }
+function isDietBreakWeek(n) { return n === 8 || n === 12; }
 
 // Self-test gating: ankle/glute-med block shows only if knee-to-wall flagged tight.
 function gateActive(gate) {
@@ -191,14 +218,20 @@ function getSelectedWorkoutForToday() {
   if (state.workoutByDate && state.workoutByDate[dKey]) {
     return state.workoutByDate[dKey];
   }
-  const dow = new Date().getDay();
-  return DEFAULT_WEEKDAY_WORKOUT[dow] || 'homecore';
+  // No pick yet today → suggest the next numbered day after the last one you did.
+  const last = state.dayCursor;
+  if (!last || !DAY_SEQUENCE.includes(last)) return 'day1'; // square one
+  const i = DAY_SEQUENCE.indexOf(last);
+  return DAY_SEQUENCE[(i + 1) % DAY_SEQUENCE.length];
 }
 
 function setSelectedWorkoutForToday(id) {
   state.workoutByDate = state.workoutByDate || {};
   state.workoutByDate[today()] = id;
   state.selectedWorkout = id;
+  // Picking a numbered day advances the sequence anchor; Home/rest days don't,
+  // so after a rest day the next default is still the next numbered day.
+  if (DAY_SEQUENCE.includes(id)) state.dayCursor = id;
 }
 
 // Cable-stack lifts: the gym's two stacks are numbered on different scales, so a
@@ -1086,6 +1119,7 @@ function renderWorkout() {
   btn.onclick = () => {
     if (isLogged) return;
     state.sessions.push({ date: dKey, workoutId: id, name: w.name });
+    if (DAY_SEQUENCE.includes(id)) state.dayCursor = id; // advance the sequence
     save();
     showToast('Session logged');
     renderWorkout();
@@ -2505,12 +2539,16 @@ document.getElementById('maintainToggleBtn')?.addEventListener('click', () => {
   }
 });
 
-// Lapse-friendly restart: Week 1 clock, every log kept
+// Lapse-friendly restart: Day 1 / Week 1 clock + sequence, every log kept
 document.getElementById('restartBlockBtn')?.addEventListener('click', () => {
-  if (!confirm('Restart the 16-week block from today? All history stays.')) return;
+  if (!confirm('Restart from Day 1, Week 1? The timeline and the day sequence reset to the start — all your logged history (sets, weight, waist) stays.')) return;
   state.startDate = today();
+  state.dayCursor = null;        // sequence back to Day 1
+  state.workoutByDate = {};      // clear the per-date schedule map
+  state.selectedWorkout = 'day1';
+  state.pausedAt = null;
   save();
-  showToast('Week 1 · history kept');
+  showToast('Day 1 · Week 1 · history kept');
   renderAll();
 });
 

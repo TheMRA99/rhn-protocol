@@ -6,7 +6,7 @@ const DATA = {
 
   morningRitual: [
     { name: "Stomach Vacuum", spec: "3 × 30 sec", note: "Inner core, waist control · pull the navel to the spine, hold, breathe shallow. Your daily non-negotiable." },
-    { name: "Core circuit", spec: "1 round", note: "20 push-ups → 1-min plank → 20 push-ups → 1-min reverse plank · no rest between. Add a round when it stops being hard." }
+    { name: "Core circuit", spec: "daily · push-ups 3×/wk", note: "Daily: 1-min plank → 1-min reverse plank. The 20+20 push-ups only 3×/week — they pile onto all your pressing and every day is too much shoulder. On push-up days: 20 push-ups → plank → 20 push-ups → reverse plank, no rest." }
   ],
 
   // Optional mobility — the old long ritual, kept for days with 5 spare minutes.
@@ -20,10 +20,11 @@ const DATA = {
   ],
 
   daily: [
-    { name: "Calories", spec: "2,000–2,200", note: "300–400 kcal deficit · you decide what the week averages" },
-    { name: "Protein", spec: "135–150 g", note: "1.8–2 g per kg bodyweight" },
+    { name: "Calories", spec: "2,400–2,600", note: "Let the 7-day weight trend govern the real deficit — aim to lose 0.4–0.6% bodyweight/week (~300–450 g). Faster than that, on this training load, burns muscle, not just fat." },
+    { name: "Protein", spec: "160–175 g", note: "~2.2 g per kg — top of the muscle-retention range, because you're training hard in a deficit" },
     { name: "Fiber + veg", spec: "25–30 g", note: "Two fists of veg per meal · flattens glucose, keeps you full" },
-    { name: "Water", spec: "2.5–3 L+", note: "More on training days and in the SG heat" },
+    { name: "Water", spec: "3–4 L", note: "More on training days and in the SG heat. Pair it with salt (below) — plain water alone doesn't hold" },
+    { name: "Sodium / electrolytes", spec: "3–5 g", note: "You sweat it out in the SG heat + daily cardio. Salt your food, or an electrolyte tab on hot / long-session days — kills the cramps and the fake 'fatigue' that reads as overtraining" },
     { name: "Steps", spec: "10,000–12,000", note: "NEAT — biggest fat loss lever after the deficit" },
     { name: "Cardio", spec: "10–20 min · Zone 2", note: "Every day · easy & conversational (walk / incline / stairs). Post-lift or a standalone on rest days. Keep it easy — not another hard session." },
     { name: "Sleep", spec: "7+ hrs", note: "The #1 lever for results" },
@@ -34,8 +35,9 @@ const DATA = {
   ],
 
   stamina: [
-    { name: "AM · Kegels", spec: "10 × 5s/5s", note: "Squeeze 5s, release 5s · invisible — do them at the desk or on the commute, costs zero clock time" },
-    { name: "PM · Reverse Kegels", spec: "10 × 5s/5s", note: "The one that delays finishing" },
+    { name: "Reverse Kegels", spec: "10 × 5s/5s · daily", note: "The daily anchor. Gently bear down, LENGTHEN and release the pelvic floor — letting go, not squeezing, is the skill that builds control. Practise the 'drop and lengthen' as arousal rises." },
+    { name: "Pelvic-floor release", spec: "1–2 min · after heavy lifts", note: "After squats / deadlifts / cleans or a hard core day: slow breaths INTO the pelvic floor (belly + base expand on the inhale), or a minute of child's pose. Offsets all the bracing so the floor doesn't lock up tight." },
+    { name: "Kegels", spec: "2× / week only", note: "You already get plenty of pelvic-floor CONTRACTION from bracing, stomach vacuums and heavy lifting — extra daily squeezes tip you into tightness, which reduces control. Keep these light, twice a week at most." },
     { name: "PM · Box Breathing", spec: "4×4×4×4 × 2 rounds", note: "In · hold · out · hold · ~2 min. Add rounds on rough days" },
     { name: "PM · Happy Baby", spec: "45–60 sec", note: "Hold the outside of the feet, knees toward the armpits, rock gently · lets the low back flatten (posterior tilt) and downshifts you for sleep. Stop if you feel a pinch or pain ≥3." },
     { name: "Physiological sigh", spec: "3 reps · anytime", note: "Double inhale nose, long exhale mouth · fastest downshift — works mid-meeting, at the rack" },
@@ -81,9 +83,9 @@ const DATA = {
               } },
             {
               name: "Cable Lateral Raise · drop superset",
-              sets: 2,
+              sets: 3,
               reps: "10 ea stage",
-              note: "3-sec lower, lead with elbows · heavy R, heavy L, immediately drop weight, drop R, drop L",
+              note: "3-sec lower, lead with elbows · heavy R, heavy L, immediately drop weight, drop R, drop L · side delts are your #1 width lever at your height, so bring real intent even though they land after the pulls",
               sub: "Cables taken → DB lateral raise drop set: heavy pair R+L, put them down, straight into a lighter pair R+L.",
               byPhase: { 3: { name: "Lean-Away Cable Lateral · drop superset", note: "Phase 3: grip the frame, lean away — constant tension, deeper stretch at the bottom · same heavy R/L then drop R/L" } },
               inputMode: "multistage",
@@ -175,7 +177,7 @@ const DATA = {
             { name: "Seated DB Shoulder Press", sets: 2, reps: "8–10", note: "Front + side delts · laterals ×3/wk + push press cover the rest", sub: "No bench → standing DB press. Brace hard, ribs down, no leg drive." },
             {
               name: "Cable Lateral Raise · drop superset",
-              sets: 1,
+              sets: 2,
               reps: "R+L heavy → R+L drop · 10 each",
               note: "3-sec lower, lead with elbows · heavy R, heavy L, immediately drop weight, drop R, drop L",
               sub: "Cables taken → DB lateral raise drop set: heavy pair R+L, put them down, straight into a lighter pair R+L.",
@@ -450,10 +452,11 @@ const DATA = {
     "Track every workout. What you don't measure, you don't grow.",
     "Consistency > perfection. 80% for 16 weeks beats 100% for 3.",
     "Protein and veg first. Rice/roti last. Flattens insulin spikes.",
-    "Hydrate: 2.5–3 L/day, more on training days and in the heat. Salt your food normally — cramping in this humidity is usually sodium, not magnesium.",
+    "Hydrate: 3–4 L/day, more on training days and in the heat. Get 3–5 g sodium — salt your food or an electrolyte tab; cramping in this humidity is usually sodium, not magnesium.",
     "Gym packed? Don't queue and don't bail. Every station-dependent lift has a TAKEN? swap under it — take the swap and keep moving. A swapped session counts exactly the same; standing around waiting for a machine is not training.",
     "Never stack Day 1 + Day 3 (delt overlap).",
-    "Day 2 and Day 4 are both leg days — keep 3 days between them, never 1. The default week runs Day 2 Sunday and Day 4 Wednesday for exactly this reason: 48 hours after squats is peak soreness, and that's what was ruining the power day. Tuesday is upper-body on purpose.",
+    "The app runs the days in sequence now (Day 1 → 2 → 3 → 4 → 5), not by weekday — you slot them around your week. Day 2 and Day 4 are both leg days: keep a rest or an upper day (Day 3 or Day 5) between them, never back-to-back. 48 hours after squats is peak soreness — that's what wrecks the power day.",
+    "Take a real rest day when readiness says back off, or after ~5–6 hard sessions — not on a fixed weekday. A rest day is a walk, food and sleep, nothing else. Recovery in a deficit is where the muscle is actually kept.",
     "Peak season at work? Flip on Maintain mode below. Minimum viable week: 2 sessions, protein, sleep. Zero guilt."
   ],
 
@@ -482,7 +485,7 @@ const DATA = {
   progression: [
     { title: "Main lifts · double progression", body: "RDL, Squat, DL, Incline/Flat DB, Pull-Ups, Press, Row. Hit 8 on ALL sets → +2.5–5kg next session. 6–7 → keep weight. Under 6 → too heavy, drop it." },
     { title: "Volume lifts · 10–15 reps", body: "Delts, arms, forearms. Hit 15 clean on all sets → small increment up." },
-    { title: "Deloads · weeks 8 & 14", body: "Same lifts, ~60% load, half the sets. The app auto-adjusts and flags the week. Week 8 also runs a diet break (eat at maintenance 5–7 days — hormonal + mental reset). Week 14 deload sets up a fresh finish, not a fried one." },
+    { title: "Deloads wk 8 & 14 · diet breaks wk 8 & 12", body: "Same lifts, ~60% load, half the sets — the app auto-adjusts and flags the week. Eat at maintenance for 5–7 days at BOTH week 8 and week 12 (hormonal + mental reset) — a 16-week cut in a real deficit is too long for one break. Week 14's deload sets up a fresh finish, not a fried one." },
     { title: "Stalled? No rep added in 3 sessions", body: "Pick one: (a) drop load 10% and rebuild, (b) swap to a listed variation, (c) fix sleep/food first. A stall is information, not failure." }
   ],
 
