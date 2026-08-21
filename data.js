@@ -385,6 +385,28 @@ const DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "spidey",
+      special: true,
+      name: "Spidey session",
+      tagline: "No gym / wiped out · bodyweight + a run · still counts",
+      blurb: "Can't face the gym, or just running on empty? Everything here is bodyweight — a pull-up bar is the only kit, and even that has a sub. On a tired day this is a WIN, not a workout to crush: keep an easy pace, leave 2–3 in the tank, and let the run be a real Zone-2 stroll. Logs as a full green day.",
+      warmup: "2 min easy movement · arm circles, 10 slow air squats, a few scap pull-ups. Don't blast into it cold.",
+      blocks: [
+        {
+          title: "Cindy · 20-min AMRAP",
+          exercises: [
+            { name: "Cindy — 5 pull-ups · 10 push-ups · 15 air squats", sets: 1, reps: "20 min · max rounds", note: "Set the 20-min timer, then loop the sequence — 5 pull-ups → 10 push-ups → 15 air squats — for as many rounds as you can. LOG THE TOTAL ROUNDS. Wiped today? Pace it steady and stop each set 2–3 reps shy — the point is to move and keep the habit, not to redline. Scale freely: band or jumping pull-ups, knees-down push-ups.", inputMode: "amrap", timed: 1200, sub: "No pull-up bar → inverted rows under a sturdy table, or band pulldowns. No bar and no band → swap the pull-ups for a 20-sec superman hold each round." }
+          ]
+        },
+        {
+          title: "Then · easy run",
+          exercises: [
+            { name: "Easy run · Zone 2", sets: 1, reps: "15–20 min", note: "Conversational pace — you can talk, couldn't sing. This is recovery, not a session; keep it genuinely easy, especially on a tired day. Log the minutes (+ your pace if you've got it).", inputMode: "treadmill", machines: ["Outdoor", "Treadmill"], sub: "Rather not run? A brisk 20-min walk counts the same. Sore knees → incline walk or bike instead." }
+          ]
+        }
+      ]
     }
   ],
 

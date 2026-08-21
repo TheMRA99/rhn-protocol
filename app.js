@@ -376,6 +376,8 @@ function inputFieldsForMode(mode) {
         { key: 'min', label: 'min', width: 50, inputmode: 'decimal' },
         { key: 'level', label: 'level', width: 54, inputmode: 'numeric' }
       ];
+    case 'amrap':
+      return [{ key: 'rounds', label: 'rounds', width: 70, inputmode: 'numeric' }];
     case 'carry':
       return [
         { key: 'kg', label: 'kg/hand', width: 56, inputmode: 'decimal' },
@@ -422,7 +424,7 @@ function findPreviousBest(workoutId, exKey) {
     // Multistage sets keep their numbers in stage0 — rank on the heavy stage.
     const rank = (s) => {
       const src = s.stage0 || s;
-      return parseFloat(src.kg || src.sec || src.min || src.reps || 0) || 0;
+      return parseFloat(src.kg || src.sec || src.min || src.reps || src.rounds || 0) || 0;
     };
     const best = valid.reduce((a, b) => (rank(b) > rank(a) ? b : a));
     return { date: d, set: best };
@@ -437,6 +439,8 @@ function formatPrev(set, mode, ex) {
   switch (mode) {
     case 'bodyweight_reps':
       return `${set.reps || '–'} reps`;
+    case 'amrap':
+      return `${set.rounds || '–'} rounds`;
     case 'time':
       return `${set.sec || '–'} s`;
     case 'time_speed':
@@ -516,6 +520,7 @@ function isCurrentBeating(currentSets, prev, mode) {
   if (!current.length) return false;
   const score = (s) => {
     if (mode === 'bodyweight_reps') return parseFloat(s.reps || 0);
+    if (mode === 'amrap') return parseFloat(s.rounds || 0);
     if (mode === 'time') return parseFloat(s.sec || 0);
     if (mode === 'time_speed') return parseFloat(s.min || 0) * (parseFloat(s.spm || 0) || 1);
     if (mode === 'carry') return parseFloat(s.kg || 0) * (parseFloat(s.m || 0) || 1);
@@ -1973,6 +1978,7 @@ function setScore(s, mode, ex) {
   if (!s) return 0;
   switch (mode) {
     case 'bodyweight_reps': return parseFloat(s.reps || 0);
+    case 'amrap': return parseFloat(s.rounds || 0);
     case 'time': return parseFloat(s.sec || 0);
     case 'time_speed': return parseFloat(s.min || 0) * (parseFloat(s.spm || 0) || 1);
     case 'treadmill': return parseFloat(s.min || 0) * (parseFloat(s.kmh || 0) || 1) * (1 + (parseFloat(s.incline || 0) || 0) / 100);
@@ -2612,6 +2618,18 @@ function renderModeBanner() {
 // Minimum viable session — bad-day workout
 document.getElementById('mvsLink')?.addEventListener('click', () => {
   setSelectedWorkoutForToday('mvs');
+  save();
+  renderToday();
+  renderHeader();
+  requestAnimationFrame(() => {
+    const card = document.getElementById('workoutCard');
+    if (card && !card.hidden) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// Spidey session — no-gym / exhausted-day bodyweight AMRAP + easy run
+document.getElementById('spideyLink')?.addEventListener('click', () => {
+  setSelectedWorkoutForToday('spidey');
   save();
   renderToday();
   renderHeader();
