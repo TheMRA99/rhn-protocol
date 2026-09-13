@@ -118,12 +118,26 @@ function fmtDate(iso) {
 
 function isPaused() { return !!state.pausedAt; }
 
+// The program week runs Saturday → Friday (Day 1 has always been "the Saturday
+// lift"). Week 1 starts on the Saturday on/before startDate, not on startDate
+// itself — so if you start on a Tuesday, that week is a short partial week and
+// the next Saturday cleanly opens Week 2. Every week boundary lands on Saturday.
+function saturdayOnOrBefore(dateObj) {
+  const dow = dateObj.getDay(); // 0=Sun .. 6=Sat
+  const back = (dow - 6 + 7) % 7; // days since the most recent Saturday
+  return new Date(dateObj.getTime() - back * 86400000);
+}
+
+function programWeekAnchor() {
+  return saturdayOnOrBefore(new Date((state.startDate || today()) + 'T00:00:00'));
+}
+
 function weekNumber() {
   if (!state.startDate) return 1;
-  const start = new Date(state.startDate + 'T00:00:00');
+  const anchor = programWeekAnchor();
   // While paused, freeze the clock at the pause date so deloads don't drift.
   const ref = isPaused() ? new Date(state.pausedAt + 'T00:00:00') : new Date();
-  const diffDays = Math.floor((ref - start) / (1000 * 60 * 60 * 24));
+  const diffDays = Math.floor((ref - anchor) / (1000 * 60 * 60 * 24));
   return Math.min(16, Math.max(1, Math.floor(diffDays / 7) + 1));
 }
 
@@ -136,27 +150,40 @@ function phaseNumber(week) {
 // actually active that day rather than today's phase.
 function weekForDate(dateStr) {
   if (!state.startDate || !dateStr) return weekNumber();
-  const start = new Date(state.startDate + 'T00:00:00');
+  const anchor = programWeekAnchor();
   const ref = new Date(dateStr + 'T00:00:00');
-  const diffDays = Math.floor((ref - start) / 86400000);
+  const diffDays = Math.floor((ref - anchor) / 86400000);
   return Math.min(16, Math.max(1, Math.floor(diffDays / 7) + 1));
 }
 
-// The [start, end) date window of a program week (each week = 7 days from startDate).
+// The [start, end) Saturday-anchored date window of a program week.
 function weekWindow(weekNum) {
-  const start = new Date((state.startDate || today()) + 'T00:00:00');
-  const ws = new Date(start.getTime() + (weekNum - 1) * 7 * 86400000);
+  const anchor = programWeekAnchor();
+  const ws = new Date(anchor.getTime() + (weekNum - 1) * 7 * 86400000);
   const we = new Date(ws.getTime() + 7 * 86400000);
   return { start: localIso(ws), end: localIso(we) };
 }
 
 // Which numbered days (day1..day5) you actually completed in a given program week.
-// Date-windowed off startDate, so old logs / restarts can't leak into the count.
+// Checks both explicit session marks AND set-log data — if you filled in sets but
+// forgot to press "Mark session complete", the day still counts.
 function daysDoneInWeek(weekNum) {
   const { start, end } = weekWindow(weekNum);
   const done = new Set();
   for (const s of (state.sessions || [])) {
     if (DAY_SEQUENCE.includes(s.workoutId) && s.date >= start && s.date < end) done.add(s.workoutId);
+  }
+  for (const dateStr of Object.keys(state.setLog || {})) {
+    if (dateStr < start || dateStr >= end) continue;
+    for (const wId of DAY_SEQUENCE) {
+      if (done.has(wId)) continue;
+      const wLog = state.setLog[dateStr]?.[wId];
+      if (!wLog) continue;
+      const hasDone = Object.values(wLog).some(sets =>
+        Array.isArray(sets) && sets.some(s => s && s.done)
+      );
+      if (hasDone) done.add(wId);
+    }
   }
   return done;
 }
@@ -475,7 +502,7 @@ function barTotalText(kgPerSide, barWeight) {
   return '= ' + (barWeight + 2 * v) + ' kg';
 }
 
-function renderSessionProgress(done, total) {
+function renderSessionProgress(done, total, dateKey) {
   const wrap = document.getElementById('sessionProgress');
   const fill = document.getElementById('sessionProgressFill');
   const stat = document.getElementById('sessionProgressStat');
@@ -487,7 +514,10 @@ function renderSessionProgress(done, total) {
   fill.style.width = pct + '%';
   fill.classList.toggle('complete', pct >= 100);
   stat.textContent = `${done} / ${total} sets · ${pct}%`;
-  label.textContent = pct >= 100 ? 'Session complete' : (done === 0 ? 'Today' : 'In progress');
+  const isOld = dateKey && dateKey !== today();
+  label.textContent = pct >= 100
+    ? (isOld ? 'Completed · ' + fmtDate(dateKey) : 'Session complete')
+    : (done === 0 ? (isOld ? fmtDate(dateKey) : 'Today') : 'In progress');
 }
 
 function refreshSessionProgress() {
@@ -495,7 +525,15 @@ function refreshSessionProgress() {
   if (!id) return;
   const w = getWorkout(id);
   if (!w) return;
-  const dKey = dailyKey();
+  const dKey = (() => {
+    const t = today();
+    if (state.setLog[t]?.[id]) return t;
+    const dates = Object.keys(state.setLog || {}).sort().reverse();
+    for (const d of dates) {
+      if (d !== t && state.setLog[d]?.[id]) return d;
+    }
+    return t;
+  })();
   const log = state.setLog[dKey] && state.setLog[dKey][id] ? state.setLog[dKey][id] : {};
   let total = 0, done = 0;
   w.blocks.forEach(block => {
@@ -511,7 +549,7 @@ function refreshSessionProgress() {
       }
     });
   });
-  renderSessionProgress(done, total);
+  renderSessionProgress(done, total, dKey);
 }
 
 function isCurrentBeating(currentSets, prev, mode) {
@@ -758,10 +796,16 @@ function renderDayPicker() {
   // "This week" status line under the picker: how many of Day 1–5 are in, next up.
   const statusEl = document.getElementById('weekStatus');
   if (statusEl) {
+    const wk = weekNumber();
     const n = done.size;
     const nextLabel = next ? 'Day ' + (DAY_SEQUENCE.indexOf(next) + 1) : null;
-    statusEl.innerHTML = `Week ${weekNumber()} · <strong>${n}/5</strong> done`
+    let html = `Week ${wk} · <strong>${n}/5</strong> done`
       + (n >= 5 ? ' · week complete 🔥' : (nextLabel ? ` · next up <strong>${nextLabel}</strong>` : ''));
+    if (n === 0 && wk > 1) {
+      const prevDone = daysDoneInWeek(wk - 1).size;
+      if (prevDone > 0) html += ` · last week <strong>${prevDone}/5</strong>`;
+    }
+    statusEl.innerHTML = html;
   }
 
   wrap.querySelectorAll('.day-pill').forEach(b => {
@@ -801,7 +845,9 @@ function renderWorkout() {
   if (!w) { card.hidden = true; return; }
   card.hidden = false;
   document.getElementById('workoutTitle').textContent = w.name;
-  document.getElementById('workoutSubtitle').textContent = w.tagline + ' · Phase ' + (w._phase || phaseNumber());
+  const lastDone = [...(state.sessions || [])].reverse().find(s => s.workoutId === id && s.date !== today());
+  const lastDoneTag = lastDone ? ' · Last done ' + fmtDate(lastDone.date) : '';
+  document.getElementById('workoutSubtitle').textContent = w.tagline + ' · Phase ' + (w._phase || phaseNumber()) + lastDoneTag;
 
   const warmupEl = document.getElementById('workoutWarmup');
   if (warmupEl) {
@@ -823,7 +869,30 @@ function renderWorkout() {
     }
   }
 
-  const dKey = dailyKey();
+  // Show the most recent session's data if today has none — so yesterday's
+  // workout isn't blank fields. Once you type a new value it copies to today.
+  let dKey = (() => {
+    const t = today();
+    if (state.setLog[t]?.[id]) return t;
+    const dates = Object.keys(state.setLog || {}).sort().reverse();
+    for (const d of dates) {
+      if (d !== t && state.setLog[d]?.[id]) return d;
+    }
+    return t;
+  })();
+  const ensureToday = () => {
+    const t = today();
+    if (dKey !== t) {
+      if (!state.setLog[t]) state.setLog[t] = {};
+      state.setLog[t][id] = JSON.parse(JSON.stringify(state.setLog[dKey]?.[id] || {}));
+      dKey = t;
+      if (!state.sessions.some(s => s.date === t && s.workoutId === id)) {
+        state.sessions.push({ date: t, workoutId: id, name: w.name });
+        save();
+        renderDayPicker();
+      }
+    }
+  };
   const log = state.setLog[dKey] && state.setLog[dKey][id] ? state.setLog[dKey][id] : {};
 
   const list = document.getElementById('exerciseList');
@@ -977,7 +1046,7 @@ function renderWorkout() {
     });
   });
 
-  renderSessionProgress(doneSets, totalSets);
+  renderSessionProgress(doneSets, totalSets, dKey);
 
   // Set input handlers — input event saves state, change event auto-fills
   list.querySelectorAll('.set-input, .ms-set').forEach(row => {
@@ -987,6 +1056,7 @@ function renderWorkout() {
     const ex = findExerciseByKey(w, exKey);
     row.querySelectorAll('input').forEach(input => {
       input.addEventListener('input', () => {
+        ensureToday();
         if (!state.setLog[dKey]) state.setLog[dKey] = {};
         if (!state.setLog[dKey][id]) state.setLog[dKey][id] = {};
         if (!state.setLog[dKey][id][exKey]) state.setLog[dKey][id][exKey] = [];
@@ -1026,6 +1096,13 @@ function renderWorkout() {
         if (!wasDone && setData.done) {
           startRestTimer(restDurationFor(ex));
           maybeFlashPR(row, exKey, ex, mode);
+          // Auto-record the session so the day-pill shows ✓ even if you
+          // never scroll down to press "Mark session complete".
+          if (!state.sessions.some(s => s.date === dKey && s.workoutId === id)) {
+            state.sessions.push({ date: dKey, workoutId: id, name: w.name });
+            save();
+            renderDayPicker();
+          }
         }
       });
 
@@ -1088,6 +1165,7 @@ function renderWorkout() {
     const setIdx = +row.dataset.set;
     const openNote = (e) => {
       e.preventDefault();
+      ensureToday();
       const sd = state.setLog[dKey]?.[id]?.[exKey]?.[setIdx];
       const current = sd?.note || '';
       const note = window.prompt('Note for this set (e.g. felt strong, form broke):', current);
@@ -1156,6 +1234,7 @@ function renderWorkout() {
     const exKey = mKey.split('::').slice(2).join('::');
     row.querySelectorAll('.cm-chip').forEach(chip => {
       chip.addEventListener('click', () => {
+        ensureToday();
         state.cableMachine = state.cableMachine || {};
         const m = chip.dataset.m;
         if (state.cableMachine[mKey] === m) delete state.cableMachine[mKey];
@@ -1175,6 +1254,7 @@ function renderWorkout() {
     const exKey = macKey.split('::').slice(2).join('::');
     row.querySelectorAll('.mac-chip').forEach(chip => {
       chip.addEventListener('click', () => {
+        ensureToday();
         state.exMachine = state.exMachine || {};
         const m = chip.dataset.mac;
         if (state.exMachine[macKey] === m) delete state.exMachine[macKey];
