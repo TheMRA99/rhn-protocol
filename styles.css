@@ -96,7 +96,9 @@
 
 html, body {
   background: var(--bg);
-  background-image: linear-gradient(180deg, #1C1C24 0%, var(--bg) 38%, #141019 100%);
+  background-image:
+    radial-gradient(125% 105% at 50% 35%, rgba(28,28,36,0.2), rgba(20,16,25,0.6) 65%, rgba(20,16,25,0.95) 100%),
+    linear-gradient(180deg, #1C1C24 0%, var(--bg) 38%, #141019 100%);
   background-attachment: fixed;
   color: var(--text);
   font-family: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
