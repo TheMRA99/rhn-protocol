@@ -806,7 +806,14 @@ function renderDayPicker() {
   const wrap = document.getElementById('dayPicker');
   const done = daysDoneInWeek(weekNumber());
   const next = nextDayThisWeek();
-  wrap.innerHTML = DATA.workouts.filter(w => !w.special).map((w, i) => {
+  const seq = getActiveSequence();
+  // For RHN, include homecore as a rest day option. For Oman, show only the 5-day cycle.
+  const showHomecore = state.program === 'rhn';
+  wrap.innerHTML = DATA.workouts.filter(w => {
+    if (w.special && w.id !== 'homecore') return false;
+    if (w.id === 'homecore') return showHomecore;
+    return seq.includes(w.id);
+  }).map((w, i) => {
     const isDone = done.has(w.id);
     const cls = ['day-pill'];
     if (state.selectedWorkout === w.id) cls.push('active');
@@ -824,7 +831,8 @@ function renderDayPicker() {
   if (statusEl) {
     const wk = weekNumber();
     const n = done.size;
-    const nextLabel = next ? 'Day ' + (DAY_SEQUENCE.indexOf(next) + 1) : null;
+    const activeSeq = getActiveSequence();
+    const nextLabel = next ? (state.program === 'oman' ? 'Oman ' : 'Day ') + (activeSeq.indexOf(next) + 1) : null;
     let html = `Week ${wk} · <strong>${n}/5</strong> done`
       + (n >= 5 ? ' · week complete 🔥' : (nextLabel ? ` · next up <strong>${nextLabel}</strong>` : ''));
     if (n === 0 && wk > 1) {
