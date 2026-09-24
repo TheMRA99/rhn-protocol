@@ -5,8 +5,12 @@ const DATA = {
   totalWeeks: 16,
 
   morningRitual: [
-    { name: "Stomach Vacuum", spec: "3 × 30 sec", note: "Inner core, waist control · pull the navel to the spine, hold, breathe shallow. Your daily non-negotiable." },
-    { name: "Core circuit", spec: "daily · push-ups 3×/wk", note: "Daily: 1-min plank → 1-min reverse plank. The 20+20 push-ups only 3×/week — they pile onto all your pressing and every day is too much shoulder. On push-up days: 20 push-ups → plank → 20 push-ups → reverse plank, no rest." }
+    { name: "Plank", spec: "1 min", note: "Front plank · body straight · breathe steady" },
+    { name: "Side Planks", spec: "30 sec / side", note: "Hips high · obliques and core stability" },
+    { name: "Push-ups", spec: "50 total", note: "Full depth · chest to deck · strict form" },
+    { name: "Squats", spec: "50 total", note: "Bodyweight or light DB. Full depth, controlled. ATG if mobility allows." },
+    { name: "Calf Raises", spec: "25 total", note: "Bodyweight, both legs. Full range — heels touch, then rise onto toes." },
+    { name: "Flexibility", spec: "~1 min", note: "Child's pose, shoulder pass-through, deep breathing. Limber up for the day." }
   ],
 
   // Optional mobility — the old long ritual, kept for days with 5 spare minutes.
