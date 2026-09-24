@@ -407,6 +407,172 @@ const DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "oman1",
+      name: "Loaded carries · lower power",
+      tagline: "Hiking foundation · heavy + tough",
+      blurb: "Trap bar carries build the grip and core for 6+ hours on a mountain. Step-ups and weighted lunges = every stair in Oman. Heavy enough that fatigue is real, but not a grind.",
+      warmup: "5 min easy walk · bodyweight squats × 10 · step-ups × 5/side",
+      blocks: [
+        {
+          title: "Carries",
+          exercises: [
+            { name: "Trap Bar Loaded Carry", sets: 3, reps: "40 meters", note: "Heavy as possible and still move with power — grip is built here. Log the trap bar weight.", barbell: true, sub: "No trap bar → heavy DB farmer carry each hand, or one long odd object. Same 40m." },
+            { name: "Unilateral Carry", sets: 2, reps: "30 meters / side", note: "One heavy DB or loaded odd object, opposite arm neutral — anti-rotation core. Right side, then left. Swap sides each rep.", sub: "Light DBs? Do it with both sides, just heavier per hand." }
+          ]
+        },
+        {
+          title: "Lower",
+          exercises: [
+            { name: "Weighted Step-Up · Smith Bar", sets: 3, reps: "12 / leg", note: "Full height step, hold the bar weight, step up with power — each leg does all 12, then swap. This is the Oman stair simulator. Log the bar weight.", barbell: true, sub: "Smith taken → DB step-up, dumbbell in each hand, same 12/leg. OR: bodyweight step-ups × 20, both legs." },
+            { name: "DB Walking Lunge", sets: 2, reps: "20 meters", note: "Heavy DB in each hand, long controlled lunges. Glute and quad endurance.", sub: "DBs in use → goblet squat or weighted backward lunge with one DB" },
+            { name: "Sleds", sets: 2, reps: "60 meters total", note: "Quad-killer finisher. One push of 60m or two × 30m. Full bodyweight plate on the sled. Heavy enough that it's a grind the last 10m.", sub: "No sled → stair climb × 5–6 flights, or row 60 sec / max intensity" }
+          ]
+        },
+        {
+          title: "Core",
+          exercises: [
+            { name: "Farmer Hold · static", sets: 1, reps: "45 sec", note: "Heavy DB each hand, stand tall, breathe. The grip lesson carries over to — everything.", inputMode: "time" },
+            { name: "Incline Walk · Zone 2", sets: 1, reps: "20 min", note: "Easy pace, high incline. Your daily zone 2 anchor. Log minutes + level.", inputMode: "treadmill", machines: ["Treadmill", "Stairs", "Outdoor"], sub: "Treadmill full → stairs or walk outside. 20 min easy." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "oman2",
+      name: "Upper hyper · chest, shoulders, arms",
+      tagline: "Fill the chest · size day",
+      blurb: "Dense chest + capped delts = the silhouette shift you'll feel on the trek. Heavy pressing + volume. Everything designed to make a fitted shirt impossible to ignore.",
+      warmup: "Arm circles × 15 · light band pull-aparts × 15 · DB ramp: half weight × 8, then 80% × 3",
+      blocks: [
+        {
+          title: "Pressing",
+          exercises: [
+            { name: "Incline DB Press", sets: 3, reps: "6–8", note: "Upper pec shelf — log each side's weight separately. Heavy all three sets.", sub: "No incline bench → incline the floor (plates under one end), or feet-elevated push-ups to failure." },
+            { name: "Flat DB Press", sets: 3, reps: "8–10", note: "Mid-chest fill. All three heavy, 1 in the tank.", sub: "Benches taken → floor press, same load." },
+            { name: "Dips", sets: 2, reps: "8–12", note: "Lower pec + triceps. Add weight if bodyweight is easy (belt with a DB). Lean forward slightly for more chest.", inputMode: "bodyweight_reps", sub: "Dip station taken → bench dips, feet elevated if needed." }
+          ]
+        },
+        {
+          title: "Shoulders",
+          exercises: [
+            { name: "Shoulder Press", sets: 3, reps: "6–8", note: "Seated or standing, heavy all three sets, 1 in the tank. Front + side delts.", sub: "Machine taken → standing DB press, strict form." },
+            { name: "Cable Lateral Raise · drop superset", sets: 2, reps: "10 ea stage", note: "Heavy R, heavy L, drop R, drop L. Side-delt cap.", sub: "Cables taken → DB lateral raise drop set.", inputMode: "multistage", stages: [{ label: "R · heavy" }, { label: "L · heavy" }, { label: "R · drop" }, { label: "L · drop" }] }
+          ]
+        },
+        {
+          title: "Arms",
+          exercises: [
+            { name: "Straight Bar Curl", sets: 2, reps: "8–10", note: "Bicep thickness. Heavy, 1 in tank.", sub: "Bars in use → DB curl, same reps." },
+            { name: "Overhead Cable Extension", sets: 2, reps: "10–12", note: "Tricep long head — fills the sleeve.", sub: "Cable taken → DB overhead extension." }
+          ]
+        },
+        {
+          title: "Finisher",
+          exercises: [
+            { name: "Zone 2 · Stairmaster", sets: 1, reps: "20 min", note: "Moderate level, easy pace. Legs fresh, so don't rip it — just walk it.", inputMode: "cardio", machines: ["Stairmaster", "Incline walk", "Bike"], sub: "Machine queue → outdoor walk, incline treadmill, or bike. 20 min easy." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "oman3",
+      name: "Leg endurance · stairs & squats",
+      tagline: "Mountain legs · volume + reps",
+      blurb: "High reps + stairs = the quad + glute endurance that makes Oman easy. Your knees will thank you. This is not heavy; it's a grind in volume. Bring a towel — your legs will sweat.",
+      warmup: "5 min brisk walk · air squats × 15 · half-depth lunges × 10/side",
+      blocks: [
+        {
+          title: "Stairs",
+          exercises: [
+            { name: "Stairmaster · high volume", sets: 3, reps: "10–12 min / set", note: "Moderate level, steady pace. One set = climb for 10–12 min. Log level + total time. This IS the session. After 30–35 min of stairs your quads will know they're alive.", inputMode: "cardio", machines: ["Stairmaster", "Real stairs", "Incline treadmill"], sub: "Stairmaster queue → real stairs (parking garage, stairwell) or very steep incline walk on the treadmill. Same 30–35 min total." }
+          ]
+        },
+        {
+          title: "Quad finisher",
+          exercises: [
+            { name: "Goblet Squat", sets: 3, reps: "15", note: "Light-to-moderate weight, full depth, tempo: 1 sec down, 1-sec pause, 1 sec up. Three sets of 15 = quad pump city.", sub: "No goblet weight? Bodyweight × 20 each set." },
+            { name: "Leg Extension Machine", sets: 2, reps: "12–15", note: "One-joint pump work. Last set to failure. Go for the quad shape.", sub: "Machine out → air squats × 25, or single-leg Thai kick × 20/side to full extension." },
+            { name: "Bulgarian Split Squat", sets: 2, reps: "12 / leg", note: "Rear foot on a bench, front leg does all 12, then swap. Quad + balance. Light load, high reps.", sub: "No bench → reverse lunge × 12/side." }
+          ]
+        },
+        {
+          title: "Core + calves",
+          exercises: [
+            { name: "Cable Crunch", sets: 2, reps: "15", note: "Lightweight, high reps, breathe OUT.", sub: "Cable taken → weighted floor crunch or hanging knee raises." },
+            { name: "Single-Leg Calf Raise", sets: 2, reps: "15 / leg", note: "Achilles gets ready for mountain paths. Log the reps achieved.", inputMode: "bodyweight_reps" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "oman4",
+      name: "Power & conditioning",
+      tagline: "Explosive + work capacity",
+      blurb: "Heavy cleans, KB work, and metabolic finisher. You feel light after. The power carries over to hiking — explosive steps up steep terrain.",
+      warmup: "5 min easy cardio · bar-only cleans × 5 · 5 min incline walk",
+      blocks: [
+        {
+          title: "Strength",
+          exercises: [
+            { name: "Power Clean", sets: 4, reps: "3", note: "Fresh. Full rest 2–3 min between sets. Log the bar weight. This is your nervous system work for hiking explosiveness.", barbell: true, sub: "No platform/bar → DB clean from the ground × 3–5/side, same explosive intent." },
+            { name: "Front Squat", sets: 3, reps: "5", note: "Fresh legs after cleans. RPE 7 (not a grind). Log the bar weight.", barbell: true, sub: "Bar racked? → Goblet squat × 8, or trap bar squat." }
+          ]
+        },
+        {
+          title: "Conditioning",
+          exercises: [
+            { name: "KB Swing", sets: 4, reps: "20", note: "Heavy weight, powerful hips. 45–60 sec rest between sets. Hinge, not squat.", sub: "No KB? → Two-hand DB swing × 20, or jump squats × 15." },
+            { name: "Farmer Carry", sets: 2, reps: "50 meters", note: "Heavy DB each hand. Grip endurance.", sub: "DBs light? → Do it with a barbell, or heavier single-arm carries." }
+          ]
+        },
+        {
+          title: "Finisher",
+          exercises: [
+            { name: "Zone 2 · easy run", sets: 1, reps: "20 min", note: "Easy pace, recovery run. This is NOT another hard session. Conversational.", inputMode: "treadmill", machines: ["Outdoor", "Treadmill"], sub: "Not running? → incline walk, bike, or stairs at easy pace." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "oman5",
+      name: "Full-body circuit",
+      tagline: "Pulling + pressing + core · finisher",
+      blurb: "Pull, press, and move. Everything you've trained this week compressed into one balanced day. Leave 1–2 reps in reserve; the point is volume, not a one-rep max.",
+      warmup: "Light pulldown × 12 · arm circles × 15 · band pull-aparts × 15",
+      blocks: [
+        {
+          title: "Pulling",
+          exercises: [
+            { name: "Assisted Pull-Up", sets: 3, reps: "6–8", note: "Wide grip, lats not arms. Log reps achieved. Band-assist if needed.", inputMode: "bodyweight_reps", sub: "No bar → lat pulldown × 8–10, wide grip." },
+            { name: "Barbell Row", sets: 3, reps: "6–8", note: "Explosive pull to lower chest. Log bar weight.", barbell: true, sub: "Bar queue → single-arm DB row × 8/side, or inverted row under a bar." },
+            { name: "Single-Arm Lat Pulldown", sets: 2, reps: "8 / side", note: "Unilateral core + lat. Slow eccentric.", sub: "Cable taken → single-arm DB row." }
+          ]
+        },
+        {
+          title: "Pressing",
+          exercises: [
+            { name: "Shoulder Press", sets: 2, reps: "8–10", note: "Seated or standing. Controlled tempo. 1 in the tank.", sub: "Machine out → standing DB press." },
+            { name: "Incline DB Press", sets: 2, reps: "10", note: "Upper pec + front delts. Lighter than Monday, higher reps.", sub: "No bench → push-ups on an incline (feet elevated)." },
+            { name: "Dips", sets: 2, reps: "8–12", note: "Lean slightly for chest. Bodyweight or weighted.", inputMode: "bodyweight_reps", sub: "Dip station taken → bench dips, feet elevated." }
+          ]
+        },
+        {
+          title: "Core",
+          exercises: [
+            { name: "Hanging Leg Raise", sets: 2, reps: "12", note: "No swing. Full range of motion.", inputMode: "bodyweight_reps", sub: "No bar → lying leg raise, hands under the hips." },
+            { name: "Pallof Press", sets: 2, reps: "12 / side", note: "Anti-rotation. Cable or band.", cable: true, sub: "Cable taken → band Pallof, or DB Pallof hold." },
+            { name: "Ab Wheel Rollout", sets: 1, reps: "8–10", note: "If you have the ab wheel. Otherwise skip — the hanging raises and Pallof cover it.", inputMode: "bodyweight_reps", sub: "No wheel → decline sit-ups × 12, or cable crunches." }
+          ]
+        },
+        {
+          title: "Finish",
+          exercises: [
+            { name: "Zone 2 · long walk", sets: 1, reps: "30 min", note: "Easy, conversational. Could be a treadmill incline walk or outdoor walk. Your daily zone 2 volume anchor.", inputMode: "treadmill", machines: ["Outdoor", "Incline walk", "Bike", "Stairmaster"], sub: "Any easy 30-min cardio. The intent is volume, not intensity." }
+          ]
+        }
+      ]
     }
   ],
 

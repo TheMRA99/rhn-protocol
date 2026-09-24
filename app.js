@@ -26,7 +26,8 @@ const defaultState = {
   daily: {},
   ritual: {},
   stamina: {},
-  ramadan: false      // #4 fasting engine: post-iftar training, hold load, pause deficit
+  ramadan: false,      // #4 fasting engine: post-iftar training, hold load, pause deficit
+  program: 'rhn'       // 'rhn' or 'oman' — which block the user is training
 };
 
 // Program days run in numeric sequence. The app no longer maps a fixed weekday
@@ -35,6 +36,11 @@ const defaultState = {
 // you slot rest / Home-core days in whenever you need one). Keep a rest or easy
 // Home day between Day 2 and Day 4 — both are leg days.
 const DAY_SEQUENCE = ['day1', 'day2', 'day3', 'day4', 'day5'];
+const DAY_SEQUENCE_OMAN = ['oman1', 'oman2', 'oman3', 'oman4', 'oman5'];
+
+function getActiveSequence() {
+  return state.program === 'oman' ? DAY_SEQUENCE_OMAN : DAY_SEQUENCE;
+}
 
 let state = load();
 
@@ -164,18 +170,19 @@ function weekWindow(weekNum) {
   return { start: localIso(ws), end: localIso(we) };
 }
 
-// Which numbered days (day1..day5) you actually completed in a given program week.
+// Which numbered days (day1..day5 or oman1..oman5) you actually completed in a given program week.
 // Checks both explicit session marks AND set-log data — if you filled in sets but
 // forgot to press "Mark session complete", the day still counts.
 function daysDoneInWeek(weekNum) {
   const { start, end } = weekWindow(weekNum);
   const done = new Set();
+  const seq = getActiveSequence();
   for (const s of (state.sessions || [])) {
-    if (DAY_SEQUENCE.includes(s.workoutId) && s.date >= start && s.date < end) done.add(s.workoutId);
+    if (seq.includes(s.workoutId) && s.date >= start && s.date < end) done.add(s.workoutId);
   }
   for (const dateStr of Object.keys(state.setLog || {})) {
     if (dateStr < start || dateStr >= end) continue;
-    for (const wId of DAY_SEQUENCE) {
+    for (const wId of seq) {
       if (done.has(wId)) continue;
       const wLog = state.setLog[dateStr]?.[wId];
       if (!wLog) continue;
@@ -191,7 +198,7 @@ function daysDoneInWeek(weekNum) {
 // Lowest-numbered day you haven't done yet THIS week (null once all five are in).
 function nextDayThisWeek() {
   const done = daysDoneInWeek(weekNumber());
-  return DAY_SEQUENCE.find(id => !done.has(id)) || null;
+  return getActiveSequence().find(id => !done.has(id)) || null;
 }
 
 // Resolve a workout to a phase: keep every exercise that has no `phases` tag, or
@@ -735,6 +742,25 @@ document.querySelectorAll('.tab').forEach(btn => {
     document.getElementById('view-' + btn.dataset.tab).classList.add('active');
     if (btn.dataset.tab === 'lifts') renderLifts(); // recompute from latest logs on open
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+
+// ========== PROGRAM SWITCHER ==========
+document.querySelectorAll('.prog-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const prog = btn.dataset.program;
+    state.program = prog;
+    save();
+    document.querySelectorAll('.prog-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // Reset cursor + day picker when switching programs
+    state.dayCursor = null;
+    state.workoutByDate = {};
+    save();
+    renderDayPicker();
+    renderHeader();
+    // If a workout card is open, update it
+    if (state.selectedWorkout) renderWorkout(state.selectedWorkout);
   });
 });
 
@@ -2764,6 +2790,11 @@ function renderAll() {
 // Sync today's workout pick from per-date map (auto-default if first visit today)
 state.selectedWorkout = getSelectedWorkoutForToday();
 save();
+
+// Initialize the program switcher active button
+document.querySelectorAll('.prog-btn').forEach(btn => {
+  btn.classList.toggle('active', btn.dataset.program === state.program);
+});
 
 // Onboarding removed — baseline is hard-coded. Keep the overlay hidden if any
 // stale markup is still cached on a device.

@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=45" />
+<link rel="stylesheet" href="styles.css?v=46" />
 </head>
 <body>
 <header class="topbar">
@@ -51,6 +51,10 @@
   <!-- TODAY -->
   <section class="view active" id="view-today">
     <div class="mode-banner" id="modeBanner" hidden></div>
+    <div class="program-switcher">
+      <button class="prog-btn active" data-program="rhn" title="RHN Protocol · 16-week recomp">RHN</button>
+      <button class="prog-btn" data-program="oman" title="Oman prep · 5-week mountain training">Oman</button>
+    </div>
     <div class="hero">
       <div class="hero-meta">
         <span class="hero-eyebrow" id="todayDate">--</span>
@@ -435,7 +439,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=52"></script>
-<script src="app.js?v=51"></script>
+<script src="data.js?v=53"></script>
+<script src="app.js?v=52"></script>
 </body>
 </html>
