@@ -2800,7 +2800,18 @@ state.selectedWorkout = getSelectedWorkoutForToday();
 save();
 
 // Initialize the program switcher active button
+// Hide Oman tab after the trip date (Oct 28, 2026)
+const OMAN_END_DATE = '2026-10-28';
+const isOmanPastTrip = today() > OMAN_END_DATE;
 document.querySelectorAll('.prog-btn').forEach(btn => {
+  if (btn.dataset.program === 'oman' && isOmanPastTrip) {
+    btn.hidden = true;
+    // If Oman is hidden and currently active, switch back to RHN
+    if (state.program === 'oman') {
+      state.program = 'rhn';
+      save();
+    }
+  }
   btn.classList.toggle('active', btn.dataset.program === state.program);
 });
 
