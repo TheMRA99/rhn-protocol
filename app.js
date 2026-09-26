@@ -2796,7 +2796,9 @@ function renderAll() {
 }
 
 // Sync today's workout pick from per-date map (auto-default if first visit today)
-state.selectedWorkout = getSelectedWorkoutForToday();
+// If workoutByDate has today's pick, use it; otherwise pick what you should do today (next day in sequence)
+const todayPick = (state.workoutByDate && state.workoutByDate[today()]) || getSelectedWorkoutForToday();
+state.selectedWorkout = todayPick;
 save();
 
 // Initialize the program switcher active button
