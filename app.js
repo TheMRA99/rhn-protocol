@@ -278,6 +278,12 @@ function getSelectedWorkoutForToday() {
   if (state.workoutByDate && state.workoutByDate[dKey]) {
     return state.workoutByDate[dKey];
   }
+  // Already logged something today? That's today's workout — never jump away
+  // from a session in progress just because it now counts as done this week.
+  const loggedToday = Object.keys(state.setLog?.[dKey] || {})
+    .filter(wId => DATA.workouts.some(w => w.id === wId));
+  const inProgram = loggedToday.find(wId => getActiveSequence().includes(wId));
+  if (inProgram || loggedToday.length) return inProgram || loggedToday[0];
   // No pick yet today → suggest the next day you still owe THIS week. Each week
   // is a fresh Day 1→5 attempt, so missed days don't carry over — a new week
   // resets to Day 1. All five already done → suggest a Home / rest day.
@@ -509,7 +515,7 @@ function barTotalText(kgPerSide, barWeight) {
   return '= ' + (barWeight + 2 * v) + ' kg';
 }
 
-function renderSessionProgress(done, total, dateKey) {
+function renderSessionProgress(done, total) {
   const wrap = document.getElementById('sessionProgress');
   const fill = document.getElementById('sessionProgressFill');
   const stat = document.getElementById('sessionProgressStat');
@@ -521,10 +527,7 @@ function renderSessionProgress(done, total, dateKey) {
   fill.style.width = pct + '%';
   fill.classList.toggle('complete', pct >= 100);
   stat.textContent = `${done} / ${total} sets · ${pct}%`;
-  const isOld = dateKey && dateKey !== today();
-  label.textContent = pct >= 100
-    ? (isOld ? 'Completed · ' + fmtDate(dateKey) : 'Session complete')
-    : (done === 0 ? (isOld ? fmtDate(dateKey) : 'Today') : 'In progress');
+  label.textContent = pct >= 100 ? 'Session complete' : (done === 0 ? 'Today' : 'In progress');
 }
 
 function refreshSessionProgress() {
@@ -532,15 +535,7 @@ function refreshSessionProgress() {
   if (!id) return;
   const w = getWorkout(id);
   if (!w) return;
-  const dKey = (() => {
-    const t = today();
-    if (state.setLog[t]?.[id]) return t;
-    const dates = Object.keys(state.setLog || {}).sort().reverse();
-    for (const d of dates) {
-      if (d !== t && state.setLog[d]?.[id]) return d;
-    }
-    return t;
-  })();
+  const dKey = today();
   const log = state.setLog[dKey] && state.setLog[dKey][id] ? state.setLog[dKey][id] : {};
   let total = 0, done = 0;
   w.blocks.forEach(block => {
@@ -556,7 +551,7 @@ function refreshSessionProgress() {
       }
     });
   });
-  renderSessionProgress(done, total, dKey);
+  renderSessionProgress(done, total);
 }
 
 function isCurrentBeating(currentSets, prev, mode) {
@@ -749,18 +744,18 @@ document.querySelectorAll('.tab').forEach(btn => {
 document.querySelectorAll('.prog-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const prog = btn.dataset.program;
+    if (state.program === prog) return;
     state.program = prog;
+    document.querySelectorAll('.prog-btn').forEach(b => b.classList.toggle('active', b === btn));
+    // Only today's pick resets to the new program's next day — past dates keep their history.
+    if (state.workoutByDate) delete state.workoutByDate[today()];
+    const pick = getSelectedWorkoutForToday();
+    const fits = getActiveSequence().includes(pick) || pick === 'homecore';
+    setSelectedWorkoutForToday(fits ? pick : (nextDayThisWeek() || getActiveSequence()[0]));
     save();
-    document.querySelectorAll('.prog-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    // Reset cursor + day picker when switching programs
-    state.dayCursor = null;
-    state.workoutByDate = {};
-    save();
-    renderDayPicker();
+    renderToday();
     renderHeader();
-    // If a workout card is open, update it
-    if (state.selectedWorkout) renderWorkout(state.selectedWorkout);
+    renderWeeklyLog();
   });
 });
 
@@ -773,7 +768,7 @@ function renderHeader() {
   document.getElementById('weightBadge').textContent = avg != null ? avg.toFixed(1) : DATA.startKg.toFixed(1);
   const sel = state.selectedWorkout;
   const ws = DATA.workouts.find(w => w.id === sel);
-  document.getElementById('dayBadge').textContent = ws ? ws.id.replace('day', 'D').replace('homecore', 'Hc') : '—';
+  document.getElementById('dayBadge').textContent = ws ? ws.id.replace('homecore', 'Hc').replace('day', 'D').replace('oman', 'O') : '—';
   const sd = state.startDate;
   document.getElementById('startDate').textContent = sd ? fmtDate(sd) : '--';
   document.getElementById('todayDate').textContent = fmtDate(today());
@@ -903,30 +898,9 @@ function renderWorkout() {
     }
   }
 
-  // Show the most recent session's data if today has none — so yesterday's
-  // workout isn't blank fields. Once you type a new value it copies to today.
-  let dKey = (() => {
-    const t = today();
-    if (state.setLog[t]?.[id]) return t;
-    const dates = Object.keys(state.setLog || {}).sort().reverse();
-    for (const d of dates) {
-      if (d !== t && state.setLog[d]?.[id]) return d;
-    }
-    return t;
-  })();
-  const ensureToday = () => {
-    const t = today();
-    if (dKey !== t) {
-      if (!state.setLog[t]) state.setLog[t] = {};
-      state.setLog[t][id] = JSON.parse(JSON.stringify(state.setLog[dKey]?.[id] || {}));
-      dKey = t;
-      if (!state.sessions.some(s => s.date === t && s.workoutId === id)) {
-        state.sessions.push({ date: t, workoutId: id, name: w.name });
-        save();
-        renderDayPicker();
-      }
-    }
-  };
+  // Always log to today. Past sessions are never shown as filled-in fields —
+  // their numbers appear as faint placeholders + the "last ·" chip instead.
+  const dKey = today();
   const log = state.setLog[dKey] && state.setLog[dKey][id] ? state.setLog[dKey][id] : {};
 
   const list = document.getElementById('exerciseList');
@@ -949,6 +923,12 @@ function renderWorkout() {
       const mode = ex.inputMode || 'weight_reps';
       const prev = findPreviousBest(id, exKey);
       const beating = isCurrentBeating(exLog, prev, mode);
+      const lastSets = findLastSessionSets(id, exKey);
+      const lastVal = (s, field, stageIdx) => {
+        const src = stageIdx != null ? lastSets[s]?.[`stage${stageIdx}`] : lastSets[s];
+        const v = src?.[field];
+        return v !== undefined && v !== '' ? String(v) : null;
+      };
 
       let bodyHTML = '';
       if (mode === 'multistage') {
@@ -960,14 +940,15 @@ function renderWorkout() {
           const stagesHTML = ex.stages.map((stage, si) => {
             const sd = setData[`stage${si}`] || {};
             const suggKg = suggestedKgFor(id, exKey, exForLog, si);
-            const kgPh = suggKg != null ? String(suggKg) : 'kg';
+            const kgPh = suggKg != null ? String(suggKg) : (lastVal(s, 'kg', si) ?? 'kg');
+            const repPh = lastVal(s, 'reps', si) ?? 'rep';
             return `
               <div class="ms-stage" data-stage="${si}">
                 <span class="ms-label">${stage.label}</span>
                 <div class="ms-inputs">
                   <input type="number" placeholder="${kgPh}" value="${sd.kg ?? ''}" data-field="kg" inputmode="decimal" />
                   <span>×</span>
-                  <input type="number" placeholder="rep" value="${sd.reps ?? ''}" data-field="reps" inputmode="numeric" />
+                  <input type="number" placeholder="${repPh}" value="${sd.reps ?? ''}" data-field="reps" inputmode="numeric" />
                 </div>
               </div>
             `;
@@ -995,10 +976,9 @@ function renderWorkout() {
             let ph;
             if (f.key === 'kg') {
               if (suggKg != null) ph = String(suggKg);
-              else if (isBarbell) ph = 'side';
-              else ph = f.label;
+              else ph = lastVal(s, 'kg') ?? (isBarbell ? 'side' : f.label);
             } else {
-              ph = placeholderFor(f, ex, mode);
+              ph = lastVal(s, f.key) ?? placeholderFor(f, ex, mode);
             }
             const valStr = setData[f.key] ?? '';
             let extra = '';
@@ -1080,7 +1060,7 @@ function renderWorkout() {
     });
   });
 
-  renderSessionProgress(doneSets, totalSets, dKey);
+  renderSessionProgress(doneSets, totalSets);
 
   // Set input handlers — input event saves state, change event auto-fills
   list.querySelectorAll('.set-input, .ms-set').forEach(row => {
@@ -1090,7 +1070,6 @@ function renderWorkout() {
     const ex = findExerciseByKey(w, exKey);
     row.querySelectorAll('input').forEach(input => {
       input.addEventListener('input', () => {
-        ensureToday();
         if (!state.setLog[dKey]) state.setLog[dKey] = {};
         if (!state.setLog[dKey][id]) state.setLog[dKey][id] = {};
         if (!state.setLog[dKey][id][exKey]) state.setLog[dKey][id][exKey] = [];
@@ -1136,8 +1115,10 @@ function renderWorkout() {
             state.sessions.push({ date: dKey, workoutId: id, name: w.name });
             save();
             renderDayPicker();
+            renderHeader();
           }
         }
+        refreshFinishButtons();
       });
 
       // On blur (change), auto-fill this weight into every matching empty field.
@@ -1199,7 +1180,6 @@ function renderWorkout() {
     const setIdx = +row.dataset.set;
     const openNote = (e) => {
       e.preventDefault();
-      ensureToday();
       const sd = state.setLog[dKey]?.[id]?.[exKey]?.[setIdx];
       const current = sd?.note || '';
       const note = window.prompt('Note for this set (e.g. felt strong, form broke):', current);
@@ -1268,7 +1248,6 @@ function renderWorkout() {
     const exKey = mKey.split('::').slice(2).join('::');
     row.querySelectorAll('.cm-chip').forEach(chip => {
       chip.addEventListener('click', () => {
-        ensureToday();
         state.cableMachine = state.cableMachine || {};
         const m = chip.dataset.m;
         if (state.cableMachine[mKey] === m) delete state.cableMachine[mKey];
@@ -1288,7 +1267,6 @@ function renderWorkout() {
     const exKey = macKey.split('::').slice(2).join('::');
     row.querySelectorAll('.mac-chip').forEach(chip => {
       chip.addEventListener('click', () => {
-        ensureToday();
         state.exMachine = state.exMachine || {};
         const m = chip.dataset.mac;
         if (state.exMachine[macKey] === m) delete state.exMachine[macKey];
@@ -1302,18 +1280,69 @@ function renderWorkout() {
   });
 
   const btn = document.getElementById('finishWorkoutBtn');
-  const isLogged = state.sessions.some(s => s.date === dKey && s.workoutId === id);
-  btn.textContent = isLogged ? 'Session logged' : 'Mark session complete';
-  btn.classList.toggle('done', isLogged);
   btn.onclick = () => {
-    if (isLogged) return;
-    state.sessions.push({ date: dKey, workoutId: id, name: w.name });
-    save();
+    if (!isSessionLogged()) {
+      state.sessions.push({ date: dKey, workoutId: id, name: w.name });
+      save();
+    }
     showToast('Session logged');
     renderWorkout();
     renderHeader();
     renderProgress();
   };
+
+  // Escape hatch: wipe today's entries for this workout and start it clean.
+  const clearBtn = document.getElementById('clearTodayBtn');
+  if (clearBtn) {
+    clearBtn.onclick = () => {
+      if (!confirm(`Clear everything logged today for ${w.name}? Past sessions are not touched.`)) return;
+      if (state.setLog[dKey]) {
+        delete state.setLog[dKey][id];
+        if (!Object.keys(state.setLog[dKey]).length) delete state.setLog[dKey];
+      }
+      state.sessions = state.sessions.filter(s => !(s.date === dKey && s.workoutId === id));
+      const prefix = `${dKey}::${id}::`;
+      for (const map of [state.swaps, state.cableMachine, state.exMachine, state.pain]) {
+        if (!map) continue;
+        for (const k of Object.keys(map)) if (k.startsWith(prefix)) delete map[k];
+      }
+      save();
+      showToast("Today's log cleared");
+      renderToday();
+      renderHeader();
+      renderProgress();
+    };
+  }
+  refreshFinishButtons();
+}
+
+function isSessionLogged() {
+  const id = state.selectedWorkout, t = today();
+  return state.sessions.some(s => s.date === t && s.workoutId === id);
+}
+
+function refreshFinishButtons() {
+  const id = state.selectedWorkout;
+  const logged = isSessionLogged();
+  const btn = document.getElementById('finishWorkoutBtn');
+  if (btn) {
+    btn.textContent = logged ? 'Session logged' : 'Mark session complete';
+    btn.classList.toggle('done', logged);
+  }
+  const clearBtn = document.getElementById('clearTodayBtn');
+  if (clearBtn) clearBtn.hidden = !(logged || state.setLog[today()]?.[id]);
+}
+
+// The most recent PAST session's sets for an exercise (today excluded) — used
+// to show last time's numbers as placeholders in today's empty fields.
+function findLastSessionSets(workoutId, exKey) {
+  const t = today();
+  const dates = Object.keys(state.setLog || {}).filter(d => d < t).sort().reverse();
+  for (const d of dates) {
+    const sets = state.setLog[d]?.[workoutId]?.[exKey];
+    if (Array.isArray(sets) && sets.some(s => s && s.done)) return sets;
+  }
+  return [];
 }
 
 function renderToday() {
@@ -2607,7 +2636,7 @@ function renderWeeklyLog() {
   const rows = [];
   for (let wk = cur; wk >= 1; wk--) {
     const done = daysDoneInWeek(wk);
-    const dots = DAY_SEQUENCE.map((id, i) =>
+    const dots = getActiveSequence().map((id, i) =>
       `<span class="wl-day ${done.has(id) ? 'hit' : 'miss'}" title="Day ${i + 1} ${done.has(id) ? 'done' : 'missed'}">${i + 1}</span>`
     ).join('');
     const n = done.size;
@@ -2795,27 +2824,32 @@ function renderAll() {
   renderProtocol();
 }
 
-// Sync today's workout pick from per-date map (auto-default if first visit today)
-// If workoutByDate has today's pick, use it; otherwise pick what you should do today (next day in sequence)
-const todayPick = (state.workoutByDate && state.workoutByDate[today()]) || getSelectedWorkoutForToday();
-state.selectedWorkout = todayPick;
-save();
-
-// Initialize the program switcher active button
-// Hide Oman tab after the trip date (Oct 28, 2026)
+// Hide the Oman program after the trip date; fall back to RHN if it was active.
 const OMAN_END_DATE = '2026-10-28';
 const isOmanPastTrip = today() > OMAN_END_DATE;
+if (isOmanPastTrip && state.program === 'oman') state.program = 'rhn';
 document.querySelectorAll('.prog-btn').forEach(btn => {
-  if (btn.dataset.program === 'oman' && isOmanPastTrip) {
-    btn.hidden = true;
-    // If Oman is hidden and currently active, switch back to RHN
-    if (state.program === 'oman') {
-      state.program = 'rhn';
-      save();
-    }
-  }
+  if (btn.dataset.program === 'oman') btn.hidden = isOmanPastTrip;
   btn.classList.toggle('active', btn.dataset.program === state.program);
 });
+
+// Lock in today's pick so it can't shift mid-day (e.g. Day 1 → Day 2 the moment
+// Day 1 counts as done this week).
+setSelectedWorkoutForToday(getSelectedWorkoutForToday());
+save();
+
+// A home-screen app can sit suspended in memory for days and resume without
+// reloading — so it would still be showing the day it was opened. When it
+// comes back on a different date, reload so everything renders for today.
+const LOADED_ON = today();
+function reloadIfNewDay() {
+  if (today() !== LOADED_ON) location.reload();
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') reloadIfNewDay();
+});
+window.addEventListener('pageshow', reloadIfNewDay);
+window.addEventListener('focus', reloadIfNewDay);
 
 // Onboarding removed — baseline is hard-coded. Keep the overlay hidden if any
 // stale markup is still cached on a device.
