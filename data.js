@@ -270,13 +270,13 @@ const DATA = {
       name: "Power + conditioning",
       tagline: "Heavy. Explosive. Springy.",
       blurb: "Heavy pull, explosive work, metabolic finisher. You feel light after.",
-      warmup: "5 min easy bike · pogo hops 2 × 15 · trap-bar ramp · deadlift ramp 60% × 5. Never pull heavy cold",
+      warmup: "5 min easy bike · pogo hops 2 × 15 · deadlift ramp 60% × 5. Never pull heavy cold",
       blocks: [
         {
           title: "Strength",
           exercises: [
-            { name: "Trap-Bar Jump", sets: 4, reps: "3", note: "Replaces the clean complex: same explosive triple extension, zero catch skill. 20–30% of your deadlift, jump tall, land soft, reset each rep. Fast or stop. Log the bar weight. (Old complex numbers in this slot aren't comparable.)", barbell: true, sub: "No trap bar → light DB jump squat, or KB swing 4 × 8 max power." },
-            { name: "Barbell Deadlift", sets: 3, reps: "5", note: "After the jumps — and not a grind. Stop at RPE 7 (≈3 clean reps left in the tank). The clean already trained the pull; this is axial load, not a max-out. Brace hard, stay tight.", barbell: true, sub: "Bar taken → trap-bar, or heavy DB/KB deadlift from the floor. Same submaximal feel." }
+            { name: "DB Jump Squat", sets: 4, reps: "3", note: "Replaces the clean complex: same explosive triple extension, zero catch skill. Light DBs at your sides (5–10 kg each), jump tall, land soft, reset each rep. Fast or stop. Log the DB weight. (Old complex numbers in this slot aren't comparable.)", sub: "DBs taken → bodyweight jump squat, or KB swing 4 × 8 max power." },
+            { name: "Barbell Deadlift", sets: 3, reps: "5", note: "After the jumps — and not a grind. Stop at RPE 7 (≈3 clean reps left in the tank). The clean already trained the pull; this is axial load, not a max-out. Brace hard, stay tight.", barbell: true, sub: "Bar taken → heavy DB/KB deadlift from the floor. Same submaximal feel." }
           ]
         },
         {
@@ -462,13 +462,13 @@ const DATA = {
       id: "oman1",
       name: "Legs · strength + hinge",
       tagline: "Durability base · heavy, not heroic",
-      blurb: "Strong hips and quads make a descent survivable. Trap bar and split squats at RPE 7 — leave stronger, not wrecked. Week 3 (Oct 19+) = taper: 2 sets each.",
+      blurb: "Strong hips and quads make a descent survivable. Deadlifts and split squats at RPE 7 — leave stronger, not wrecked. Week 3 (Oct 19+) = taper: 2 sets each.",
       warmup: "5 min incline walk · knee-to-wall rocks × 15 L / 10 R · bodyweight squats × 10 · glute bridge × 10",
       blocks: [
         {
           title: "Lower strength",
           exercises: [
-            { name: "Trap Bar Deadlift", sets: 3, reps: "5", note: "RPE 7 — two clean reps in reserve. Replaces power cleans. Log the bar weight.", barbell: true, sub: "Trap bar taken → heavy DB Romanian deadlift × 8." },
+            { name: "Barbell Deadlift", sets: 3, reps: "5", note: "RPE 7 — two clean reps in reserve, never a grind. Replaces power cleans. Brace hard, bar close. Log the weight per side.", barbell: true, sub: "Bar taken → heavy DB Romanian deadlift × 8." },
             { name: "Rear-Foot-Elevated Split Squat", sets: 3, reps: "8 / leg", note: "3-sec lowering. LEFT leg first. Let the knee travel over the toes.", sub: "Bench taken → Smith split squat, or reverse lunge × 10/leg, slow lowering." },
             { name: "Weighted Step-Up · step down slow", sets: 2, reps: "10 / leg", note: "Knee-height box, DBs in hand. Step DOWN over 3 sec — the descent is the point.", sub: "Box taken → Smith step-up or the bottom stair, same tempo." }
           ]
@@ -483,7 +483,7 @@ const DATA = {
         {
           title: "Carry",
           exercises: [
-            { name: "Farmer Carry", sets: 3, reps: "40 m", note: "Heavy DB each hand. Grip + core for a pack.", inputMode: "carry", sub: "DBs taken → trap bar carry or KBs." }
+            { name: "Farmer Carry", sets: 3, reps: "40 m", note: "Heavy DB each hand. Grip + core for a pack.", inputMode: "carry", sub: "DBs taken → KBs, or one heavy DB at a time (suitcase carry)." }
           ]
         }
       ]
