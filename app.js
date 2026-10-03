@@ -51,7 +51,7 @@ function load() {
     // Recover from the shadow mirror instead of starting empty.
     if (!raw) {
       const shadow = localStorage.getItem(SHADOW_KEY);
-      if (shadow) { localStorage.setItem(STORAGE_KEY, shadow); raw = shadow; }
+      if (shadow) { safeSet(STORAGE_KEY, shadow); raw = shadow; }
       else return seed();
     }
     const parsed = JSON.parse(raw);
@@ -63,49 +63,85 @@ function load() {
     // anchor it to today so week + streak are real. Restart-block resets it later.
     if (!merged.startDate) {
       merged.startDate = today();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      safeSet(STORAGE_KEY, JSON.stringify(merged));
     }
     return merged;
   } catch (e) {
-    // Primary corrupt — try the shadow mirror before giving up.
+    // Primary corrupt — try the shadow mirror before giving up, and write the
+    // recovered copy back so the corrupt primary can't be read again next load.
     try {
       const shadow = localStorage.getItem(SHADOW_KEY);
-      if (shadow) return { ...defaultState, ...JSON.parse(shadow), onboarded: true };
+      if (shadow) {
+        const recovered = { ...defaultState, ...JSON.parse(shadow), onboarded: true };
+        safeSet(STORAGE_KEY, JSON.stringify(recovered));
+        return recovered;
+      }
     } catch (_) { /* shadow also unreadable */ }
     return seed();
   }
 }
 
+// setItem that never throws — returns false on quota / blocked storage.
+function safeSet(key, value) {
+  try { localStorage.setItem(key, value); return true; }
+  catch (_) { return false; }
+}
+
 function seed() {
   const s = { ...defaultState, startDate: today() };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  safeSet(STORAGE_KEY, JSON.stringify(s));
   return s;
 }
 
+const SNAPSHOT_KEEP = 3;
+
 function save() {
   const json = JSON.stringify(state);
-  localStorage.setItem(STORAGE_KEY, json);
+  // Primary write first. On quota errors, free the snapshot space (the least
+  // valuable copies) and retry once before telling the user.
+  if (!safeSet(STORAGE_KEY, json)) {
+    pruneSnapshots(0);
+    if (!safeSet(STORAGE_KEY, json)) {
+      showToast('Save failed — storage full, export a backup');
+      return false;
+    }
+  }
   // Auto-backup: a mirror + a per-day snapshot, so a cleared key or a bad edit
   // can't silently wipe the log. Only back up when there's real data — never let
   // an empty/reset state overwrite a good backup.
-  try {
-    if (state.setLog && Object.keys(state.setLog).length) {
-      localStorage.setItem(SHADOW_KEY, json);
-      localStorage.setItem(SNAP_PREFIX + today(), json);
-      pruneSnapshots(7);
-    }
-  } catch (e) { /* storage full/blocked — the primary save already succeeded */ }
+  if (state.setLog && Object.keys(state.setLog).length) {
+    safeSet(SHADOW_KEY, json);
+    safeSet(SNAP_PREFIX + today(), json);
+    pruneSnapshots(SNAPSHOT_KEEP);
+  }
+  return true;
 }
 
-// Keep only the most recent N dated snapshots.
-function pruneSnapshots(keep) {
+function snapshotKeys() {
   const snaps = [];
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
     if (k && k.startsWith(SNAP_PREFIX)) snaps.push(k);
   }
-  snaps.sort(); // dated keys sort chronologically
-  while (snaps.length > keep) localStorage.removeItem(snaps.shift());
+  return snaps.sort(); // dated keys sort chronologically
+}
+
+// Keep only the most recent N dated snapshots.
+function pruneSnapshots(keep) {
+  try {
+    const snaps = snapshotKeys();
+    while (snaps.length > keep) localStorage.removeItem(snaps.shift());
+  } catch (_) { /* storage blocked */ }
+}
+
+// HTML-escape any user- or storage-sourced string before it touches innerHTML.
+function esc(v) {
+  return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// Parse a YYYY-MM-DD string as LOCAL midnight (bare ISO dates parse as UTC).
+function parseIso(iso) {
+  return new Date(iso + 'T00:00:00');
 }
 
 // Local-timezone date — toISOString() is UTC, which made "today" flip at 8am SGT
@@ -262,6 +298,8 @@ function exitPause() {
     const ns = new Date(state.startDate + 'T00:00:00');
     ns.setDate(ns.getDate() + pausedDays);
     state.startDate = localIso(ns);
+    // Remember the paused span so the streak skips it instead of breaking on it.
+    state.pauseSpans = [...(state.pauseSpans || []), { from: state.pausedAt, to: today() }];
   }
   state.pausedAt = null;
   save();
@@ -472,7 +510,11 @@ function findPreviousBest(workoutId, exKey) {
   return null;
 }
 
-function formatPrev(set, mode, ex) {
+// Escaped wrapper — set values come from storage / imported backups, so they are
+// untrusted text by the time they reach innerHTML.
+function formatPrev(set, mode, ex) { return esc(formatPrevRaw(set, mode, ex)); }
+
+function formatPrevRaw(set, mode, ex) {
   if (!set) return '';
   const mTag = set.m ? ` · M${set.m}` : ''; // which cable stack, if tagged
   const macTag = set.mac ? ` · ${set.mac}` : ''; // which machine, if tagged
@@ -774,24 +816,23 @@ function renderHeader() {
   document.getElementById('todayDate').textContent = fmtDate(today());
 }
 
+const STREAK_REST_ALLOWANCE = 2; // consecutive non-session days that don't break it
+
+// Rest-day-aware streak: counts session days walking back from today (or from
+// the pause date while paused). Up to 2 consecutive non-session days are rest,
+// not a break, and any day inside a past pause span is skipped entirely.
 function computeStreak() {
-  if (!state.sessions.length) return 0;
+  if (!state.sessions?.length) return 0;
   const dates = new Set(state.sessions.map(s => s.date));
-  let streak = 0;
-  let d = new Date();
-  for (let i = 0; i < 365; i++) {
+  const spans = state.pauseSpans || [];
+  const inPause = iso => spans.some(p => iso >= p.from && iso < p.to);
+  const d = isPaused() ? parseIso(state.pausedAt) : parseIso(today());
+  let streak = 0, gap = 0;
+  for (let i = 0; i < 730; i++, d.setDate(d.getDate() - 1)) {
     const iso = localIso(d);
-    if (dates.has(iso)) {
-      streak++;
-      d.setDate(d.getDate() - 1);
-    } else {
-      // allow today to not be done yet — start counting from yesterday
-      if (i === 0) {
-        d.setDate(d.getDate() - 1);
-        continue;
-      }
-      break;
-    }
+    if (dates.has(iso)) { streak++; gap = 0; continue; }
+    if (inPause(iso)) continue;
+    if (++gap > STREAK_REST_ALLOWANCE) break;
   }
   return streak;
 }
@@ -946,9 +987,9 @@ function renderWorkout() {
               <div class="ms-stage" data-stage="${si}">
                 <span class="ms-label">${stage.label}</span>
                 <div class="ms-inputs">
-                  <input type="number" placeholder="${kgPh}" value="${sd.kg ?? ''}" data-field="kg" inputmode="decimal" />
+                  <input type="number" placeholder="${esc(kgPh)}" value="${esc(sd.kg ?? '')}" data-field="kg" inputmode="decimal" />
                   <span>×</span>
-                  <input type="number" placeholder="${repPh}" value="${sd.reps ?? ''}" data-field="reps" inputmode="numeric" />
+                  <input type="number" placeholder="${esc(repPh)}" value="${esc(sd.reps ?? '')}" data-field="reps" inputmode="numeric" />
                 </div>
               </div>
             `;
@@ -985,14 +1026,19 @@ function renderWorkout() {
             if (isBarbell && f.key === 'kg') {
               extra = `<span class="set-bar-total" data-bar-total>${barTotalText(valStr, barWeight)}</span>`;
             }
-            return `${sep}<input type="number" placeholder="${ph}" value="${valStr}" data-field="${f.key}" inputmode="${f.inputmode}" style="width:${f.width}px" />${extra}`;
+            return `${sep}<input type="number" placeholder="${esc(ph)}" value="${esc(valStr)}" data-field="${f.key}" inputmode="${f.inputmode}" style="width:${f.width}px" />${extra}`;
           }).join('');
+          // One-tap repeat: only offered when every empty field has a numeric
+          // placeholder (last session's number / suggestion) to copy.
+          const repeatable = fields.some(f => setData[f.key] === undefined || setData[f.key] === '');
+          const repeatBtn = repeatable ? `<button type="button" class="repeat-btn" aria-label="Repeat last session's numbers for set ${s + 1}" title="Repeat last time">✓</button>` : '';
           const timedBtn = ex.timed ? `<button class="timed-go" type="button" data-secs="${ex.timed}">▶ ${ex.timed}s</button>` : '';
           setRows += `
             <div class="set-input ${setData.done ? 'done' : ''}" data-ex="${exKey}" data-set="${s}" data-mode="${mode}"${isBarbell ? ` data-barbell="1" data-bar="${barWeight}"` : ''}>
               <span>S${s + 1}</span>
               ${innerHTML}
               ${timedBtn}
+              ${repeatBtn}
             </div>
           `;
         }
@@ -1020,7 +1066,7 @@ function renderWorkout() {
       const machineSelHTML = (ex.machines && !swapped) ? `
           <div class="machine-select" data-mackey="${mKey}">
             <span class="cable-machine-label">MACHINE</span>
-            ${ex.machines.map(m => `<button type="button" class="mac-chip ${macSel === m ? 'on' : ''}" data-mac="${m}">${m}</button>`).join('')}
+            ${ex.machines.map(m => `<button type="button" class="mac-chip ${macSel === m ? 'on' : ''}" data-mac="${esc(m)}">${esc(m)}</button>`).join('')}
             <span class="cable-machine-hint">tag which one — the numbers differ per machine</span>
           </div>` : '';
       const swapBtn = ex.sub
@@ -1068,6 +1114,18 @@ function renderWorkout() {
     const setIdx = +row.dataset.set;
     const mode = row.dataset.mode;
     const ex = findExerciseByKey(w, exKey);
+    // ✓ repeat: copy numeric placeholders into empty fields, then fire the same
+    // 'input' handler a keystroke would — one save path, one done/PR/rest flow.
+    row.querySelector('.repeat-btn')?.addEventListener('click', () => {
+      const empties = [...row.querySelectorAll('input[data-field]')].filter(i => i.value === '');
+      const fillable = empties.filter(i => i.placeholder !== '' && Number.isFinite(Number(i.placeholder)));
+      if (!fillable.length || fillable.length !== empties.length) {
+        showToast('No last-session numbers to repeat — enter them once');
+        return;
+      }
+      fillable.forEach(i => { i.value = i.placeholder; });
+      fillable.forEach(i => i.dispatchEvent(new Event('input', { bubbles: true })));
+    });
     row.querySelectorAll('input').forEach(input => {
       input.addEventListener('input', () => {
         if (!state.setLog[dKey]) state.setLog[dKey] = {};
@@ -1610,12 +1668,18 @@ function renderWeightChart() {
   `;
 }
 
-// Rolling 7-day average ending at the latest entry — the honest cut number.
+// Entries from the last 7 calendar days (not the last 7 entries, which could
+// span a month of sporadic weigh-ins). Falls back to the latest entry.
 function rollingAvgWeight() {
-  const data = state.weights.slice().sort((a, b) => a.date.localeCompare(b.date));
+  const data = (state.weights || []).filter(d => d && d.date && Number.isFinite(+d.kg))
+    .sort((a, b) => a.date.localeCompare(b.date));
   if (!data.length) return null;
-  const last7 = data.slice(-7).map(d => d.kg);
-  return last7.reduce((a, b) => a + b, 0) / last7.length;
+  const cutoff = parseIso(today());
+  cutoff.setDate(cutoff.getDate() - 6);
+  const cutIso = localIso(cutoff);
+  const recent = data.filter(d => d.date >= cutIso).map(d => +d.kg);
+  if (!recent.length) return +data.at(-1).kg;
+  return recent.reduce((a, b) => a + b, 0) / recent.length;
 }
 
 function renderWeightStats() {
@@ -1662,16 +1726,16 @@ function weightTrendNote(data, avg, atFloor) {
   }
   // Find a data point ~14 days before the latest to measure the slope.
   const latest = data.at(-1);
-  const latestT = new Date(latest.date).getTime();
+  const latestT = parseIso(latest.date).getTime();
   let past = null;
   for (const d of data) {
-    const days = (latestT - new Date(d.date).getTime()) / 86400000;
+    const days = (latestT - parseIso(d.date).getTime()) / 86400000;
     if (days >= 12) past = d; else break;
   }
   if (!past) {
     return 'Track the average line, not the daily dot. Target rate is 0.3–0.45 kg/week — the 2-week check kicks in once you have ~14 days logged.';
   }
-  const weeks = ((latestT - new Date(past.date).getTime()) / 86400000) / 7;
+  const weeks = ((latestT - parseIso(past.date).getTime()) / 86400000) / 7;
   // rolling avg at the past point
   const idx = data.indexOf(past);
   const pastWin = data.slice(Math.max(0, idx - 6), idx + 1).map(x => x.kg);
@@ -2063,8 +2127,8 @@ function buildHistoryDetail(session) {
         if (mode === 'interval') return `lvl ${s.level || '–'} · ${s.rounds || '–'} rds`;
         if (mode === 'cardio') return `${s.min || '–'}min · lvl ${s.level || '–'}`;
         return `${s.kg || '–'}kg × ${s.reps || '–'}`;
-      }).join('  ·  ');
-      const notes = done.filter(s => s.note).map(s => s.note);
+      }).map(esc).join('  ·  ');
+      const notes = done.filter(s => s.note).map(s => esc(s.note));
       const noteHTML = notes.length ? `<div class="det-note">✎ ${notes.join(' · ')}</div>` : '';
       return `<div class="det-ex">
         <div class="det-ex-name">${ex.name}</div>
@@ -2091,7 +2155,7 @@ function renderHistory() {
   el.innerHTML = recent.map((s, i) => `
     <div class="history-row" data-i="${i}">
       <span class="history-date">${fmtDate(s.date)}</span>
-      <span class="history-name">${s.name}</span>
+      <span class="history-name">${esc(s.name)}</span>
       <span class="history-toggle">›</span>
       <div class="history-detail">${buildHistoryDetail(s)}</div>
     </div>
@@ -2272,7 +2336,7 @@ function renderLifts() {
       <div class="lift-row" data-i="${i}">
         <div class="lift-row-head">
           <div class="lift-info">
-            <div class="lift-name">${h.ex.name}</div>
+            <div class="lift-name">${esc(h.ex.name)}</div>
             <div class="lift-sub">${h.workoutName} · last ${fmtDate(last.date)} · ${formatPrev(last.best, h.mode, h.ex)}</div>
           </div>
           ${sparklineSVG(scores)}
@@ -2407,7 +2471,7 @@ function buildCoachReport() {
   const ph = phaseNumber(wk);
   const start = state.startDate || '—';
   const daysIn = state.startDate
-    ? Math.round((new Date(today()) - new Date(state.startDate + 'T00:00:00')) / DAY_MS)
+    ? Math.round((parseIso(today()) - parseIso(state.startDate)) / DAY_MS)
     : 0;
 
   L.push('RHN PROTOCOL — COACH REVIEW');
@@ -2545,15 +2609,61 @@ document.getElementById('coachCopyBtn')?.addEventListener('click', async () => {
 });
 
 // ========== DATA BACKUP · export / import ==========
-document.getElementById('exportBtn')?.addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `rhn-backup-${today()}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-  showToast('Backup downloaded');
-});
+const PREIMPORT_KEY = STORAGE_KEY + ':preimport';
+const EXPORT_NAG_DAYS = 7;
+
+// Newest logged date + number of logged days in a state's setLog.
+function setLogSummary(st) {
+  const days = Object.keys((st && st.setLog) || {}).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort();
+  return { newest: days.at(-1) || null, count: days.length };
+}
+
+// Share the backup as a file where supported (iOS share sheet → Files/Drive),
+// else download it. Only stamps lastExport once the file actually left the app.
+async function exportBackup() {
+  const name = `rhn-backup-${today()}.json`;
+  const json = JSON.stringify(state, null, 2);
+  let delivered = false;
+  try {
+    const file = new File([json], name, { type: 'application/json' });
+    if (navigator.canShare?.({ files: [file] }) && navigator.share) {
+      await navigator.share({ files: [file], title: 'RHN backup' });
+      delivered = true;
+    }
+  } catch (err) {
+    if (err && err.name === 'AbortError') { showToast('Export cancelled'); return; }
+    // Share unsupported/failed — fall through to download.
+  }
+  if (!delivered) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  state.lastExport = new Date().toISOString();
+  save();
+  renderBackupBanner();
+  showToast('Backup exported');
+}
+
+function renderBackupBanner() {
+  const el = document.getElementById('backupBanner');
+  if (!el) return;
+  const hasLogs = setLogSummary(state).count > 0;
+  const last = state.lastExport ? new Date(state.lastExport).getTime() : NaN;
+  const stale = !Number.isFinite(last) || (Date.now() - last) / 86400000 > EXPORT_NAG_DAYS;
+  el.hidden = !(hasLogs && stale);
+  const txt = document.getElementById('backupBannerText');
+  if (txt) txt.textContent = Number.isFinite(last)
+    ? `Last backup ${Math.floor((Date.now() - last) / 86400000)} days ago — export a fresh one.`
+    : 'No backup yet — your logs live only on this phone.';
+}
+
+document.getElementById('exportBtn')?.addEventListener('click', exportBackup);
+document.getElementById('backupBannerBtn')?.addEventListener('click', exportBackup);
 
 document.getElementById('importBtn')?.addEventListener('click', () => {
   document.getElementById('importFile')?.click();
@@ -2561,23 +2671,36 @@ document.getElementById('importBtn')?.addEventListener('click', () => {
 
 document.getElementById('importFile')?.addEventListener('change', (e) => {
   const file = e.target.files?.[0];
+  e.target.value = '';
   if (!file) return;
   const reader = new FileReader();
   reader.onload = () => {
+    let data;
     try {
-      const data = JSON.parse(reader.result);
-      if (!data || typeof data !== 'object' || !data.setLog) throw new Error('not a backup');
-      if (!confirm('Replace current data with this backup?')) return;
-      state = { ...defaultState, ...data };
-      save();
-      renderAll();
-      showToast('Backup restored');
+      data = JSON.parse(reader.result);
+      if (!data || typeof data !== 'object' || Array.isArray(data) || !data.setLog || typeof data.setLog !== 'object') throw new Error('not a backup');
     } catch (err) {
       showToast('Invalid backup file');
+      return;
     }
+    const inc = setLogSummary(data), cur = setLogSummary(state);
+    let msg = `Replace current data with this backup?\n\nBackup: newest log ${inc.newest || 'none'} · ${inc.count} day(s)\nCurrent: newest log ${cur.newest || 'none'} · ${cur.count} day(s)`;
+    if (inc.count < cur.count) msg += `\n\n⚠ The backup has FEWER logged days (${inc.count} vs ${cur.count}). You will lose ${cur.count - inc.count} day(s) of logs.`;
+    if (cur.newest && inc.newest && inc.newest < cur.newest) msg += '\n⚠ The backup is OLDER than what is on this phone.';
+    msg += '\n\nYour current data is kept as a pre-import copy.';
+    if (!confirm(msg)) return;
+    // Stash the current state first; refuse to overwrite if we can't.
+    if (!safeSet(PREIMPORT_KEY, JSON.stringify(state))) {
+      showToast('Import aborted — could not stash current data');
+      return;
+    }
+    state = { ...defaultState, ...data, onboarded: true };
+    if (!save()) return;
+    renderAll();
+    showToast('Backup restored');
   };
+  reader.onerror = () => showToast('Could not read file');
   reader.readAsText(file);
-  e.target.value = '';
 });
 
 // ===== MOBILITY MILESTONES =====
@@ -2587,7 +2710,7 @@ function renderMobility() {
   el.innerHTML = DATA.mobilityTests.map((t, i) => {
     const hits = (state.mobility || []).filter(m => m.test === t.name).sort((a, b) => a.date.localeCompare(b.date));
     const last = hits.at(-1);
-    const daysAgo = last ? Math.round((new Date(today()) - new Date(last.date)) / 86400000) : null;
+    const daysAgo = last ? Math.round((parseIso(today()) - parseIso(last.date)) / 86400000) : null;
     const stale = daysAgo == null || daysAgo >= 28;
     const status = last
       ? `<span class="mob-last ${stale ? 'stale' : 'fresh'}">last hit ${fmtDate(last.date)}${stale ? ' · re-test due' : ''}</span>`
@@ -2652,6 +2775,11 @@ function renderWeeklyLog() {
 
 // ========== NUTRITION ==========
 function renderNutrition() {
+  const trailCard = document.getElementById('trailCard');
+  if (trailCard) {
+    trailCard.hidden = today() > OMAN_END_DATE;
+    renderInfoList('trailList', DATA.trailFuel);
+  }
   document.getElementById('targetsGrid').innerHTML = DATA.targets.map(t => `
     <div class="target-cell">
       <div class="target-label">${t.label}</div>
@@ -2807,7 +2935,11 @@ document.getElementById('restartBlockBtn')?.addEventListener('click', () => {
 
 document.getElementById('resetBtn').addEventListener('click', () => {
   if (!confirm('Wipe everything and restart Week 1?')) return;
-  localStorage.removeItem(STORAGE_KEY);
+  // Wipe the primary AND every backup copy — otherwise load() would happily
+  // resurrect the "reset" data from the shadow mirror on next launch.
+  try {
+    [STORAGE_KEY, SHADOW_KEY, ...snapshotKeys()].forEach(k => localStorage.removeItem(k));
+  } catch (_) { /* storage blocked */ }
   state = seed();
   showToast('Reset · week 1');
   renderAll();
@@ -2816,6 +2948,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 // ========== INIT ==========
 function renderAll() {
   renderHeader();
+  renderBackupBanner();
   renderToday();
   renderAllWorkouts();
   renderLifts();
@@ -2883,5 +3016,8 @@ document.querySelectorAll('.card-collapsible .card-header').forEach(header => {
     header.closest('.card-collapsible').classList.toggle('collapsed');
   });
 });
+
+// Ask the browser not to evict our storage under pressure (no-op where unsupported).
+try { navigator.storage?.persist?.()?.catch?.(() => {}); } catch (_) { /* unsupported */ }
 
 renderAll();

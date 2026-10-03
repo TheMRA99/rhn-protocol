@@ -2257,3 +2257,24 @@ body { overscroll-behavior-y: none; overflow-x: clip; }
 /* Show focus rings for keyboard users, not on every finger tap. */
 button:focus:not(:focus-visible), .tab:focus:not(:focus-visible),
 input:focus:not(:focus-visible) { outline: none; }
+
+/* One-tap repeat ✓ — copies last session's numbers into an empty set row */
+.repeat-btn {
+  min-width: 40px; min-height: 40px; margin-left: auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line-bright); border-radius: 10px;
+  background: transparent; color: var(--text-dim); font-size: 18px; line-height: 1;
+  cursor: pointer; flex-shrink: 0;
+}
+.repeat-btn:active { transform: scale(.94); }
+.set-input.done .repeat-btn { display: none; }
+
+/* Weekly backup reminder on Today */
+.backup-banner {
+  display: flex; align-items: center; gap: 12px;
+  margin: 0 0 12px; padding: 12px 14px; border-radius: 12px;
+  border: 1px solid var(--wine); background: var(--bg-1); color: var(--text); font-size: 14px;
+}
+.backup-banner[hidden] { display: none; }
+.backup-banner-text { flex: 1; }
+.backup-banner-btn { width: auto; min-height: 40px; padding: 0 16px; margin: 0; }
