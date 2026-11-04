@@ -37,8 +37,15 @@ const defaultState = {
 // Home day between Day 2 and Day 4 — both are leg days.
 const DAY_SEQUENCE = ['day1', 'day2', 'day3', 'day4', 'day5'];
 const DAY_SEQUENCE_OMAN = ['oman1', 'oman2', 'oman3', 'oman4', 'oman5'];
+// Reset block (Nov 2026 →): 3 floating sessions + optional extras that don't count toward the week.
+const DAY_SEQUENCE_RESET = ['reset_a', 'reset_b', 'reset_c'];
+const RESET_EXTRAS = ['reset_z2', 'reset_hill', 'reset_home'];
+const RESET_START_KEY = '2026-11-reset';
+
+function isReset() { return state.program === 'reset'; }
 
 function getActiveSequence() {
+  if (isReset()) return DAY_SEQUENCE_RESET;
   return state.program === 'oman' ? DAY_SEQUENCE_OMAN : DAY_SEQUENCE;
 }
 
@@ -180,7 +187,7 @@ function weekNumber() {
   // While paused, freeze the clock at the pause date so deloads don't drift.
   const ref = isPaused() ? new Date(state.pausedAt + 'T00:00:00') : new Date();
   const diffDays = Math.floor((ref - anchor) / (1000 * 60 * 60 * 24));
-  return Math.min(16, Math.max(1, Math.floor(diffDays / 7) + 1));
+  return Math.min(DATA.totalWeeks || 16, Math.max(1, Math.floor(diffDays / 7) + 1));
 }
 
 // ===== Periodization: 16 weeks = four 4-week phases. Workouts evolve by phase. =====
@@ -195,7 +202,7 @@ function weekForDate(dateStr) {
   const anchor = programWeekAnchor();
   const ref = new Date(dateStr + 'T00:00:00');
   const diffDays = Math.floor((ref - anchor) / 86400000);
-  return Math.min(16, Math.max(1, Math.floor(diffDays / 7) + 1));
+  return Math.min(DATA.totalWeeks || 16, Math.max(1, Math.floor(diffDays / 7) + 1));
 }
 
 // The [start, end) Saturday-anchored date window of a program week.
@@ -268,8 +275,8 @@ function phaseWorkouts(phase) {
 }
 
 // Deloads land at weeks 8 and 14; week 8 also runs a diet break.
-function isDeloadWeek(n) { return n === 8 || n === 14; }
-function isDietBreakWeek(n) { return n === 8 || n === 12; }
+function isDeloadWeek(n) { return !isReset() && (n === 8 || n === 14); }
+function isDietBreakWeek(n) { return !isReset() && (n === 8 || n === 12); }
 
 // Self-test gating: ankle/glute-med block shows only if knee-to-wall flagged tight.
 function gateActive(gate) {
@@ -325,7 +332,7 @@ function getSelectedWorkoutForToday() {
   // No pick yet today → suggest the next day you still owe THIS week. Each week
   // is a fresh Day 1→5 attempt, so missed days don't carry over — a new week
   // resets to Day 1. All five already done → suggest a Home / rest day.
-  return nextDayThisWeek() || 'homecore';
+  return nextDayThisWeek() || (isReset() ? 'reset_z2' : 'homecore');
 }
 
 function setSelectedWorkoutForToday(id) {
@@ -802,15 +809,23 @@ document.querySelectorAll('.prog-btn').forEach(btn => {
 });
 
 // ========== HEADER ==========
+const RESET_BADGE = { reset_a: 'A', reset_b: 'B', reset_c: 'C', reset_z2: 'Z2', reset_hill: 'Hill', reset_home: 'Hm' };
 function renderHeader() {
   document.getElementById('currentWeek').textContent = weekNumber();
-  document.getElementById('streakBadge').textContent = computeStreak();
+  const streakLabel = document.getElementById('streakLabel');
+  if (isReset()) {
+    if (streakLabel) streakLabel.textContent = 'Sessions';
+    document.getElementById('streakBadge').textContent = new Set(state.sessions.map(s => s.date + s.workoutId)).size;
+  } else {
+    if (streakLabel) streakLabel.textContent = 'Streak';
+    document.getElementById('streakBadge').textContent = computeStreak();
+  }
   // Header shows the 7-day rolling average — the real trend, not the daily ±1 kg.
   const avg = rollingAvgWeight();
   document.getElementById('weightBadge').textContent = avg != null ? avg.toFixed(1) : DATA.startKg.toFixed(1);
   const sel = state.selectedWorkout;
   const ws = DATA.workouts.find(w => w.id === sel);
-  document.getElementById('dayBadge').textContent = ws ? ws.id.replace('homecore', 'Hc').replace('day', 'D').replace('oman', 'O') : '—';
+  document.getElementById('dayBadge').textContent = ws ? (RESET_BADGE[ws.id] || ws.id.replace('homecore', 'Hc').replace('day', 'D').replace('oman', 'O')) : '—';
   const sd = state.startDate;
   document.getElementById('startDate').textContent = sd ? fmtDate(sd) : '--';
   document.getElementById('todayDate').textContent = fmtDate(today());
@@ -846,6 +861,7 @@ function renderDayPicker() {
   // For RHN, include homecore as a rest day option. For Oman, show only the 5-day cycle.
   const showHomecore = state.program === 'rhn';
   wrap.innerHTML = DATA.workouts.filter(w => {
+    if (isReset()) return seq.includes(w.id) || RESET_EXTRAS.includes(w.id);
     if (w.special && w.id !== 'homecore') return false;
     if (w.id === 'homecore') return showHomecore;
     return seq.includes(w.id);
@@ -857,8 +873,8 @@ function renderDayPicker() {
     if (w.id === next) cls.push('next');
     return `
     <button class="${cls.join(' ')}" data-id="${w.id}">
-      <div class="day-pill-num">${w.id === 'homecore' ? 'Home · core' : 'Day 0' + (i + 1)}${isDone ? '<span class="day-pill-check">✓</span>' : ''}</div>
-      <div class="day-pill-name">${w.name.split('+')[0].trim()}</div>
+      <div class="day-pill-num">${isReset() ? (RESET_EXTRAS.includes(w.id) ? 'Extra' : 'Session ' + RESET_BADGE[w.id]) : w.id === 'homecore' ? 'Home · core' : 'Day 0' + (i + 1)}${isDone ? '<span class="day-pill-check">✓</span>' : ''}</div>
+      <div class="day-pill-name">${w.name.split('+')[0].replace(/^[ABC] · /, '').trim()}</div>
     </button>`;
   }).join('');
 
@@ -868,6 +884,10 @@ function renderDayPicker() {
     const wk = weekNumber();
     const n = done.size;
     const activeSeq = getActiveSequence();
+    if (isReset()) {
+      const nextTxt = next ? ` · next up <strong>Session ${RESET_BADGE[next]}</strong>` : ' · extras only from here';
+      statusEl.innerHTML = `This week <strong>${n} ✓</strong> · target 2–3${n >= 2 ? ' · full week ✓' : ''}${nextTxt}`;
+    } else {
     const nextLabel = next ? (state.program === 'oman' ? 'Oman ' : 'Day ') + (activeSeq.indexOf(next) + 1) : null;
     let html = `Week ${wk} · <strong>${n}/5</strong> done`
       + (n >= 5 ? ' · week complete 🔥' : (nextLabel ? ` · next up <strong>${nextLabel}</strong>` : ''));
@@ -876,6 +896,7 @@ function renderDayPicker() {
       if (prevDone > 0) html += ` · last week <strong>${prevDone}/5</strong>`;
     }
     statusEl.innerHTML = html;
+    }
   }
 
   wrap.querySelectorAll('.day-pill').forEach(b => {
@@ -1425,6 +1446,7 @@ function renderToday() {
 function renderReadiness() {
   const el = document.getElementById('readinessCard');
   if (!el) return;
+  if (isReset()) { el.hidden = true; return; }
   const { readiness: r, adjustments } = adaptivePlan();
   const vClass = r.verdict === 'push' ? 'rd-push' : r.verdict === 'hold' ? 'rd-hold' : 'rd-backoff';
   const header = `<header class="card-header"><h2>Readiness</h2><span class="card-meta">adaptive engine</span></header>`;
@@ -2755,6 +2777,9 @@ function renderProgress() {
 function renderWeeklyLog() {
   const el = document.getElementById('weeklyLog');
   if (!el) return;
+  const card = el.closest('.card');
+  if (card) card.hidden = isReset();
+  if (isReset()) return;
   const cur = weekNumber();
   const rows = [];
   for (let wk = cur; wk >= 1; wk--) {
@@ -2965,6 +2990,16 @@ document.querySelectorAll('.prog-btn').forEach(btn => {
   if (btn.dataset.program === 'oman') btn.hidden = isOmanPastTrip;
   btn.classList.toggle('active', btn.dataset.program === state.program);
 });
+
+if (state.resetBlock !== RESET_START_KEY) {
+  state.resetBlock = RESET_START_KEY;
+  state.program = 'reset';
+  state.startDate = today();
+  state.pausedAt = null;
+  state.workoutByDate = {};
+  state.dayCursor = null;
+  document.querySelectorAll('.prog-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.program === 'reset'));
+}
 
 // Lock in today's pick so it can't shift mid-day (e.g. Day 1 → Day 2 the moment
 // Day 1 counts as done this week).

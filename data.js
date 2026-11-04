@@ -1,16 +1,15 @@
 // THE RED HOOD × NIGHTWING PROTOCOL — data
 const DATA = {
-  startKg: 75,
+  startKg: 82,
   targetKg: 69,
-  totalWeeks: 16,
+  totalWeeks: 26,
 
   morningRitual: [
-    { name: "Plank", spec: "1 min", note: "Front plank · body straight · breathe steady" },
-    { name: "Side Planks", spec: "30 sec / side", note: "Hips high · obliques and core stability" },
-    { name: "Push-ups", spec: "20 total · skip on press days", note: "Perfect reps, stop well short of failure. Cut from 50 — daily high-rep pressing on top of 3 press days was overloading the shoulders." },
-    { name: "Squats", spec: "30 total", note: "Bodyweight, full depth, controlled. Oman leg days: 25 or skip." },
-    { name: "Calf Raises", spec: "25 total", note: "Off a step, full stretch at the bottom, 3-sec lower. Left gets 5 extra." },
-    { name: "Flexibility + pull-aparts", spec: "~1 min", note: "20 band pull-aparts (balances the push-ups), then knee-to-wall rocks — LEFT twice as long — and child's pose." }
+    { name: "Knee-to-wall ankle rocks", spec: "15 L · 8 R", note: "Heel down. Left is the stiff side — it gets double." },
+    { name: "Half-kneeling hip-flexor stretch", spec: "30 s / side", note: "Squeeze the back glute, reach overhead. Undoes the desk." },
+    { name: "Band pull-apart + external rotation", spec: "15 + 12 / side", note: "Shoulder armour after years of push-ups." },
+    { name: "Dead bug", spec: "6 / side", note: "Slow, long exhale, low back stays down." },
+    { name: "Goblet squat to box", spec: "8 · 2-s pause", note: "Light. Grooves the squat, warms knees and hips. Then 1–2 ramp sets of the first lift." }
   ],
 
   // Optional mobility — the old long ritual, kept for days with 5 spare minutes.
@@ -24,18 +23,15 @@ const DATA = {
   ],
 
   daily: [
-    { name: "Calories", spec: "2,100–2,300", note: "Let the 7-day weight trend govern the real deficit — aim to lose 0.3–0.45 kg/week. Faster than that, on this training load, burns muscle, not just fat." },
-    { name: "Protein", spec: "150–165 g", note: "~2.0–2.2 g per kg — top of the muscle-retention range, because you're training hard in a deficit" },
-    { name: "Fiber + veg", spec: "25–30 g", note: "Two fists of veg per meal · flattens glucose, keeps you full" },
-    { name: "Water", spec: "3–4 L", note: "More on training days and in the SG heat. Pair it with salt (below) — plain water alone doesn't hold" },
-    { name: "Sodium / electrolytes", spec: "3–5 g", note: "You sweat it out in the SG heat + daily cardio. Salt your food, or an electrolyte tab on hot / long-session days — kills the cramps and the fake 'fatigue' that reads as overtraining" },
-    { name: "Steps", spec: "10,000–12,000", note: "NEAT — biggest fat loss lever after the deficit" },
-    { name: "Cardio", spec: "10–20 min · Zone 2", note: "Every day · easy & conversational (walk / incline / stairs). Post-lift or a standalone on rest days. Keep it easy — not another hard session." },
-    { name: "Sleep", spec: "7+ hrs", note: "The #1 lever for results" },
-    { name: "Creatine", spec: "5 g", note: "2 scoops CreAMP, any time" },
-    { name: "Vitamin D3", spec: "2,000–4,000 IU", note: "With a fatty meal" },
-    { name: "Magnesium glycinate", spec: "300 mg", note: "Before bed — sleep + recovery" },
-    { name: "Zinc", spec: "15 mg", note: "If not eating red meat/eggs daily" }
+    { name: "Calories", spec: "1,900–2,000", note: "Don't count — order the defaults (Fuel tab). The 7-day weight average is the judge: aim 0.4–0.5 kg/week after the first 3 weeks." },
+    { name: "Protein", spec: "140 g · 4 hits", note: "~35 g per meal/snack — a palm-plus of chicken, fish, eggs or tofu. Never under 120 g." },
+    { name: "Plate rule", spec: "1 palm · 2 fists · 1 fist", note: "Protein palm, 2 fists veg, 1 fist rice/noodles. Protein and veg first, carbs last." },
+    { name: "Late dinner", spec: "After 8:30pm?", note: "Protein snack at 4–5pm. Dinner = protein + veg, half a fist of carbs (none after 9:30). Kitchen closes after." },
+    { name: "Drinks", spec: "Kosong / siew dai", note: "Teh-O or kopi-O kosong. Bubble tea / Milo once a week, small, 0% sugar. No caffeine after 2pm." },
+    { name: "Water", spec: "2.5–3 L", note: "More on gym days and in the SG heat" },
+    { name: "Steps", spec: "7K → 10K", note: "Build ~1,000/week. A 5-min walk after each prayer + 10 min after lunch does most of it." },
+    { name: "Sleep", spec: "7+ hrs", note: "Short sleep = bigger appetite tomorrow and less fat lost. Move bedtime, not wake time." },
+    { name: "Supplements", spec: "Creatine 5 g · D3 · Mg", note: "Creatine any time · D3 2,000 IU with a fatty meal · magnesium glycinate 300 mg before bed" }
   ],
 
   trailFuel: [
@@ -79,6 +75,150 @@ const DATA = {
   ],
 
   workouts: [
+    {
+      id: "reset_a",
+      name: "A · Wide",
+      tagline: "Weekday · ≤35 min · lats, chest, delts, grip",
+      blurb: "Width + grip for via ferrata. The FLOOR block (chin-ups + incline press, ~15 min) counts as a full session on its own — everything after is bonus. Weeks 1–3: easy (week 1 = floor only, 3–4 reps left in the tank).",
+      warmup: "5-min warm-up card above · 3 min easy bike · 1 light set of each lift",
+      blocks: [
+        {
+          title: "Floor · superset (counts as full session)",
+          exercises: [
+            { name: "Assisted Neutral-Grip Chin-Up", sets: 3, reps: "6–10", note: "Chest to handles, 3-sec lower. Take less assistance when every set hits 10. Goal: your first unassisted chin-up.", inputMode: "bodyweight_reps", sub: "Machine taken → half-kneeling single-arm cable pulldown, 10/side." },
+            { name: "Smith Incline Press (30°)", sets: 3, reps: "8–10", note: "Bar to upper chest, elbows ~45°. Straight in after the chin-ups, rest 90 s. Log the total on the bar.", sub: "Smith taken → low-incline DB press." }
+          ]
+        },
+        {
+          title: "EMOM 10 · odd/even minutes",
+          exercises: [
+            { name: "Heels-Elevated Smith Squat", sets: 5, reps: "8", note: "Odd minutes. Plates under the heels, upright torso — quads.", sub: "Goblet squat, heels on plates." },
+            { name: "Cable Upright Row · rope", sets: 5, reps: "12", note: "Even minutes. Pull to lower chest, elbows lead and wide — side delts.", cable: true, sub: "DB lateral raise × 15." }
+          ]
+        },
+        {
+          title: "Finisher · grip + engine",
+          exercises: [
+            { name: "Dead Hang", sets: 2, reps: "max hold", note: "Grip for via ferrata. Log seconds — beat it every week. Target: 60 s.", inputMode: "time", sub: "Bar taken → heavy DB farmer hold." },
+            { name: "Bike Sprints", sets: 1, reps: "6 × 20s hard / 40s easy", note: "Week 4+ only (weeks 1–3: 6 min easy). Hard = can't talk. Log level + rounds.", inputMode: "interval", sub: "Treadmill incline: 20 s fast walk / 40 s slow." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "reset_b",
+      name: "B · Engine",
+      tagline: "Weekday · ≤35 min · hinge, back, sled, grip",
+      blurb: "Posterior chain + stamina. FLOOR = Smith RDL + row (~15 min) — that alone counts. The sled and carries are where the stamina and grip come back.",
+      warmup: "5-min warm-up card above · 3 min brisk treadmill · 10 hip hinges with a plate",
+      blocks: [
+        {
+          title: "Floor · superset (counts as full session)",
+          exercises: [
+            { name: "Smith Romanian Deadlift", sets: 3, reps: "8–10", note: "Soft knees, hips back, bar glides down the thighs to mid-shin. 3-sec lower. Log the total on the bar.", sub: "DB RDL." },
+            { name: "Incline-Bench Prone DB Row", sets: 3, reps: "10–12", note: "Chest on a 30° bench, elbows to hips, 1-sec squeeze. Lats, not traps.", sub: "Chest-supported row machine." }
+          ]
+        },
+        {
+          title: "Density 10 · alternate, log total rounds",
+          exercises: [
+            { name: "Sled Push", sets: 1, reps: "1 length per round", note: "Low hips, drive through the balls of the feet. A weight you can push without stopping. Weeks 1–2: light, 4–6 lengths total.", inputMode: "amrap", sub: "Sled taken → bike 20 s hard per round." },
+            { name: "Assisted Dip", sets: 1, reps: "6–8 per round", note: "Slight forward lean, shoulders down. Lower chest + triceps. Log total reps.", inputMode: "bodyweight_reps", sub: "Close-grip push-up." }
+          ]
+        },
+        {
+          title: "Grip + arms",
+          exercises: [
+            { name: "Farmer Carry", sets: 2, reps: "40 m", note: "Heavy DBs. Grip + core for a pack, ladders and cables.", inputMode: "carry", sub: "KBs, or one heavy DB at a time (suitcase carry)." },
+            { name: "Cable Bayesian Curl", sets: 2, reps: "12 / arm", note: "Face away from the stack, arm behind the body.", cable: true, sub: "Incline DB curl." },
+            { name: "Rope Pushdown", sets: 2, reps: "12–15", note: "Split the rope at the bottom.", cable: true, sub: "Bench dips, feet on the floor." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "reset_c",
+      name: "C · Build",
+      tagline: "Weekend · 35 min · legs, shoulders, conditioning",
+      blurb: "The unhurried weekend session. FLOOR = lunges + Arnold press. Finish with a 6-min AMRAP to rebuild the engine for hikes and swims.",
+      warmup: "5-min warm-up card above · 4 min bike · 10 bodyweight reverse lunges",
+      blocks: [
+        {
+          title: "Floor · superset (counts as full session)",
+          exercises: [
+            { name: "DB Reverse Lunge", sets: 3, reps: "8 / leg", note: "Step back, front shin vertical, push through the front heel. LEFT leg first.", sub: "Smith split squat." },
+            { name: "Seated Arnold Press", sets: 3, reps: "8–10", note: "Palms in → out as you press. Controlled, no bounce.", sub: "Shoulder-press machine." }
+          ]
+        },
+        {
+          title: "Superset · 3 rounds",
+          exercises: [
+            { name: "Half-Kneeling Single-Arm Cable Row", sets: 3, reps: "10 / side", note: "Low pulley, row to the hip, let the shoulder reach forward at the start.", cable: true, sub: "One-arm DB row on a bench." },
+            { name: "Straight-Arm Rope Pulldown", sets: 3, reps: "12–15", note: "Slight hinge, arms long, pull the rope to the thighs. Pure lat.", cable: true, sub: "Band straight-arm pulldown on a rack." },
+            { name: "Deficit Push-Up", sets: 3, reps: "2 short of failure", note: "Hands on plates, chest below the hands. Total push-up reps stay under ~40 — shoulders.", inputMode: "bodyweight_reps", sub: "Push-up on the floor." }
+          ]
+        },
+        {
+          title: "Engine · 6-min AMRAP",
+          exercises: [
+            { name: "8 Med-Ball Slams + 10 KB Goblet Squats + 1 Sled Drag (backward)", sets: 1, reps: "6 min", note: "Steady pace. Log rounds. Weeks 1–2: 4 min, easy.", inputMode: "amrap", timed: 360, sub: "No sled → 15-cal bike per round." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "reset_z2",
+      name: "Zone 2 · pick a machine",
+      tagline: "Easy engine work · 25–60 min",
+      blurb: "Stamina for long hikes and swims. Talk test only — full sentences yes, singing no (SG heat pushes heart rate up, so ignore it). Use a different machine than last time. Weeks 1–3: 25–35 min · week 4+: 40–60 min.",
+      warmup: "3 min very easy, then settle into pace",
+      blocks: [
+        {
+          title: "Main",
+          exercises: [
+            { name: "Zone 2 · incline walk / bike / Stairmaster", sets: 1, reps: "25–60 min", note: "Log minutes + level/incline. As it gets easier, add incline before speed.", inputMode: "cardio", machines: ["Incline walk", "Bike", "Stairmaster", "Outdoor"], sub: "Anything that lets you talk but not sing." },
+            { name: "Swim · easy laps", sets: 1, reps: "20–40 min", note: "Wadi Shab practice. Easy continuous laps, rest at the wall as needed. Log minutes + laps (laps in 'level').", inputMode: "cardio", machines: ["Pool"], sub: "No pool today → any Zone 2 machine above." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "reset_hill",
+      name: "Hill day",
+      tagline: "Weekend · doesn't feel like gym",
+      blurb: "MacRitchie, Bukit Timah, Southern Ridges or an HDB stairwell. Start before 8am to beat the heat. Easy on the flats, steady on the climbs, controlled on the way down.",
+      warmup: "First 5 min flat and slow",
+      blocks: [
+        {
+          title: "Main",
+          exercises: [
+            { name: "Trail / hill walk · Zone 2", sets: 1, reps: "40–75 min", note: "Talk test on the climbs. Log minutes; put the route number in 'level'.", inputMode: "cardio", machines: ["Outdoor", "Treadmill"], sub: "Rain → treadmill at 10% incline, same minutes." },
+            { name: "HDB stair climbs", sets: 1, reps: "3–5 × 10 floors", note: "Week 4+. Steady climb, walk down slowly. Log rounds.", inputMode: "interval", machines: ["Stairs", "Stairmaster"], sub: "No stairwell → Stairmaster 3–5 × 3 min." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "reset_home",
+      name: "Home 20 · no equipment",
+      tagline: "Optional · any day · 20 min",
+      blurb: "For heavy work weeks. The 12-min AMRAP alone counts. Never a reason to feel behind.",
+      warmup: "2 min · arm circles, 10 air squats, 5 inchworms",
+      blocks: [
+        {
+          title: "Floor · 12-min AMRAP",
+          exercises: [
+            { name: "10 Split Squats/leg (3s down) + 8 Pike Push-Ups + 12 Prone Y-T Raises + 20s Hollow Hold", sets: 1, reps: "12 min", note: "Steady pace. Log rounds.", inputMode: "amrap", timed: 720, sub: "Pike too hard → incline push-up on a chair." }
+          ]
+        },
+        {
+          title: "Finisher · 6 min",
+          exercises: [
+            { name: "Shadow-box / step-jacks", sets: 1, reps: "6 × 30s on / 30s off", note: "Breathe hard, stay light on your feet. Log rounds.", inputMode: "amrap", sub: "Brisk walk outside, 6 min." }
+          ]
+        }
+      ]
+    },
     {
       id: "day1",
       name: "Back width + side delts",
@@ -622,12 +762,12 @@ const DATA = {
   ],
 
   targets: [
-    { label: "Calories", value: "2,100–2,300", note: "≈0.3–0.45 kg/week loss" },
-    { label: "Protein", value: "150–165 g", note: "2–2.2 g/kg" },
-    { label: "Water", value: "2.5–3 L+", note: "More on training days · SG heat" },
-    { label: "Steps", value: "10–12K", note: "Daily" },
+    { label: "Calories", value: "1,900–2,000", note: "Defaults, not counting" },
+    { label: "Protein", value: "140 g", note: "4 hits of ~35 g" },
+    { label: "Weight", value: "7-day avg", note: "−0.4–0.5 kg/wk · 69 kg ≈ mid-2027" },
+    { label: "Steps", value: "7–10K", note: "Daily · anchored to prayers" },
     { label: "Sleep", value: "7+ hrs", note: "#1 lever" },
-    { label: "Creatine", value: "5 g", note: "Daily" }
+    { label: "Stall rule", value: "14 days flat", note: "−150–200 kcal or +2K steps" }
   ],
 
   proteinSources: [
@@ -645,7 +785,10 @@ const DATA = {
     { name: "Tandoori chicken", how: "+ 1 roti (not 3) + dal" },
     { name: "Yong tau foo", how: "Protein-heavy picks, clear soup" },
     { name: "Thunder tea rice", how: "All the greens" },
-    { name: "Economic bee hoon", how: "Egg + lean protein" }
+    { name: "Economic bee hoon", how: "Egg + lean protein" },
+    { name: "Nasi padang", how: "Ayam bakar, kangkong + cabbage, half rice, gravy on the side" },
+    { name: "Soto ayam", how: "Extra chicken" },
+    { name: "Early-meeting breakfast", how: "2 boiled eggs (7-Eleven) + a protein drink, or a shake + banana on the way" }
   ],
 
   limits: [
@@ -653,29 +796,25 @@ const DATA = {
     { name: "White rice mountains", how: "1 cup, not 3" },
     { name: "Naan, prata, roti", how: "Pick one per meal, not all" },
     { name: "Sugar in chai", how: "Kills the deficit sneakily" },
-    { name: "Samosas, pakoras, bhaji", how: "Occasional, not daily" }
+    { name: "Samosas, pakoras, bhaji", how: "Occasional, not daily" },
+    { name: "Nasi lemak, mee goreng, briyani", how: "Once a week, not a default" },
+    { name: "Pantry biscuits & kueh", how: "No open packs at the desk — eggs, yogurt, edamame, an apple instead" }
   ],
 
   executionRules: [
-    "Leave 1–2 reps in reserve on heavy lifts. Ego-lifting = torn tendon.",
-    "In a deficit: cut volume, never load. Tired? Drop the last set — keep the weight on the bar. That's how muscle survives the cut.",
-    "Brace before every heavy rep: big breath into the belly, ribs down, then lift. The brace protects the back the cut can't.",
-    "Week 1 load: pick a weight you could grind ~2 reps past the target, then start one notch below. Conservative. The app pre-fills from session 2.",
-    "Slow 3-sec eccentrics on laterals and core.",
-    "10,000–12,000 steps daily — biggest fat-loss lever after the deficit.",
-    "90–120 sec rest on heavy compounds. 45–60 sec on volume work.",
-    "No phone between sets. Log, rest, lift.",
-    "Morning lifts preferred. Nothing interrupts 6am.",
-    "Slept under 5 hrs? Swap gym for a 30-min walk. No gains on no sleep.",
-    "Track every workout. What you don't measure, you don't grow.",
-    "Consistency > perfection. 80% for 16 weeks beats 100% for 3.",
-    "Protein and veg first. Rice/roti last. Flattens insulin spikes.",
-    "Hydrate: 3–4 L/day, more on training days and in the heat. Get 3–5 g sodium — salt your food or an electrolyte tab; cramping in this humidity is usually sodium, not magnesium.",
-    "Gym packed? Don't queue and don't bail. Every station-dependent lift has a TAKEN? swap under it — take the swap and keep moving. A swapped session counts exactly the same; standing around waiting for a machine is not training.",
-    "Never stack Day 1 + Day 3 (delt overlap).",
-    "The app runs the days in sequence now (Day 1 → 2 → 3 → 4 → 5), not by weekday — you slot them around your week. Day 2 and Day 4 are both leg days: keep a rest or an upper day (Day 3 or Day 5) between them, never back-to-back. 48 hours after squats is peak soreness — that's what wrecks the power day.",
-    "Take a real rest day when readiness says back off, or after ~5–6 hard sessions — not on a fixed weekday. A rest day is a walk, food and sleep, nothing else. Recovery in a deficit is where the muscle is actually kept.",
-    "Peak season at work? Flip on Maintain mode below. Minimum viable week: 2 sessions, protein, sleep. Zero guilt."
+    "Show up > perfect. The FLOOR block of A/B/C (~15 min) counts as a full session. 2 sessions is a full week on a heavy work week; 3 is a great one.",
+    "Never miss twice in a row. No make-up sessions, no doubling up.",
+    "Weeks 1–3 are deliberately easy: ~60% of old loads, stop with 3–4 reps left (week 1), 2–3 left (week 2–3). Soreness kills restarts.",
+    "Week 4+: double progression — when every set hits the top of the range, add the smallest jump (DB +2 kg, Smith +2.5–5 kg).",
+    "Every 4th week: drop one set from everything (mini-deload), then the exercises rotate. Beat your old numbers next time round.",
+    "Fit it around work: A and B on weekdays (after Zuhr at lunch, or straight after work — never go home first). C on the weekend morning. Home 20 on a crushed week.",
+    "Gym packed? Take the TAKEN? swap under the lift and keep moving. Waiting for a machine isn't training.",
+    "Fat loss is ~75% food, ~25% steps. Don't eat back cardio, don't add gym days to fix a stall — use the stall rule.",
+    "Weigh daily, judge only the 7-day average. Measure your waist at the belly button once a month.",
+    "Slept under 6 hrs? Do the floor block easy, or a 30-min walk. Never a hard session on no sleep.",
+    "Finish training 2+ hours before bed. No caffeine after 2pm.",
+    "Pain: soreness ≤3/10 next day is fine. Joint pain that lasts to the next morning → lighter or swap. Sharp pain → stop that exercise.",
+    "Stamina tests every 4 weeks: treadmill 5.5 km/h at 8% for 15 min (note heart rate) and 10 HDB floors (time). Both should improve."
   ],
 
   disclaimer: "General information, not medical advice. Week-0 bloodwork and a real doctor/physio are the authority on anything clinical. Any pain that changes how a rep looks, or a groin ache that worsens with lifting or coughing — get it seen now, not at week 16.",

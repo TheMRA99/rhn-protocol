@@ -26,13 +26,13 @@
       <img src="icon.svg" alt="RHN" class="logo-icon" />
       <div class="logo-text">
         <span class="logo-mark">RHN Protocol</span>
-        <span class="logo-sub">Wk <span id="currentWeek">1</span>/16</span>
+        <span class="logo-sub">Wk <span id="currentWeek">1</span>/26</span>
       </div>
     </div>
     <div class="header-stats">
       <div class="stat"><span class="stat-label">Day</span><span class="stat-value" id="dayBadge">—</span></div>
       <div class="stat"><span class="stat-label">Weight</span><span class="stat-value" id="weightBadge">75.0</span></div>
-      <div class="stat"><span class="stat-label">Streak</span><span class="stat-value" id="streakBadge">0</span></div>
+      <div class="stat"><span class="stat-label" id="streakLabel">Streak</span><span class="stat-value" id="streakBadge">0</span></div>
       <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light/dark"></button>
     </div>
   </div>
@@ -56,6 +56,7 @@
       <button type="button" class="btn-primary backup-banner-btn" id="backupBannerBtn">Export</button>
     </div>
     <div class="program-switcher">
+      <button class="prog-btn" data-program="reset" title="Reset · 3 sessions a week, 82 → 69 kg">Reset</button>
       <button class="prog-btn active" data-program="rhn" title="RHN Protocol · 16-week recomp">RHN</button>
       <button class="prog-btn" data-program="oman" title="Oman prep · 5-week mountain training">Oman</button>
     </div>
@@ -78,8 +79,8 @@
 
     <section class="card card-collapsible">
       <header class="card-header">
-        <h2><span class="num">01</span>Daily core</h2>
-        <span class="card-meta">3 min · every day</span>
+        <h2><span class="num">01</span>Warm-up</h2>
+        <span class="card-meta">5 min · before every session</span>
         <span class="card-toggle" aria-hidden="true"></span>
       </header>
       <div id="ritualList" class="info-list"></div>
@@ -452,7 +453,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=58"></script>
-<script src="app.js?v=57"></script>
+<script src="data.js?v=59"></script>
+<script src="app.js?v=59"></script>
 </body>
 </html>
