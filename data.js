@@ -170,14 +170,35 @@ const DATA = {
       id: "reset_z2",
       name: "Zone 2 · pick a machine",
       tagline: "Easy engine work · 25–60 min",
-      blurb: "Stamina for long hikes and swims. Talk test only — full sentences yes, singing no (SG heat pushes heart rate up, so ignore it). Use a different machine than last time. Weeks 1–3: 25–35 min · week 4+: 40–60 min.",
+      blurb: "Stamina for long hikes. Talk test only — full sentences yes, singing no (SG heat pushes heart rate up, so ignore it). Use a different machine than last time. Weeks 1–3: 25–35 min · week 4+: 40–60 min.",
       warmup: "3 min very easy, then settle into pace",
       blocks: [
         {
           title: "Main",
           exercises: [
-            { name: "Zone 2 · incline walk / bike / Stairmaster", sets: 1, reps: "25–60 min", note: "Log minutes + level/incline. As it gets easier, add incline before speed.", inputMode: "cardio", machines: ["Incline walk", "Bike", "Stairmaster", "Outdoor"], sub: "Anything that lets you talk but not sing." },
-            { name: "Swim · easy laps", sets: 1, reps: "20–40 min", note: "Wadi Shab practice. Easy continuous laps, rest at the wall as needed. Log minutes + laps (laps in 'level').", inputMode: "cardio", machines: ["Pool"], sub: "No pool today → any Zone 2 machine above." }
+            { name: "Zone 2 · incline walk / bike / Stairmaster", sets: 1, reps: "25–60 min", note: "Log minutes + level/incline. As it gets easier, add incline before speed.", inputMode: "cardio", machines: ["Incline walk", "Bike", "Stairmaster", "Outdoor"], sub: "Anything that lets you talk but not sing." }
+          ]
+        }
+      ]
+    },
+    {
+      id: "reset_swim",
+      name: "Swim",
+      tagline: "Once a week · whenever you're free · 30–40 min",
+      blurb: "Wadi Shab practice: swim stamina, breathing control, and being calm in deep water. Easy effort — you should finish wanting more. Counts as a session for the week.",
+      warmup: "2 easy lengths, any stroke · 10 arm circles each way",
+      blocks: [
+        {
+          title: "Main · continuous",
+          exercises: [
+            { name: "Easy continuous swim", sets: 1, reps: "W1–3: 10 min · W4+: 15–20 min", note: "Any stroke, slow and steady, breathe every 2–3 strokes. Rest at the wall whenever you need — just keep the clock going. Log minutes + lengths (lengths in 'level').", inputMode: "cardio", machines: ["Pool"], sub: "Pool closed → Zone 2 session instead." }
+          ]
+        },
+        {
+          title: "Wadi skills",
+          exercises: [
+            { name: "Lengths · moderate", sets: 6, reps: "1 length", note: "A bit faster than easy, 30 s rest between. Add 1 length per set when it feels comfortable.", inputMode: "bodyweight_reps", sub: "Shallow pool → 6 × 45 s steady swim." },
+            { name: "Tread water", sets: 3, reps: "45–60 s", note: "Deep end. Slow egg-beater or scissor kick, relaxed breathing — this is the 'stuck in a wadi pool' skill.", inputMode: "time", sub: "No deep end → float on your back 60 s, relaxed." }
           ]
         }
       ]

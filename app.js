@@ -39,7 +39,7 @@ const DAY_SEQUENCE = ['day1', 'day2', 'day3', 'day4', 'day5'];
 const DAY_SEQUENCE_OMAN = ['oman1', 'oman2', 'oman3', 'oman4', 'oman5'];
 // Reset block (Nov 2026 →): 3 floating sessions + optional extras that don't count toward the week.
 const DAY_SEQUENCE_RESET = ['reset_a', 'reset_b', 'reset_c'];
-const RESET_EXTRAS = ['reset_z2', 'reset_hill', 'reset_home'];
+const RESET_EXTRAS = ['reset_swim', 'reset_z2', 'reset_hill', 'reset_home'];
 const RESET_START_KEY = '2026-11-reset';
 
 function isReset() { return state.program === 'reset'; }
@@ -219,7 +219,7 @@ function weekWindow(weekNum) {
 function daysDoneInWeek(weekNum) {
   const { start, end } = weekWindow(weekNum);
   const done = new Set();
-  const seq = getActiveSequence();
+  const seq = isReset() ? [...getActiveSequence(), 'reset_swim'] : getActiveSequence();
   for (const s of (state.sessions || [])) {
     if (seq.includes(s.workoutId) && s.date >= start && s.date < end) done.add(s.workoutId);
   }
@@ -809,7 +809,7 @@ document.querySelectorAll('.prog-btn').forEach(btn => {
 });
 
 // ========== HEADER ==========
-const RESET_BADGE = { reset_a: 'A', reset_b: 'B', reset_c: 'C', reset_z2: 'Z2', reset_hill: 'Hill', reset_home: 'Hm' };
+const RESET_BADGE = { reset_a: 'A', reset_b: 'B', reset_c: 'C', reset_swim: 'Swim', reset_z2: 'Z2', reset_hill: 'Hill', reset_home: 'Hm' };
 function renderHeader() {
   document.getElementById('currentWeek').textContent = weekNumber();
   const streakLabel = document.getElementById('streakLabel');
