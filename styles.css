@@ -2278,3 +2278,19 @@ input:focus:not(:focus-visible) { outline: none; }
 .backup-banner[hidden] { display: none; }
 .backup-banner-text { flex: 1; }
 .backup-banner-btn { width: auto; min-height: 40px; padding: 0 16px; margin: 0; }
+
+
+/* ===== Reset-block UX pass ===== */
+[hidden] { display: none !important; }
+.exercise-block.floor-block { border-left: 3px solid var(--wine-bright); padding-left: 10px; }
+.exercise-block.floor-block .block-title-text::after { content: ' ★'; color: var(--wine-bright); }
+.exercise-head { gap: 8px; }
+.swap-btn, .pain-flag { min-width: 40px; min-height: 40px; }
+.pain-flag { margin-left: 8px; }
+.pain-flag::after, .swap-btn::after { inset: -2px; }
+.prog-btn, .cm-chip, .mac-chip { min-height: 44px; }
+.timed-go { min-height: 40px; padding: 8px 14px; }
+.day-pill-num { color: var(--text-faint); font-size: 11px; }
+.workout-cue { padding: 4px 22px 2px; }
+.card-header { flex-wrap: wrap; row-gap: 4px; }
+.card-header h2 { white-space: nowrap; }

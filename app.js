@@ -37,7 +37,7 @@ const defaultState = {
 // Home day between Day 2 and Day 4 — both are leg days.
 const DAY_SEQUENCE = ['day1', 'day2', 'day3', 'day4', 'day5'];
 const DAY_SEQUENCE_OMAN = ['oman1', 'oman2', 'oman3', 'oman4', 'oman5'];
-// Reset block (Nov 2026 →): 3 floating sessions + optional extras that don't count toward the week.
+// Reset block (Nov 2026 →): A/B/C in order + 'Move' sessions. Every Reset session counts toward the week.
 const DAY_SEQUENCE_RESET = ['reset_a', 'reset_b', 'reset_c'];
 const RESET_EXTRAS = ['reset_swim', 'reset_z2', 'reset_hill', 'reset_home'];
 const RESET_START_KEY = '2026-11-reset';
@@ -219,7 +219,7 @@ function weekWindow(weekNum) {
 function daysDoneInWeek(weekNum) {
   const { start, end } = weekWindow(weekNum);
   const done = new Set();
-  const seq = isReset() ? [...getActiveSequence(), 'reset_swim'] : getActiveSequence();
+  const seq = isReset() ? [...DAY_SEQUENCE_RESET, ...RESET_EXTRAS] : getActiveSequence();
   for (const s of (state.sessions || [])) {
     if (seq.includes(s.workoutId) && s.date >= start && s.date < end) done.add(s.workoutId);
   }
@@ -564,7 +564,7 @@ function barTotalText(kgPerSide, barWeight) {
   return '= ' + (barWeight + 2 * v) + ' kg';
 }
 
-function renderSessionProgress(done, total) {
+function renderSessionProgress(done, total, floorDone, floorTotal) {
   const wrap = document.getElementById('sessionProgress');
   const fill = document.getElementById('sessionProgressFill');
   const stat = document.getElementById('sessionProgressStat');
@@ -577,6 +577,34 @@ function renderSessionProgress(done, total) {
   fill.classList.toggle('complete', pct >= 100);
   stat.textContent = `${done} / ${total} sets · ${pct}%`;
   label.textContent = pct >= 100 ? 'Session complete' : (done === 0 ? 'Today' : 'In progress');
+  if (floorTotal) {
+    const floorPct = Math.round((floorDone / floorTotal) * 100);
+    fill.style.width = Math.min(100, floorPct) + '%';
+    fill.classList.toggle('complete', floorDone >= floorTotal);
+    if (floorDone >= floorTotal) {
+      label.textContent = 'Floor done ✓ — session counts';
+      stat.textContent = done > floorDone ? `+${done - floorDone} bonus sets` : 'Rest is bonus';
+    } else {
+      label.textContent = done === 0 ? 'Floor block' : 'Floor in progress';
+      stat.textContent = `${floorDone} / ${floorTotal} floor sets`;
+    }
+  }
+}
+
+// Reset: the first visible block is the "floor" — finishing it is a full session.
+function floorProgress(w, log, dKey, id) {
+  if (!isReset()) return [0, 0];
+  const block = w.blocks.find(b => !b.gated || gateActive(b.gated));
+  if (!block || !/^Floor/.test(block.title)) return [0, 0];
+  let total = 0, done = 0;
+  block.exercises.forEach((ex, exIdx) => {
+    const baseKey = `${block.title}::${exIdx}`;
+    const swapped = !!(ex.sub && state.swaps && state.swaps[`${dKey}::${id}::${baseKey}`]);
+    const sets = log[baseKey + (swapped ? '~sub' : '')] || [];
+    total += ex.sets;
+    for (let s = 0; s < ex.sets; s++) if (sets[s] && sets[s].done) done += 1;
+  });
+  return [done, total];
 }
 
 function refreshSessionProgress() {
@@ -600,7 +628,7 @@ function refreshSessionProgress() {
       }
     });
   });
-  renderSessionProgress(done, total);
+  renderSessionProgress(done, total, ...floorProgress(w, log, dKey, id));
 }
 
 function isCurrentBeating(currentSets, prev, mode) {
@@ -873,7 +901,7 @@ function renderDayPicker() {
     if (w.id === next) cls.push('next');
     return `
     <button class="${cls.join(' ')}" data-id="${w.id}">
-      <div class="day-pill-num">${isReset() ? (RESET_EXTRAS.includes(w.id) ? 'Extra' : 'Session ' + RESET_BADGE[w.id]) : w.id === 'homecore' ? 'Home · core' : 'Day 0' + (i + 1)}${isDone ? '<span class="day-pill-check">✓</span>' : ''}</div>
+      <div class="day-pill-num">${isReset() ? (RESET_EXTRAS.includes(w.id) ? 'Move' : 'Session ' + RESET_BADGE[w.id]) : w.id === 'homecore' ? 'Home · core' : 'Day 0' + (i + 1)}${isDone ? '<span class="day-pill-check">✓</span>' : ''}</div>
       <div class="day-pill-name">${w.name.split('+')[0].replace(/^[ABC] · /, '').trim()}</div>
     </button>`;
   }).join('');
@@ -885,7 +913,7 @@ function renderDayPicker() {
     const n = done.size;
     const activeSeq = getActiveSequence();
     if (isReset()) {
-      const nextTxt = next ? ` · next up <strong>Session ${RESET_BADGE[next]}</strong>` : ' · extras only from here';
+      const nextTxt = next ? ` · next up <strong>Session ${RESET_BADGE[next]}</strong>` : ' · any Move session from here';
       statusEl.innerHTML = `This week <strong>${n} ✓</strong> · target 2–3${n >= 2 ? ' · full week ✓' : ''}${nextTxt}`;
     } else {
     const nextLabel = next ? (state.program === 'oman' ? 'Oman ' : 'Day ') + (activeSeq.indexOf(next) + 1) : null;
@@ -938,7 +966,7 @@ function renderWorkout() {
   document.getElementById('workoutTitle').textContent = w.name;
   const lastDone = [...(state.sessions || [])].reverse().find(s => s.workoutId === id && s.date !== today());
   const lastDoneTag = lastDone ? ' · Last done ' + fmtDate(lastDone.date) : '';
-  document.getElementById('workoutSubtitle').textContent = w.tagline + ' · Phase ' + (w._phase || phaseNumber()) + lastDoneTag;
+  document.getElementById('workoutSubtitle').textContent = w.tagline + (isReset() ? '' : ' · Phase ' + (w._phase || phaseNumber())) + lastDoneTag;
 
   const warmupEl = document.getElementById('workoutWarmup');
   if (warmupEl) {
@@ -967,8 +995,8 @@ function renderWorkout() {
 
   const list = document.getElementById('exerciseList');
   let totalSets = 0, doneSets = 0;
-  list.innerHTML = w.blocks.filter(block => !block.gated || gateActive(block.gated)).map(block => `
-    <section class="exercise-block">
+  list.innerHTML = w.blocks.filter(block => !block.gated || gateActive(block.gated)).map((block, bIdx) => `
+    <section class="exercise-block${isReset() && bIdx === 0 && /^Floor/.test(block.title) ? ' floor-block' : ''}${isReset() && bIdx > 0 && !(log && Object.keys(log).some(k => k.startsWith(block.title + '::'))) ? ' collapsed' : ''}">
       <button type="button" class="block-title">
         <span class="block-title-text">${block.title}</span>
         <span class="block-toggle" aria-hidden="true"></span>
@@ -1051,9 +1079,10 @@ function renderWorkout() {
           }).join('');
           // One-tap repeat: only offered when every empty field has a numeric
           // placeholder (last session's number / suggestion) to copy.
-          const repeatable = fields.some(f => setData[f.key] === undefined || setData[f.key] === '');
+          const hasPrev = fields.some(f => lastVal(s, f.key) != null) || (suggKg != null);
+          const repeatable = hasPrev && fields.some(f => setData[f.key] === undefined || setData[f.key] === '');
           const repeatBtn = repeatable ? `<button type="button" class="repeat-btn" aria-label="Repeat last session's numbers for set ${s + 1}" title="Repeat last time">✓</button>` : '';
-          const timedBtn = ex.timed ? `<button class="timed-go" type="button" data-secs="${ex.timed}">▶ ${ex.timed}s</button>` : '';
+          const timedBtn = ex.timed ? `<button class="timed-go" type="button" data-secs="${ex.timed}">▶ ${ex.timed >= 60 ? Math.floor(ex.timed / 60) + ':' + String(ex.timed % 60).padStart(2, '0') : ex.timed + 's'}</button>` : '';
           setRows += `
             <div class="set-input ${setData.done ? 'done' : ''}" data-ex="${exKey}" data-set="${s}" data-mode="${mode}"${isBarbell ? ` data-barbell="1" data-bar="${barWeight}"` : ''}>
               <span>S${s + 1}</span>
@@ -1127,7 +1156,7 @@ function renderWorkout() {
     });
   });
 
-  renderSessionProgress(doneSets, totalSets);
+  renderSessionProgress(doneSets, totalSets, ...floorProgress(w, log, dKey, id));
 
   // Set input handlers — input event saves state, change event auto-fills
   list.querySelectorAll('.set-input, .ms-set').forEach(row => {
@@ -1436,10 +1465,34 @@ function renderToday() {
   renderOffice();
   renderModeBanner();
 
+  applyResetLayout();
+
   const w = getWorkout(state.selectedWorkout);
   document.getElementById('todayTitle').textContent = w ? w.name : "Today's session";
   document.getElementById('todaySub').textContent = w ? w.blurb : "Pick what fits your week. Don't stack delts back-to-back.";
   document.getElementById('todayTag').textContent = w ? w.tagline : 'Show up';
+}
+
+// Reset: workout first, everything else out of the way. RHN keeps its full layout.
+function applyResetLayout() {
+  const r = isReset();
+  const cardOf = id => document.getElementById(id)?.closest('.card');
+  document.querySelector('.escape-links')?.toggleAttribute('hidden', r);
+  [cardOf('resetList'), cardOf('staminaList'), cardOf('officeRotator')].forEach(c => c && (c.hidden = r));
+  if (r) [cardOf('ritualList'), cardOf('dailyList')].forEach(c => c?.classList.add('collapsed'));
+  const cue = document.querySelector('.workout-cue');
+  if (cue) cue.innerHTML = r
+    ? 'Floor block first · stop <strong>2–3 reps shy</strong> · weeks 1–3 easy'
+    : 'Working sets · stop <strong>1–2 reps shy of failure</strong> · slow 3-sec lower on isolation';
+  // Prayer card after the workout; program switcher lives on the Protocol tab.
+  const prayer = document.getElementById('prayerCard');
+  const workout = document.getElementById('workoutCard');
+  if (r && prayer && workout && workout.nextElementSibling !== prayer) workout.after(prayer);
+  const sw = document.querySelector('.program-switcher');
+  const proto = document.getElementById('view-protocol');
+  if (sw && proto && sw.parentElement !== proto) proto.prepend(sw);
+  document.querySelector('.logo-mark').textContent = r ? 'Reset' : 'RHN Protocol';
+  document.querySelector('.logo-sub').innerHTML = `Wk <span id="currentWeek">${weekNumber()}</span>/${r ? DATA.totalWeeks : 16}`;
 }
 
 // ===== Intelligence-layer renderers =====
@@ -1610,10 +1663,11 @@ document.getElementById('plateBar')?.addEventListener('change', renderPlateResul
 function renderAllWorkouts() {
   const wrap = document.getElementById('workoutsAll');
   const phaseTag = `<div style="font:700 11px/1 var(--font-mono,ui-monospace,monospace);letter-spacing:.12em;text-transform:uppercase;opacity:.55;margin-bottom:16px">Showing Phase ${phaseNumber()} · Week ${weekNumber()}</div>`;
-  wrap.innerHTML = phaseTag + phaseWorkouts().map((w, i) => `
+  const list = isReset() ? DATA.workouts.filter(w => DAY_SEQUENCE_RESET.includes(w.id) || RESET_EXTRAS.includes(w.id)) : phaseWorkouts();
+  wrap.innerHTML = (isReset() ? '' : phaseTag) + list.map((w, i) => `
     <section class="workout-block">
       <div class="workout-block-head">
-        <div class="workout-block-tag">${w.id === 'homecore' ? 'Home · core' : 'Day 0' + (i + 1)}</div>
+        <div class="workout-block-tag">${isReset() ? (RESET_EXTRAS.includes(w.id) ? 'Move' : 'Session ' + RESET_BADGE[w.id]) : w.id === 'homecore' ? 'Home · core' : 'Day 0' + (i + 1)}</div>
         <div class="workout-block-name">${w.name}</div>
         <div class="workout-block-blurb">${w.blurb}</div>
       </div>
@@ -1744,7 +1798,7 @@ function weightTrendNote(data, avg, atFloor) {
     return 'Weigh in daily. The 7-day average is the real trend — ignore the daily ±1 kg of water and food.';
   }
   if (atFloor) {
-    return '<strong>68 kg — the floor.</strong> Hold maintenance and keep progressing the lifts. No deeper deficit; below 12% body fat tanks recovery and hormones.';
+    return '<strong>Goal reached.</strong> Add back a fist of rice at lunch (maintenance) and keep lifting.';
   }
   // Find a data point ~14 days before the latest to measure the slope.
   const latest = data.at(-1);
@@ -1754,8 +1808,11 @@ function weightTrendNote(data, avg, atFloor) {
     const days = (latestT - parseIso(d.date).getTime()) / 86400000;
     if (days >= 12) past = d; else break;
   }
+  if (state.ramadan) {
+    return '<strong>Ramadan: maintenance on purpose.</strong> Aim to finish at the same weight. A post-Raya bump of 1–2 kg is water and food in the gut, not fat.';
+  }
   if (!past) {
-    return 'Track the average line, not the daily dot. Target rate is 0.3–0.45 kg/week — the 2-week check kicks in once you have ~14 days logged.';
+    return 'Track the average line, not the daily dot. Target rate is 0.4–0.5 kg/week — the 2-week check kicks in once you have ~14 days logged.';
   }
   const weeks = ((latestT - parseIso(past.date).getTime()) / 86400000) / 7;
   // rolling avg at the past point
@@ -1765,14 +1822,18 @@ function weightTrendNote(data, avg, atFloor) {
   const rate = (pastAvg - avg) / weeks; // +ve = losing
   const r = rate.toFixed(2);
 
-  if (rate >= 0.3 && rate <= 0.45) {
-    return `<strong>On track.</strong> Losing ${r} kg/week — right in the 0.3–0.45 window. Hold everything steady; you're keeping muscle while the fat comes off.`;
+  const earlyDays = state.startDate ? (Date.now() - parseIso(state.startDate).getTime()) / 86400000 : 99;
+  if (rate > 0.75 && earlyDays < 28) {
+    return `<strong>Early drop — mostly water.</strong> Losing ${r} kg/week in the first month is expected. Change nothing yet.`;
   }
-  if (rate > 0.45) {
-    return `<strong>Ahead — and a touch fast.</strong> Losing ${r} kg/week (target 0.3–0.45). Add ~100–150 kcal/day (a fist of rice or an extra fruit). Too fast burns muscle and tanks gym performance.`;
+  if (rate >= 0.35 && rate <= 0.75) {
+    return `<strong>On track.</strong> Losing ${r} kg/week — aim is 0.4–0.5. Hold everything steady; you're keeping muscle while the fat comes off.`;
   }
-  if (rate < 0.3 && rate >= 0) {
-    return `<strong>Behind.</strong> Losing ${r} kg/week (target 0.3–0.45). Trim ~150 kcal/day — cut one starch portion or the chai sugar — or add 1,500 steps. Re-check in a week.`;
+  if (rate > 0.75) {
+    return `<strong>A touch fast.</strong> Losing ${r} kg/week (aim 0.4–0.5). Add a fist of rice on training days — too fast costs muscle and energy.`;
+  }
+  if (rate >= 0) {
+    return `<strong>Slower than plan</strong> (${r} kg/week, aim 0.4–0.5). Change nothing unless the average has been flat 14 days — then half a fist less rice at dinner, or +2K steps.`;
   }
   return `<strong>Trending up.</strong> The 2-week average rose ${Math.abs(r)} kg/week. If you're not in a planned diet break, the deficit has slipped — tighten portions and recheck the weekly average, not the daily.`;
 }
@@ -2103,7 +2164,7 @@ function renderWeekGrid() {
   const el = document.getElementById('weekGrid');
   const cw = weekNumber();
   el.innerHTML = '';
-  for (let i = 1; i <= 16; i++) {
+  for (let i = 1; i <= (DATA.totalWeeks || 16); i++) {
     let cls = 'week-cell';
     if (i < cw) cls += ' done';
     if (isDeloadWeek(i)) cls += ' deload';
@@ -2113,14 +2174,14 @@ function renderWeekGrid() {
     el.innerHTML += `<div class="${cls}"${title ? ` title="${title}"` : ''}>${i}</div>`;
   }
   const meta = document.getElementById('weekMapMeta');
-  if (meta) meta.textContent = `16 weeks · ${sessionsThisTrainingWeek()}/5 this wk`;
+  if (meta) meta.textContent = isReset() ? `Week ${cw} of ${DATA.totalWeeks} · target 2–3 a week` : `16 weeks · ${sessionsThisTrainingWeek()}/5 this wk`;
   // Legend
   const legend = document.getElementById('weekMapLegend');
   if (legend) legend.innerHTML = `
     <span class="wk-leg"><i class="wk-sw done"></i>done</span>
     <span class="wk-leg"><i class="wk-sw current"></i>now</span>
-    <span class="wk-leg"><i class="wk-sw deload"></i>deload (8·14)</span>
-    <span class="wk-leg"><i class="wk-sw dietbreak"></i>diet break (8)</span>`;
+    ${isReset() ? '' : `<span class="wk-leg"><i class="wk-sw deload"></i>deload (8·14)</span>
+    <span class="wk-leg"><i class="wk-sw dietbreak"></i>diet break (8)</span>`}`;
 }
 
 function buildHistoryDetail(session) {
