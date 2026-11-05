@@ -2378,3 +2378,4 @@ body.sheet-open { overflow: hidden; }
 .ci-nav { display: flex; gap: 10px; margin-top: 18px; }
 .ci-nav > * { flex: 1; margin: 0; }
 .ci-sheet .btn-primary, .ci-sheet .btn-secondary { margin-top: 14px; }
+.sa-card { border-color: var(--wine); }

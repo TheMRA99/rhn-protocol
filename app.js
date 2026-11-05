@@ -39,7 +39,7 @@ const DAY_SEQUENCE = ['day1', 'day2', 'day3', 'day4', 'day5'];
 const DAY_SEQUENCE_OMAN = ['oman1', 'oman2', 'oman3', 'oman4', 'oman5'];
 // Reset block (Nov 2026 →): A/B/C in order + 'Move' sessions. Every Reset session counts toward the week.
 const DAY_SEQUENCE_RESET = ['reset_a', 'reset_b', 'reset_c'];
-const RESET_EXTRAS = ['reset_swim', 'reset_z2', 'reset_hill', 'reset_home'];
+const RESET_EXTRAS = ['reset_intervals', 'reset_swim', 'reset_z2', 'reset_hill', 'reset_home'];
 const RESET_START_KEY = '2026-11-reset-v2';
 const RESET_START_DATE = '2026-11-07'; // Week 1 = Sat 7 Nov 2026
 
@@ -913,7 +913,7 @@ document.querySelectorAll('.prog-btn').forEach(btn => {
 });
 
 // ========== HEADER ==========
-const RESET_BADGE = { reset_a: 'A', reset_b: 'B', reset_c: 'C', reset_swim: 'Swim', reset_z2: 'Z2', reset_hill: 'Hill', reset_home: 'Hm' };
+const RESET_BADGE = { reset_a: 'A', reset_b: 'B', reset_c: 'C', reset_swim: 'Swim', reset_intervals: 'Int', reset_z2: 'Z2', reset_hill: 'Hill', reset_home: 'Hm' };
 function renderHeader() {
   document.getElementById('currentWeek').textContent = weekNumber();
   const streakLabel = document.getElementById('streakLabel');
@@ -1577,8 +1577,8 @@ function applyResetLayout() {
   const sw = document.querySelector('.program-switcher');
   const proto = document.getElementById('view-protocol');
   if (sw && proto && sw.parentElement !== proto) proto.prepend(sw);
-  document.querySelector('.logo-mark').textContent = r ? 'Reset' : 'RHN Protocol';
-  document.querySelector('.logo-sub').innerHTML = `Wk <span id="currentWeek">${weekNumber()}</span>/${r ? DATA.totalWeeks : 16}`;
+  document.querySelector('.logo-mark').textContent = r ? 'RHN' : 'RHN Protocol';
+  document.querySelector('.logo-sub').innerHTML = `${r ? (weekNumber() >= 20 ? 'RHN 2.0 · ' : weekNumber() >= 14 && weekNumber() <= 19 ? 'Ramadan · ' : 'Reset · ') : ''}Wk <span id="currentWeek">${weekNumber()}</span>/${r ? DATA.totalWeeks : 16}`;
 }
 
 // ===== Reset helpers: labels, effort, holidays, comebacks =====
@@ -1590,7 +1590,7 @@ function blockLabel(title) {
 }
 function isHolidayWeek(wk) { return isReset() && wk >= 7 && wk <= 9; }
 function isRamadanHold(wk) { return isReset() && (state.ramadan || (wk >= 14 && wk <= 19)); }
-function weekTarget(wk) { return isHolidayWeek(wk) ? '1–2 (holidays: 1 = full week)' : isRamadanHold(wk) ? '2 (Ramadan)' : '2–3'; }
+function weekTarget(wk) { return isHolidayWeek(wk) ? '1–2 (holidays: 1 = full week)' : isRamadanHold(wk) ? '2 (Ramadan)' : wk >= 4 ? '3 lifts (2 = full week)' : '2–3'; }
 function fullWeekAt(wk) { return isHolidayWeek(wk) ? 1 : 2; }
 function hasLoggedToday() {
   const day = state.setLog?.[today()];
@@ -1987,6 +1987,7 @@ const CI_SCREENS = {
     { t: 'Look + fuel', qs: [
       { k: 'priority', q: 'Physique priority', opts: ['Shoulders / V-taper', 'Arms', 'Chest', 'Waist', 'Legs'], multi: 2 },
       { k: 'protein', q: 'Protein hits on most days', opts: ['2', '3', '4'] },
+      { k: 'mealWalks', q: 'Walk after meals', opts: ['Most days', 'Some days', 'Rarely'] },
       { k: 'hunger', q: 'Hunger', opts: ['Fine', 'Hungry', 'Starving'] },
       { k: 'energy', q: 'Energy', opts: ['Good', 'Flat', 'Wrecked'] },
       { k: 'hardMeal', q: 'Hardest meal to get right', opts: ['Breakfast', 'Lunch', 'Late dinner', 'Weekends'] }] },
@@ -2135,6 +2136,7 @@ function buildCheckinBrief() {
   if (!ci.w10?.doneAt && !ci.w18?.doneAt) return '';
   L.push('RHN 2.0 BRIEF — from the Reset check-ins');
   L.push(`generated ${today()} · week ${weekNumber()}/${DATA.totalWeeks} · RHN 2.0 starts Sat 20 Mar 2027 (week 20)`);
+  L.push('Body: South Asian (Indian), 167 cm, start 83 kg / waist 94 / hips 105 — prioritise muscle (lifting 3×/wk), waist < 90 then ≤ 83.5, carb order + meal walks, protein 140 g.');
   L.push('Constraints: no sled / trap bar / leg curl / leg press / calf machine · DBs over Smith for chest · protect shoulders (no overhead pressing, no dips) · stiff LEFT ankle · offline app · no doctor push · physique (V-taper) + functional (via ferrata, swims, hikes).');
   const w10 = ci.w10;
   if (w10?.doneAt) {
@@ -2156,7 +2158,7 @@ function buildCheckinBrief() {
     L.push(`  Joints: L ankle ${a.ankle || '—'} · shoulders ${a.shoulders || '—'} · other ${(a.other || []).join(', ') || '—'}`);
     L.push(`  Real life: ${a.perWeek || '—'}×/wk · ${a.minutes || '—'} min · best ${(a.slot || []).join('/') || '—'} · work ${a.work || '—'} · dread ${a.dread || '—'}/5`);
     L.push(`  Adventure: ${(a.adventure || []).join(' + ') || '—'} · ${a.when || '—'}${a.where ? ' · ' + a.where : ''}`);
-    L.push(`  Look/fuel: priority ${(a.priority || []).join(' + ') || '—'} · protein hits ${a.protein || '—'} · hunger ${a.hunger || '—'} · energy ${a.energy || '—'} · hardest meal ${a.hardMeal || '—'}`);
+    L.push(`  Look/fuel: priority ${(a.priority || []).join(' + ') || '—'} · protein hits ${a.protein || '—'} · meal walks ${a.mealWalks || '—'} · hunger ${a.hunger || '—'} · energy ${a.energy || '—'} · hardest meal ${a.hardMeal || '—'}`);
     const rt = CI_RETESTS.filter(r => Number.isFinite(a[r.k])).map(r => `${r.label.replace(/ \(.*\)/, '')} ${a[r.k]}`);
     if (rt.length) L.push('  Re-tests: ' + rt.join(' · '));
     const guard = (+a.dread >= 4) || a.work === 'Crushing';
@@ -2469,7 +2471,11 @@ function renderWeightStats() {
   const hero = document.querySelector('#view-progress .hero-sub');
   if (hero && isReset()) {
     const goalKg = DATA.startKg - target;
-    hero.innerHTML = `<strong>−${Math.max(0, DATA.startKg - avg).toFixed(1)} of ${goalKg} kg</strong> · waist ${lastWaist ? lastWaist.cm.toFixed(1) : '—'} → ${waistTarget} cm · hit either = health goal done`;
+    const wNow = lastWaist ? lastWaist.cm : null;
+    const waistTxt = wNow == null ? `waist → 90 → ${waistTarget} cm`
+      : wNow >= 90 ? `waist ${wNow.toFixed(1)} → <strong>90</strong> (out of the South Asian risk zone) → ${waistTarget} cm`
+      : `waist ${wNow.toFixed(1)} ✓ under 90 → ${waistTarget} cm`;
+    hero.innerHTML = `<strong>−${Math.max(0, DATA.startKg - avg).toFixed(1)} of ${goalKg} kg</strong> · ${waistTxt} · hit 70 kg or ${waistTarget} cm = health goal done`;
   }
 
   el.innerHTML = `
@@ -3570,6 +3576,16 @@ function renderWeeklyLog() {
 
 // ========== NUTRITION ==========
 function renderNutrition() {
+  let sa = document.getElementById('saCard');
+  if (!sa) {
+    sa = document.createElement('section');
+    sa.id = 'saCard';
+    sa.className = 'card sa-card';
+    document.getElementById('targetsGrid')?.closest('.card')?.before(sa);
+  }
+  sa.innerHTML = `
+    <header class="card-header"><h2>Built for your body</h2><span class="card-meta">South Asian · what actually moves the belly</span></header>
+    <div class="rules">${DATA.genetics.slice(0, 4).map((r, i) => `<div class="rule"><div class="rule-num">${String(i + 1).padStart(2, '0')}</div><div class="rule-body"><div class="rule-title">${r.title}</div><div class="rule-sub">${r.body}</div></div></div>`).join('')}</div>`;
   const trailCard = document.getElementById('trailCard');
   if (trailCard) {
     trailCard.hidden = today() > OMAN_END_DATE;
