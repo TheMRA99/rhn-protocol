@@ -40,7 +40,8 @@ const DAY_SEQUENCE_OMAN = ['oman1', 'oman2', 'oman3', 'oman4', 'oman5'];
 // Reset block (Nov 2026 →): A/B/C in order + 'Move' sessions. Every Reset session counts toward the week.
 const DAY_SEQUENCE_RESET = ['reset_a', 'reset_b', 'reset_c'];
 const RESET_EXTRAS = ['reset_swim', 'reset_z2', 'reset_hill', 'reset_home'];
-const RESET_START_KEY = '2026-11-reset';
+const RESET_START_KEY = '2026-11-reset-v2';
+const RESET_START_DATE = '2026-11-07'; // Week 1 = Sat 7 Nov 2026
 
 function isReset() { return state.program === 'reset'; }
 
@@ -3055,7 +3056,7 @@ document.querySelectorAll('.prog-btn').forEach(btn => {
 if (state.resetBlock !== RESET_START_KEY) {
   state.resetBlock = RESET_START_KEY;
   state.program = 'reset';
-  state.startDate = today();
+  state.startDate = RESET_START_DATE;
   state.pausedAt = null;
   state.workoutByDate = {};
   state.dayCursor = null;
