@@ -1,7 +1,8 @@
 // THE RED HOOD × NIGHTWING PROTOCOL — data
 const DATA = {
-  startKg: 82,
-  targetKg: 69,
+  startKg: 83,
+  targetKg: 70,
+  heightCm: 167,
   totalWeeks: 34,
 
   morningRitual: [
@@ -784,8 +785,8 @@ const DATA = {
   targets: [
     { label: "Calories", value: "1,900–2,000", note: "Defaults, not counting" },
     { label: "Protein", value: "140 g", note: "4 hits of ~35 g" },
-    { label: "Weight", value: "−13 kg", note: "7-day avg · −0.4–0.5 kg/wk · 69 kg ≈ mid-2027" },
-    { label: "Waist", value: "≤ 83.5 cm", note: "Half your height · navel, every 2nd Saturday. Hit this OR 69 kg = health goal done" },
+    { label: "Weight", value: "−13 kg", note: "83 → 70 kg · 7-day avg · −0.4–0.5 kg/wk · ≈ early July 2027" },
+    { label: "Waist", value: "≤ 83.5 cm", note: "Half your height · navel, every 2nd Saturday. Hit this OR 70 kg = health goal done" },
     { label: "Steps", value: "7–10K", note: "Daily · anchored to prayers" },
     { label: "Sleep", value: "7+ hrs", note: "#1 lever" },
     { label: "Stall rule", value: "14 days flat", note: "−150–200 kcal or +2K steps" }
@@ -873,9 +874,9 @@ const DATA = {
   ],
 
   phases: [
-    { weeks: "1–4", title: "COME BACK", body: "Easy on purpose. Scale drops 2–3 kg — mostly water, expected. Stamina and sleep improve first. ~79–80 kg." },
-    { weeks: "5–13", title: "STEADY LOSS", body: "0.4–0.5 kg a week. Belly shrinks, chin-up assist drops, hikes get easier. Week 5: optional lift swaps. Week 10: the app asks for your check-in (3 min) to build RHN 2.0. ~76 kg by Ramadan." },
+    { weeks: "1–4", title: "COME BACK", body: "Easy on purpose. Scale drops 2–3 kg — mostly water, expected. Stamina and sleep improve first. ~80–81 kg." },
+    { weeks: "5–13", title: "STEADY LOSS", body: "0.4–0.5 kg a week. Belly shrinks, chin-up assist drops, hikes get easier. Week 5: optional lift swaps. Week 10: the app asks for your check-in (3 min) to build RHN 2.0. ~76–77 kg by Ramadan." },
     { weeks: "14–19", title: "RAMADAN · HOLD", body: "~8 Feb → Raya ~10 Mar + open-house week. Maintenance calories. First block only, 2× a week, 60–90 min after iftar (never in a prayer slot). Hold your weights — 2 fewer reps is fine. Suhoor + iftar: 2–3 protein hits of ~45 g, water spread from iftar to suhoor. Finish at the same weight = a win." },
-    { weeks: "20–34", title: "RHN 2.0 · FINISH", body: "From Sat 20 Mar 2027: RHN 2.0 — physique + functional, built from your week-10 check-in. Opens easy like week 1. ~0.4 kg a week to 69 kg (or waist ≤ 83.5 cm) around mid-2027." }
+    { weeks: "20–34", title: "RHN 2.0 · FINISH", body: "From Sat 20 Mar 2027: RHN 2.0 — physique + functional, built from your week-10 check-in. Opens easy like week 1. ~0.4 kg a week to 70 kg (or waist ≤ 83.5 cm) around early July 2027." }
   ]
 };

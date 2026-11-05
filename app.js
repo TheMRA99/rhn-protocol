@@ -1656,7 +1656,8 @@ function openDay0() {
     <div class="ci-head"><span class="ci-step">Day 0</span><button type="button" class="ci-x" data-close>✕</button></div>
     <h2 class="ci-title">Your starting point</h2>
     <p class="ci-sub">Two minutes. This is what week 10 compares against. Photos stay in your camera roll — the app never stores them.</p>
-    <label class="ci-field"><span>Waist at the navel (cm)</span><input type="number" step="0.1" inputmode="decimal" id="d0Waist" value="${lastW && lastW.date >= state.startDate ? lastW.cm : ''}" placeholder="e.g. 94.0"></label>
+    <label class="ci-field"><span>Waist at the navel (cm)</span><input type="number" step="0.1" inputmode="decimal" id="d0Waist" value="${lastW && lastW.date >= weekWindow(0).start ? lastW.cm : ''}" placeholder="e.g. 94.0"></label>
+    <label class="ci-field"><span>Hips at the widest point (cm) · optional</span><input type="number" step="0.1" inputmode="decimal" id="d0Hip" value="${b.hip ?? ''}" placeholder="e.g. 105"></label>
     <label class="ci-field"><span>Knee-to-wall LEFT (cm)</span><input type="number" step="0.5" inputmode="decimal" id="d0KneeL" value="${b.kneeL ?? ''}" placeholder="toe-to-wall distance"></label>
     <label class="ci-field"><span>Knee-to-wall RIGHT (cm)</span><input type="number" step="0.5" inputmode="decimal" id="d0KneeR" value="${b.kneeR ?? ''}" placeholder="toe-to-wall distance"></label>
     <div class="ci-q">Photos (front · side · back) in the camera roll?</div>
@@ -1665,13 +1666,13 @@ function openDay0() {
   wireChips(sheet, (k, v) => { sheet.dataset[k] = v; });
   sheet.querySelector('#d0Save').addEventListener('click', () => {
     const num = id => { const v = parseFloat(sheet.querySelector(id).value); return Number.isFinite(v) ? v : null; };
-    const waist = num('#d0Waist'), kL = num('#d0KneeL'), kR = num('#d0KneeR');
+    const waist = num('#d0Waist'), kL = num('#d0KneeL'), kR = num('#d0KneeR'), hip = num('#d0Hip');
     if (waist != null) {
       state.waists = (state.waists || []).filter(x => x.date !== today());
       state.waists.push({ date: today(), cm: waist });
     }
-    state.baseline = { ...(state.baseline || {}), waist: waist ?? state.baseline?.waist ?? null, kneeL: kL, kneeR: kR };
-    state.baselineDay0 = { date: today(), waist, kneeL: kL, kneeR: kR, photos: sheet.dataset.photos || null };
+    state.baseline = { ...(state.baseline || {}), waist: waist ?? state.baseline?.waist ?? null, hip: hip ?? state.baseline?.hip ?? null, kneeL: kL, kneeR: kR };
+    state.baselineDay0 = { date: today(), waist, hip, kneeL: kL, kneeR: kR, photos: sheet.dataset.photos || null };
     save();
     closeSheet();
     renderToday();
@@ -2000,6 +2001,7 @@ const CI_SCREENS = {
   ]
 };
 const CI_RETESTS = [
+  { k: 'hip', label: 'Hips, widest point (cm)' },
   { k: 'kneeL', label: 'Knee-to-wall LEFT (cm)' }, { k: 'kneeR', label: 'Knee-to-wall RIGHT (cm)' },
   { k: 'hang', label: 'Dead hang (s)' }, { k: 'pushups', label: 'Max push-ups (one set)' }, { k: 'swimMin', label: 'Longest no-touch swim (min)' }
 ];
@@ -2147,7 +2149,7 @@ function buildCheckinBrief() {
     if (au.swaps && Object.keys(au.swaps).length) L.push('  Swaps: ' + Object.entries(au.swaps).map(([k, v]) => `${k} ×${v}`).join(' · '));
     if (au.painFlags && Object.keys(au.painFlags).length) L.push('  Pain flags: ' + Object.entries(au.painFlags).map(([k, v]) => `${k} ×${v}`).join(' · '));
     if (au.variants?.length) L.push(`  Alternates chosen: ${au.variants.length}`);
-    if (au.day0) L.push(`  Day 0: waist ${au.day0.waist ?? '—'} · knee-to-wall L ${au.day0.kneeL ?? '—'} R ${au.day0.kneeR ?? '—'}`);
+    if (au.day0) L.push(`  Day 0: waist ${au.day0.waist ?? '—'} · hips ${au.day0.hip ?? '—'} · knee-to-wall L ${au.day0.kneeL ?? '—'} R ${au.day0.kneeR ?? '—'} · height ${DATA.heightCm} cm`);
     L.push(`  Prefill: ${a.prefill || '—'}${a.fixes ? ' · fixes: ' + a.fixes : ''}`);
     L.push(`  Body: belly ${a.belly || '—'} · photos ${a.photos || '—'}`);
     if (a.lifts) L.push('  Exercise verdicts: ' + Object.entries(a.lifts).filter(([, v]) => v !== 'Keep').map(([k, v]) => `${k} = ${v}`).join(' · ') || '  Exercise verdicts: all Keep');
@@ -3793,6 +3795,7 @@ if (!state.baselineV2) {
   state.baselineV2 = true;
   state.baseline = { ...(state.baseline || {}), weight: DATA.startKg, waist: null, kneeL: null, kneeR: null };
 }
+if (state.baseline && state.baseline.weight === 82) state.baseline.weight = DATA.startKg; // real start: 83 kg
 autoRamadan();
 
 // Lock in today's pick so it can't shift mid-day (e.g. Day 1 → Day 2 the moment
