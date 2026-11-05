@@ -3607,6 +3607,15 @@ function renderNutrition() {
       <div class="row-meta protein">~${s.grams}g</div>
     </div>
   `).join('');
+  let sn = document.getElementById('snackCard');
+  if (!sn) {
+    sn = document.createElement('section');
+    sn.id = 'snackCard';
+    sn.className = 'card';
+    document.getElementById('goToList')?.closest('.card')?.before(sn);
+  }
+  sn.innerHTML = `<header class="card-header"><h2>Smart snacks</h2><span class="card-meta">Protein first · 150–250 kcal · 1–2 a day, planned</span></header>
+    <div class="rows">${(DATA.snacks || []).map(x => `<div class="row"><div class="row-name">${x.name}</div><div class="row-meta">${x.how}</div></div>`).join('')}</div>`;
   document.getElementById('goToList').innerHTML = DATA.goTos.map(s => `
     <div class="row">
       <div class="row-name">${s.name}</div>

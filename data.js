@@ -828,6 +828,19 @@ const DATA = {
     { name: "Chana / rajma (1 cup) — bonus, not a main", grams: 12, when: "Fibre + some protein" }
   ],
 
+  snacks: [
+    { name: "Greek yogurt / hung curd + berries", how: "~15–20 g protein · ~150 kcal · the best desk snack" },
+    { name: "2 boiled eggs (7-Eleven)", how: "~13 g protein · ~140 kcal" },
+    { name: "Tuna or chicken pouch + cucumber", how: "~25 g protein · ~150 kcal · desk drawer" },
+    { name: "Whey shake + 1 fruit", how: "~25 g protein · ~200 kcal · before a late dinner" },
+    { name: "Roasted chana (1 small cup)", how: "~10 g protein · ~180 kcal · crunchy, kills the murukku craving" },
+    { name: "Edamame (1 cup)", how: "~17 g protein · ~190 kcal · FairPrice frozen section" },
+    { name: "Chaas / plain buttermilk", how: "~5 g protein · ~60 kcal · great after spicy food" },
+    { name: "Apple / guava / orange", how: "~80 kcal · fibre, fills you up" },
+    { name: "Nuts — ONE palmful (~15 almonds)", how: "~100 kcal · never from the bag" },
+    { name: "Careful: 'healthy' but dense", how: "Trail mix, dates (>3), granola, dried fruit, smoothies, protein bars, baked murukku — easy 400 kcal" }
+  ],
+
   goTos: [
     { name: "Chapati set", how: "2 chapati + chicken/mutton dry + dhal + veg — the best Indian hawker default" },
     { name: "Tandoori set", how: "Tandoori chicken + 1 naan or 2 chapati (not both) + dal + mint" },
