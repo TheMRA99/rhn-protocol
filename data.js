@@ -86,7 +86,7 @@ const DATA = {
           title: "Floor · superset (counts as full session)",
           exercises: [
             { name: "Assisted Neutral-Grip Chin-Up", sets: 3, reps: "6–10", note: "Chest to handles, 3-sec lower. When every set hits 10, take one plate less assistance — note the assist kg (long-press the set). Goal: your first unassisted chin-up.", inputMode: "bodyweight_reps", sub: "Machine taken → half-kneeling single-arm cable pulldown, 10/side." },
-            { name: "Smith Incline Press (30°)", sets: 3, reps: "8–10", note: "Bar to upper chest, elbows ~45°. Rest 90 s between the pair. Log the total on the bar.", sub: "Smith taken → low-incline DB press." }
+            { name: "Incline DB Press (30°)", sets: 3, reps: "8–10", note: "DBs to upper chest, elbows ~45°. Rest 90 s between the pair. Log each hand's DB.", sub: "DBs or bench taken → Smith incline press." }
           ]
         },
         {
@@ -108,7 +108,7 @@ const DATA = {
     {
       id: "reset_b",
       name: "B · Engine",
-      tagline: "≤35 min · hinge, back, sled, grip",
+      tagline: "≤35 min · hinge, back, power, grip",
       blurb: "Posterior chain + stamina. FLOOR = Smith RDL + row — that alone counts. W1: floor only, 3–4 reps in the tank · W2–3: + one more block · W4+: everything.",
       warmup: "5-min warm-up card · 1 light ramp set of each floor lift",
       blocks: [
@@ -122,7 +122,7 @@ const DATA = {
         {
           title: "Engine · straight sets",
           exercises: [
-            { name: "Sled Push", sets: 4, reps: "1 length", note: "Log the plates on the sled (kg) and lengths (reps). Low hips, steady drive, walk back = rest. Weeks 1–3: light.", sub: "Sled taken → bike 30 s hard / 60 s easy per set." },
+            { name: "KB Swing", sets: 3, reps: "12", note: "Hinge, not squat — snap the hips, arms just hold on. Light in weeks 1–3. Hip power for scrambling up rocks. Log the KB.", sub: "KB taken → DB swing, or a DB Romanian deadlift 3 × 10." },
             { name: "DB Floor Press", sets: 2, reps: "10", note: "Shoulder-friendly pressing — elbows stop at the floor. 2 reps in the tank.", sub: "Smith floor press, or push-ups on the Smith bar at hip height." }
           ]
         },
@@ -160,7 +160,7 @@ const DATA = {
           title: "Legs + engine",
           exercises: [
             { name: "Single-Leg Calf Raise · slow", sets: 2, reps: "12 / leg", note: "Off a step, 3-sec lower, LEFT first. Hikes and the stiff ankle.", inputMode: "bodyweight_reps", sub: "Smith calf raise on a plate." },
-            { name: "Sled Push + 10 Goblet Squats", sets: 1, reps: "4–6 rounds", note: "Push 1 length, 10 goblet squats, walk back = rest. Steady effort (could still talk in short sentences) — not a race. Log rounds.", inputMode: "amrap", sub: "No sled → 30 s bike + 10 goblet squats per round." }
+            { name: "Step-Up + Goblet Squat circuit", sets: 1, reps: "4–6 rounds", note: "One box, one DB: 8 step-ups/leg (step DOWN slowly — that's your hiking descents) + 10 goblet squats, then rest 60 s. Steady, could still talk in short sentences. Log rounds.", inputMode: "amrap", sub: "No box → walking lunges 10/leg + 10 goblet squats." }
           ]
         }
       ]
@@ -823,7 +823,7 @@ const DATA = {
     "The FLOOR block counts as a full session. 2 sessions is a full week; 3 is a great one. Any Reset session counts — gym, swim, hill, home.",
     "Go in order A → B → C → A, whatever the weekday. Missed one? Just do the next one — no make-ups, no doubling up.",
     "Weeks 1–3 are deliberately easy: week 1 = floor only, stop with 3–4 reps left. Weeks 2–3 = floor + one more block, 2–3 reps left.",
-    "Progress: when every set hits the top of the rep range, add the smallest jump next time (DB +2 kg, Smith +2.5 kg). That's the whole system — same sessions for 12 weeks.",
+    "Progress: when every set hits the top of the rep range, add the smallest jump next time (DB +2 kg, Smith +2.5 kg). Same sessions for 12 weeks — then back to RHN 2.0 (physique + functional), built around where you are by then.",
     "Fit it around work: weekday sessions after Zuhr at lunch or straight after work (never go home first); one on the weekend morning. Crushed week → Home 20.",
     "Gym packed? Take the TAKEN? swap under the lift and keep moving.",
     "Slept under 6 hrs? Floor block only, easy — or a 30-min walk instead.",
@@ -857,7 +857,7 @@ const DATA = {
   progression: [
     { title: "Main lifts · double progression", body: "Hit the top of the rep range on ALL sets → add the smallest jump next session (DB +2 kg, Smith +2.5 kg). Middle of the range → same weight. Below the range → too heavy, drop it." },
     { title: "Assisted chin-up", body: "All sets at 10 → take one plate less assistance. Note the assist kg on the set (long-press). First unassisted rep is the big milestone." },
-    { title: "Engine work", body: "Sled: add a plate when 4 lengths feel steady. Swim: add a minute of no-touch swimming. Zone 2: add minutes before speed." },
+    { title: "Engine work", body: "Swings and the step-up circuit: add a round or a heavier bell when it feels steady. Swim: add a minute of no-touch swimming. Zone 2: add minutes before speed." },
     { title: "Stalled? No rep added in 3 sessions", body: "Pick one: drop the load 10% and rebuild, take the listed swap, or fix sleep and food first. A stall is information, not failure." }
   ],
 
