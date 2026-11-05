@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=50" />
+<link rel="stylesheet" href="styles.css?v=51" />
 </head>
 <body>
 <header class="topbar">
@@ -240,10 +240,10 @@
     <section class="card">
       <header class="card-header">
         <h2><span class="num">02</span>Waist log</h2>
-        <span class="card-meta">Weekly · navel, relaxed</span>
+        <span class="card-meta">Every 2nd Saturday · navel, relaxed · target ≤ 83.5</span>
       </header>
       <div class="weight-input">
-        <input type="number" step="0.1" id="waistInput" placeholder="86.0" />
+        <input type="number" step="0.1" id="waistInput" placeholder="cm" />
         <span class="unit">cm</span>
         <button class="btn-primary" id="logWaistBtn">Log</button>
       </div>
@@ -388,7 +388,7 @@
         <h2><span class="num">05</span>Maintain mode</h2>
         <span class="card-meta">Travel · illness · busy season</span>
       </header>
-      <p class="warn">Pauses the 16-week clock so deloads don't drift, freezes the streak, swaps in a bodyweight circuit, and stops the deficit nagging. Resume any time — the block picks up exactly where you left it.</p>
+      <p class="warn">Pauses the block clock so the weeks don't drift, freezes the streak, swaps in a bodyweight circuit, and stops the deficit nagging. Resume any time — the block picks up exactly where you left it.</p>
       <div id="maintainStatus" class="info-list"></div>
       <button class="btn-primary" id="maintainToggleBtn">Pause block</button>
     </section>
@@ -422,7 +422,7 @@
         <h2><span class="num">08</span>Restart · Reset</h2>
         <span class="card-meta">Two very different buttons</span>
       </header>
-      <p class="warn">Had a lapse? Restart the 16-week clock and keep every log you've ever made. Reset is the nuclear option — it wipes everything.</p>
+      <p class="warn">Had a lapse? Restart the block clock and keep every log you've ever made. Reset is the nuclear option — it wipes everything.</p>
       <button class="btn-secondary" id="restartBlockBtn">Restart block · keep all history</button>
       <button class="btn-ghost" id="resetBtn">Reset all data</button>
     </section>
@@ -453,7 +453,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=62"></script>
-<script src="app.js?v=62"></script>
+<script src="data.js?v=63"></script>
+<script src="app.js?v=63"></script>
 </body>
 </html>

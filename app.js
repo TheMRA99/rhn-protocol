@@ -117,7 +117,10 @@ function save() {
   // Auto-backup: a mirror + a per-day snapshot, so a cleared key or a bad edit
   // can't silently wipe the log. Only back up when there's real data — never let
   // an empty/reset state overwrite a good backup.
-  if (state.setLog && Object.keys(state.setLog).length) {
+  const hasData = (state.setLog && Object.keys(state.setLog).length)
+    || (state.weights && state.weights.length) || (state.sessions && state.sessions.length)
+    || (state.waists && state.waists.length);
+  if (hasData) {
     safeSet(SHADOW_KEY, json);
     safeSet(SNAP_PREFIX + today(), json);
     pruneSnapshots(SNAPSHOT_KEEP);
@@ -157,8 +160,20 @@ function localIso(d) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
+// ?today=YYYY-MM-DD pins "today" for testing week rollovers (e.g. the Saturday
+// boundary). Only read from the URL; nothing in the UI ever sets it.
+// (function-scoped so it works even when called during the initial load())
+function todayOverride() {
+  if (todayOverride.v === undefined) {
+    try {
+      const q = new URLSearchParams(location.search).get('today');
+      todayOverride.v = q && /^\d{4}-\d{2}-\d{2}$/.test(q) ? q : null;
+    } catch (_) { todayOverride.v = null; }
+  }
+  return todayOverride.v;
+}
 function today() {
-  return localIso(new Date());
+  return todayOverride() || localIso(new Date());
 }
 
 function fmtDate(iso) {
@@ -186,7 +201,7 @@ function weekNumber() {
   if (!state.startDate) return 1;
   const anchor = programWeekAnchor();
   // While paused, freeze the clock at the pause date so deloads don't drift.
-  const ref = isPaused() ? new Date(state.pausedAt + 'T00:00:00') : new Date();
+  const ref = isPaused() ? new Date(state.pausedAt + 'T00:00:00') : new Date(today() + 'T00:00:00');
   const diffDays = Math.floor((ref - anchor) / (1000 * 60 * 60 * 24));
   return Math.min(DATA.totalWeeks || 16, Math.max(1, Math.floor(diffDays / 7) + 1));
 }
@@ -194,6 +209,41 @@ function weekNumber() {
 // ===== Periodization: 16 weeks = four 4-week phases. Workouts evolve by phase. =====
 function phaseNumber(week) {
   return Math.min(4, Math.ceil((week || weekNumber()) / 4));
+}
+
+// Reset: phase comes from DATA.phases ("1–4", "5–13", ...), not 4-week blocks.
+function resetPhase(week) {
+  const wk = week || weekNumber();
+  for (const ph of (DATA.phases || [])) {
+    const m = String(ph.weeks).match(/(\d+)\D+(\d+)/);
+    if (m && wk >= +m[1] && wk <= +m[2]) return ph;
+  }
+  return null;
+}
+
+// Weights for the current block only (Reset ignores the old 75 kg-era logs).
+function blockWeights() {
+  const all = (state.weights || []).filter(d => d && d.date && Number.isFinite(+d.kg))
+    .sort((a, b) => a.date.localeCompare(b.date));
+  if (!isReset() || !state.startDate) return all;
+  // Allow a week of pre-start weigh-ins as the baseline.
+  const from = parseIso(state.startDate); from.setDate(from.getDate() - 7);
+  const fromIso = localIso(from);
+  return all.filter(d => d.date >= fromIso);
+}
+
+// Ramadan 1448 (Singapore, approx.) — Ramadan mode switches itself on/off by date.
+const RAMADAN_2027 = { start: '2027-02-08', end: '2027-03-09' };
+function autoRamadan() {
+  const t = today();
+  if (t >= RAMADAN_2027.start && t <= RAMADAN_2027.end && state.ramadanAuto !== '2027-on' && state.ramadanAuto !== '2027-off') {
+    state.ramadan = true; state.ramadanAuto = '2027-on';
+  } else if (t > RAMADAN_2027.end && state.ramadanAuto === '2027-on') {
+    state.ramadan = false; state.ramadanAuto = '2027-off';
+  }
+}
+function daysUntilRamadan() {
+  return Math.round((parseIso(RAMADAN_2027.start) - parseIso(today())) / 86400000);
 }
 
 // Week index for an arbitrary log date — lets history render the phase that was
@@ -256,12 +306,25 @@ function nextDayThisWeek() {
 function resolveWorkout(w, phase) {
   if (!w || !w.blocks) return w;
   const ph = phase || phaseNumber();
+  const wk = weekNumber();
   const blocks = w.blocks
     .map(b => ({
       ...b,
       exercises: b.exercises
         .filter(ex => !ex.phases || ex.phases.includes(ph))
-        .map(ex => (ex.byPhase && ex.byPhase[ph]) ? { ...ex, ...ex.byPhase[ph] } : ex)
+        .map((ex, i) => {
+          let e = (ex.byPhase && ex.byPhase[ph]) ? { ...ex, ...ex.byPhase[ph] } : ex;
+          // byWeek: { 5: { sets: 4 } } — set-count steps by program week (never keys/modes).
+          if (e.byWeek) {
+            Object.keys(e.byWeek).map(Number).sort((a, b) => a - b)
+              .forEach(k => { if (wk >= k) e = { ...e, ...e.byWeek[k] }; });
+          }
+          // Chosen alternate (week-5 / week-10 picks). Logs under its own ~alt slot.
+          if (e.alt && state.variants && state.variants[`${w.id}::${b.title}::${i}`]) {
+            e = { ...e, ...e.alt, _alt: true, _orig: e };
+          }
+          return e;
+        })
     }))
     .filter(b => b.exercises.length);
   return { ...w, blocks, _phase: ph };
@@ -351,13 +414,19 @@ function usesCableStack(ex) {
 }
 
 function findExerciseByKey(workout, exKey) {
-  const clean = exKey.replace(/~sub$/, ''); // swapped-exercise logs live under a ~sub slot
+  let clean = exKey.replace(/~sub$/, ''); // swapped-exercise logs live under a ~sub slot
+  const isAlt = /~alt$/.test(clean);      // chosen-alternate logs live under ~alt
+  clean = clean.replace(/~alt$/, '');
   const sep = clean.indexOf('::');
   if (sep < 0) return null;
   const blockTitle = clean.slice(0, sep);
   const idx = +clean.slice(sep + 2);
   const block = workout.blocks.find(b => b.title === blockTitle);
-  return block ? block.exercises[idx] : null;
+  let ex = block ? block.exercises[idx] : null;
+  if (!ex) return null;
+  if (isAlt && ex.alt && !ex._alt) ex = { ...ex, ...ex.alt, _alt: true, _orig: ex };
+  if (!isAlt && ex._alt && ex._orig) ex = ex._orig;
+  return ex;
 }
 
 /**
@@ -435,9 +504,13 @@ function isMultiStageDone(setData, ex) {
   });
 }
 
-function inputFieldsForMode(mode) {
+function inputFieldsForMode(mode, ex) {
   switch (mode) {
     case 'bodyweight_reps':
+      if (ex && ex.assist) return [
+        { key: 'assist', label: 'assist', width: 60, inputmode: 'decimal' },
+        { key: 'reps', label: 'reps', width: 52, inputmode: 'numeric' }
+      ];
       return [{ key: 'reps', label: 'reps', width: 60, inputmode: 'numeric' }];
     case 'time':
       return [{ key: 'sec', label: 'sec', width: 60, inputmode: 'numeric' }];
@@ -528,7 +601,7 @@ function formatPrevRaw(set, mode, ex) {
   const macTag = set.mac ? ` · ${set.mac}` : ''; // which machine, if tagged
   switch (mode) {
     case 'bodyweight_reps':
-      return `${set.reps || '–'} reps`;
+      return set.assist != null && set.assist !== '' ? `${set.reps || '–'} reps · ${set.assist} kg assist` : `${set.reps || '–'} reps`;
     case 'amrap':
       return `${set.rounds || '–'} rounds`;
     case 'time':
@@ -578,16 +651,18 @@ function renderSessionProgress(done, total, floorDone, floorTotal) {
   fill.classList.toggle('complete', pct >= 100);
   stat.textContent = `${done} / ${total} sets · ${pct}%`;
   label.textContent = pct >= 100 ? 'Session complete' : (done === 0 ? 'Today' : 'In progress');
+  wrap.classList.remove('pinned-done');
   if (floorTotal) {
     const floorPct = Math.round((floorDone / floorTotal) * 100);
     fill.style.width = Math.min(100, floorPct) + '%';
     fill.classList.toggle('complete', floorDone >= floorTotal);
+    wrap.classList.toggle('pinned-done', floorDone >= floorTotal);
     if (floorDone >= floorTotal) {
-      label.textContent = 'Floor done ✓ — session counts';
+      label.textContent = 'Minimum done ✓ — this counts as a full session';
       stat.textContent = done > floorDone ? `+${done - floorDone} bonus sets` : 'Rest is bonus';
     } else {
-      label.textContent = done === 0 ? 'Floor block' : 'Floor in progress';
-      stat.textContent = `${floorDone} / ${floorTotal} floor sets`;
+      label.textContent = done === 0 ? 'Minimum block first' : 'Minimum in progress';
+      stat.textContent = `${floorDone} / ${floorTotal} sets to a full session`;
     }
   }
 }
@@ -599,7 +674,7 @@ function floorProgress(w, log, dKey, id) {
   if (!block || !/^Floor/.test(block.title)) return [0, 0];
   let total = 0, done = 0;
   block.exercises.forEach((ex, exIdx) => {
-    const baseKey = `${block.title}::${exIdx}`;
+    const baseKey = `${block.title}::${exIdx}${ex._alt ? '~alt' : ''}`;
     const swapped = !!(ex.sub && state.swaps && state.swaps[`${dKey}::${id}::${baseKey}`]);
     const sets = log[baseKey + (swapped ? '~sub' : '')] || [];
     total += ex.sets;
@@ -619,7 +694,7 @@ function refreshSessionProgress() {
   w.blocks.forEach(block => {
     if (block.gated && !gateActive(block.gated)) return; // hidden blocks don't count
     block.exercises.forEach((ex, exIdx) => {
-      const baseKey = `${block.title}::${exIdx}`;
+      const baseKey = `${block.title}::${exIdx}${ex._alt ? '~alt' : ''}`;
       const swapped = !!(ex.sub && state.swaps && state.swaps[`${dKey}::${id}::${baseKey}`]);
       const exKey = baseKey + (swapped ? '~sub' : '');
       const sets = log[exKey] || [];
@@ -915,7 +990,7 @@ function renderDayPicker() {
     const activeSeq = getActiveSequence();
     if (isReset()) {
       const nextTxt = next ? ` · next up <strong>Session ${RESET_BADGE[next]}</strong>` : ' · any Move session from here';
-      statusEl.innerHTML = `This week <strong>${n} ✓</strong> · target 2–3${n >= 2 ? ' · full week ✓' : ''}${nextTxt}`;
+      statusEl.innerHTML = `This week <strong>${n} ✓</strong> · target ${weekTarget(wk)}${n >= fullWeekAt(wk) ? ' · full week ✓' : ''}${nextTxt}`;
     } else {
     const nextLabel = next ? (state.program === 'oman' ? 'Oman ' : 'Day ') + (activeSeq.indexOf(next) + 1) : null;
     let html = `Week ${wk} · <strong>${n}/5</strong> done`
@@ -999,12 +1074,12 @@ function renderWorkout() {
   list.innerHTML = w.blocks.filter(block => !block.gated || gateActive(block.gated)).map((block, bIdx) => `
     <section class="exercise-block${isReset() && bIdx === 0 && /^Floor/.test(block.title) ? ' floor-block' : ''}${isReset() && bIdx > 0 && !(log && Object.keys(log).some(k => k.startsWith(block.title + '::'))) ? ' collapsed' : ''}">
       <button type="button" class="block-title">
-        <span class="block-title-text">${block.title}</span>
+        <span class="block-title-text">${esc(blockLabel(block.title))}</span>
         <span class="block-toggle" aria-hidden="true"></span>
       </button>
       <div class="exercise-block-body">
     ${block.exercises.map((ex, exIdx) => {
-      const baseExKey = `${block.title}::${exIdx}`;
+      const baseExKey = `${block.title}::${exIdx}${ex._alt ? '~alt' : ''}`;
       const swapKey = `${dKey}::${id}::${baseExKey}`;
       const swapped = !!(ex.sub && state.swaps && state.swaps[swapKey]);
       // Swapped work logs under its own ~sub slot and drops barbell math (the sub is a DB/band/bodyweight move).
@@ -1053,7 +1128,7 @@ function renderWorkout() {
         }
         bodyHTML = `<div class="ms-sets">${setsHTML}</div>`;
       } else {
-        const fields = inputFieldsForMode(mode);
+        const fields = inputFieldsForMode(mode, swapped ? null : ex);
         const suggKg = (mode === 'weight_reps') ? suggestedKgFor(id, exKey, exForLog) : null;
         const isBarbell = exForLog.barbell === true;
         const barWeight = ex.bar ?? 20;
@@ -1063,7 +1138,7 @@ function renderWorkout() {
           const setData = exLog[s] || {};
           if (setData.done) doneSets += 1;
           const innerHTML = fields.map((f, fi) => {
-            const sep = fi > 0 ? '<span>×</span>' : '';
+            const sep = fi > 0 ? (f.key === 'reps' && fields[0].key === 'assist' ? '<span>kg ·</span>' : '<span>×</span>') : '';
             let ph;
             if (f.key === 'kg') {
               if (suggKg != null) ph = String(suggKg);
@@ -1194,7 +1269,7 @@ function renderWorkout() {
           setData[stageKey][field] = input.value;
           setData.done = isMultiStageDone(setData, ex);
         } else {
-          const fields = inputFieldsForMode(mode);
+          const fields = inputFieldsForMode(mode, exKey.endsWith('~sub') ? null : ex);
           setData[field] = input.value;
           setData.done = fields.every(f => setData[f.key] !== undefined && setData[f.key] !== '');
           // Live update of the bar total next to this kg input
@@ -1482,9 +1557,19 @@ function applyResetLayout() {
   [cardOf('resetList'), cardOf('staminaList'), cardOf('officeRotator')].forEach(c => c && (c.hidden = r));
   if (r) [cardOf('ritualList'), cardOf('dailyList')].forEach(c => c?.classList.add('collapsed'));
   const cue = document.querySelector('.workout-cue');
-  if (cue) cue.innerHTML = r
-    ? 'Floor block first · stop <strong>2–3 reps shy</strong> · weeks 1–3 easy'
+  if (cue) cue.innerHTML = r ? effortCue()
     : 'Working sets · stop <strong>1–2 reps shy of failure</strong> · slow 3-sec lower on isolation';
+  // Workouts tab + Protocol copy that was written for the old 16-week RHN block
+  const wHero = document.querySelector('#view-workouts .hero');
+  if (wHero && r) {
+    wHero.querySelector('.hero-eyebrow').textContent = 'Reset · 3 sessions + Move';
+    wHero.querySelector('.hero-title').textContent = 'The sessions';
+    wHero.querySelector('.hero-sub').textContent = 'Go A → B → C in order, any weekday. Missed one? Just do the next. The first block of each is a full session.';
+  }
+  document.getElementById('plateTarget')?.closest('.card')?.toggleAttribute('hidden', r);
+  renderTodayNudge();
+  renderVariantCard();
+  renderCheckinPrompt('today');
   // Prayer card after the workout; program switcher lives on the Protocol tab.
   const prayer = document.getElementById('prayerCard');
   const workout = document.getElementById('workoutCard');
@@ -1494,6 +1579,610 @@ function applyResetLayout() {
   if (sw && proto && sw.parentElement !== proto) proto.prepend(sw);
   document.querySelector('.logo-mark').textContent = r ? 'Reset' : 'RHN Protocol';
   document.querySelector('.logo-sub').innerHTML = `Wk <span id="currentWeek">${weekNumber()}</span>/${r ? DATA.totalWeeks : 16}`;
+}
+
+// ===== Reset helpers: labels, effort, holidays, comebacks =====
+function blockLabel(title) {
+  if (!isReset()) return title;
+  if (/^Floor · superset/.test(title)) return 'Minimum · ~15 min — this alone = full session';
+  if (/^Floor · /.test(title)) return title.replace(/^Floor · /, 'Minimum · ') + ' — this alone counts';
+  return title;
+}
+function isHolidayWeek(wk) { return isReset() && wk >= 7 && wk <= 9; }
+function isRamadanHold(wk) { return isReset() && (state.ramadan || (wk >= 14 && wk <= 19)); }
+function weekTarget(wk) { return isHolidayWeek(wk) ? '1–2 (holidays: 1 = full week)' : isRamadanHold(wk) ? '2 (Ramadan)' : '2–3'; }
+function fullWeekAt(wk) { return isHolidayWeek(wk) ? 1 : 2; }
+function hasLoggedToday() {
+  const day = state.setLog?.[today()];
+  return !!day && Object.values(day).some(wl => Object.values(wl || {}).some(sets => Array.isArray(sets) && sets.some(x => x && x.done)));
+}
+function lastTrainingDate() {
+  const t = today();
+  let last = null;
+  for (const s of (state.sessions || [])) if (s.date < t && (!last || s.date > last)) last = s.date;
+  for (const d of Object.keys(state.setLog || {})) {
+    if (d >= t || (last && d <= last)) continue;
+    const has = Object.values(state.setLog[d] || {}).some(wl => Object.values(wl || {}).some(sets => Array.isArray(sets) && sets.some(x => x && x.done)));
+    if (has) last = d;
+  }
+  return last;
+}
+function effortCue() {
+  const wk = weekNumber();
+  const last = lastTrainingDate();
+  const gap = last ? Math.round((parseIso(today()) - parseIso(last)) / 86400000) : null;
+  if (gap != null && gap >= 10 && !hasLoggedToday()) {
+    return `<strong>Welcome back — ${gap} days off.</strong> Today: just the first block, lighter than last time. No catching up.`;
+  }
+  if (isRamadanHold(wk)) return '<strong>Ramadan:</strong> first block only, 60–90 min after iftar · hold your weights · 2 fewer reps is fine';
+  if (wk <= 1) return '<strong>Week 1:</strong> only the first block · stop when <strong>3–4 more reps</strong> were possible';
+  if (wk <= 3) return `<strong>Week ${wk}:</strong> first block + one more · stop when <strong>2–3 more reps</strong> were possible`;
+  return 'All blocks if you have time · stop when <strong>2 more reps</strong> were possible · first block alone still counts';
+}
+
+// One small, dated line on Today: Day 0, waist Saturdays, monthly shoulders + photos.
+function renderTodayNudge() {
+  let el = document.getElementById('todayNudge');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'todayNudge';
+    el.className = 'today-nudge';
+    document.getElementById('weekStatus')?.after(el);
+  }
+  const t = today();
+  const d = parseIso(t);
+  const msgs = [];
+  if (isReset() && state.startDate) {
+    const daysIn = Math.round((d - parseIso(state.startDate)) / 86400000);
+    const hasWaistSince = since => (state.waists || []).some(x => x.date >= since);
+    if (daysIn >= 0 && daysIn <= 6 && !(state.baselineDay0 && state.baselineDay0.date)) {
+      msgs.push('<strong>Day 0 · 5 min:</strong> weigh in, waist at the navel, knee-to-wall L/R, and 3 photos (front, side, back) to your camera roll. <button type="button" class="nudge-btn" id="day0Btn">Log Day 0</button>');
+    } else if (d.getDay() === 6 && daysIn > 0) {
+      const wk = weekNumber();
+      if (d.getDate() <= 7) msgs.push('<strong>First Saturday:</strong> shoulders + waist (Progress) and 3 photos to the camera roll.');
+      else if (wk % 2 === 1 && !hasWaistSince(t)) msgs.push('<strong>Waist day:</strong> tape at the navel, relaxed — Progress tab.');
+    }
+  }
+  el.innerHTML = msgs.join('');
+  el.hidden = !msgs.length;
+  document.getElementById('day0Btn')?.addEventListener('click', openDay0);
+}
+
+function openDay0() {
+  const sheet = openSheet();
+  const b = state.baseline || {};
+  const lastW = (state.waists || []).slice().sort((a, c) => a.date.localeCompare(c.date)).at(-1);
+  sheet.innerHTML = `
+    <div class="ci-head"><span class="ci-step">Day 0</span><button type="button" class="ci-x" data-close>✕</button></div>
+    <h2 class="ci-title">Your starting point</h2>
+    <p class="ci-sub">Two minutes. This is what week 10 compares against. Photos stay in your camera roll — the app never stores them.</p>
+    <label class="ci-field"><span>Waist at the navel (cm)</span><input type="number" step="0.1" inputmode="decimal" id="d0Waist" value="${lastW && lastW.date >= state.startDate ? lastW.cm : ''}" placeholder="e.g. 94.0"></label>
+    <label class="ci-field"><span>Knee-to-wall LEFT (cm)</span><input type="number" step="0.5" inputmode="decimal" id="d0KneeL" value="${b.kneeL ?? ''}" placeholder="toe-to-wall distance"></label>
+    <label class="ci-field"><span>Knee-to-wall RIGHT (cm)</span><input type="number" step="0.5" inputmode="decimal" id="d0KneeR" value="${b.kneeR ?? ''}" placeholder="toe-to-wall distance"></label>
+    <div class="ci-q">Photos (front · side · back) in the camera roll?</div>
+    <div class="ci-chips" data-k="photos">${chipsHTML(['Done', 'Later'], state.baselineDay0?.photos)}</div>
+    <button type="button" class="btn-primary" id="d0Save">Save Day 0</button>`;
+  wireChips(sheet, (k, v) => { sheet.dataset[k] = v; });
+  sheet.querySelector('#d0Save').addEventListener('click', () => {
+    const num = id => { const v = parseFloat(sheet.querySelector(id).value); return Number.isFinite(v) ? v : null; };
+    const waist = num('#d0Waist'), kL = num('#d0KneeL'), kR = num('#d0KneeR');
+    if (waist != null) {
+      state.waists = (state.waists || []).filter(x => x.date !== today());
+      state.waists.push({ date: today(), cm: waist });
+    }
+    state.baseline = { ...(state.baseline || {}), waist: waist ?? state.baseline?.waist ?? null, kneeL: kL, kneeR: kR };
+    state.baselineDay0 = { date: today(), waist, kneeL: kL, kneeR: kR, photos: sheet.dataset.photos || null };
+    save();
+    closeSheet();
+    renderToday();
+    showToast('Day 0 saved');
+  });
+}
+
+// ===== Bottom-sheet + chip helpers (check-in, Day 0, lift picks) =====
+function openSheet() {
+  let wrap = document.getElementById('ciWrap');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.id = 'ciWrap';
+    wrap.className = 'ci-wrap';
+    wrap.innerHTML = '<div class="ci-sheet" role="dialog" aria-modal="true"></div>';
+    document.body.appendChild(wrap);
+    wrap.addEventListener('click', e => { if (e.target === wrap || e.target.closest('[data-close]')) closeSheet(); });
+  }
+  wrap.hidden = false;
+  document.body.classList.add('sheet-open');
+  const sheet = wrap.querySelector('.ci-sheet');
+  sheet.scrollTop = 0;
+  sheet.removeAttribute('data-photos');
+  return sheet;
+}
+function closeSheet() {
+  const wrap = document.getElementById('ciWrap');
+  if (wrap) wrap.hidden = true;
+  document.body.classList.remove('sheet-open');
+}
+function chipsHTML(opts, selected, multi) {
+  const sel = multi ? (selected || []) : [selected];
+  return opts.map(o => `<button type="button" class="ci-chip${sel.includes(o) ? ' on' : ''}" data-v="${esc(o)}">${esc(o)}</button>`).join('');
+}
+function wireChips(root, onPick) {
+  root.querySelectorAll('.ci-chips').forEach(group => {
+    const multi = group.dataset.multi ? +group.dataset.multi : 0;
+    group.querySelectorAll('.ci-chip').forEach(chip => chip.addEventListener('click', () => {
+      if (multi) {
+        const on = [...group.querySelectorAll('.ci-chip.on')];
+        if (chip.classList.contains('on')) chip.classList.remove('on');
+        else if (on.length < multi) chip.classList.add('on');
+        else { on[0].classList.remove('on'); chip.classList.add('on'); }
+        onPick(group.dataset.k, [...group.querySelectorAll('.ci-chip.on')].map(c => c.dataset.v));
+      } else {
+        group.querySelectorAll('.ci-chip').forEach(c => c.classList.toggle('on', c === chip));
+        onPick(group.dataset.k, chip.dataset.v);
+      }
+    }));
+  });
+}
+
+// ===== Lift picks: one alternate per main lift, offered in week 5 and week 10 =====
+function mainLifts() {
+  const out = [];
+  DAY_SEQUENCE_RESET.forEach(id => {
+    const w = DATA.workouts.find(x => x.id === id);
+    w.blocks.forEach(b => b.exercises.forEach((ex, i) => {
+      if (ex.alt) out.push({ key: `${id}::${b.title}::${i}`, wid: id, ex });
+    }));
+  });
+  return out;
+}
+function variantWindow() {
+  if (!isReset()) return null;
+  const wk = weekNumber();
+  if (wk >= 5 && wk <= 6) return 'w5';
+  if (wk >= 10 && wk <= 11) return 'w10';
+  return null;
+}
+function renderVariantCard() {
+  let card = document.getElementById('variantCard');
+  if (!card) {
+    card = document.createElement('section');
+    card.id = 'variantCard';
+    card.className = 'card variant-card';
+    document.getElementById('workoutCard')?.before(card);
+  }
+  const win = variantWindow();
+  // Week 10: the check-in comes first; lift picks show once it's done.
+  const show = win && !(state.variantWindows && state.variantWindows[win]) && !hasLoggedToday() && !(win === 'w10' && dueCheckin() === 'w10');
+  card.hidden = !show;
+  if (!show) { card.innerHTML = ''; return; }
+  card.innerHTML = `
+    <header class="card-header"><h2>Want a change?</h2><span class="card-meta">${win === 'w5' ? 'Week 5' : 'Week 10'} · 30 sec · optional</span></header>
+    <p class="coach-note">One alternate per main lift — same muscles, new feel. Keep is the default. Your pick is locked until ${win === 'w5' ? 'week 10' : 'RHN 2.0'}.</p>
+    <button type="button" class="btn-primary" id="variantOpenBtn">Pick lifts</button>
+    <button type="button" class="btn-ghost" id="variantKeepBtn">Keep everything as is</button>`;
+  card.querySelector('#variantOpenBtn').addEventListener('click', openVariantSheet);
+  card.querySelector('#variantKeepBtn').addEventListener('click', () => lockVariants(win, null));
+}
+function lockVariants(win, picks) {
+  state.variantWindows = { ...(state.variantWindows || {}), [win]: today() };
+  if (picks) state.variants = picks;
+  save();
+  closeSheet();
+  renderToday();
+  showToast(picks && Object.keys(picks).length ? 'Locked in — new lifts start today' : 'Keeping everything — locked in');
+}
+function openVariantSheet() {
+  const win = variantWindow() || 'w5';
+  const picks = { ...(state.variants || {}) };
+  const sheet = openSheet();
+  const rows = mainLifts().map(({ key, wid, ex }) => `
+    <div class="ci-lift">
+      <div class="ci-lift-name"><span class="ci-badge">${RESET_BADGE[wid]}</span>${esc(ex.name)} <span class="ci-arrow">→</span> ${esc(ex.alt.name)}</div>
+      <div class="ci-chips" data-k="${esc(key)}">${chipsHTML(['Keep', 'Try alternate'], picks[key] ? 'Try alternate' : 'Keep')}</div>
+    </div>`).join('');
+  sheet.innerHTML = `
+    <div class="ci-head"><span class="ci-step">Lift picks</span><button type="button" class="ci-x" data-close>✕</button></div>
+    <h2 class="ci-title">Keep or try?</h2>
+    <p class="ci-sub">Alternates keep their own history, so nothing you've logged is lost. You can flip back at the next pick window.</p>
+    ${rows}
+    <button type="button" class="btn-primary" id="variantSave">Lock it in</button>`;
+  wireChips(sheet, (k, v) => { if (v === 'Try alternate') picks[k] = true; else delete picks[k]; });
+  sheet.querySelector('#variantSave').addEventListener('click', () => lockVariants(win, picks));
+}
+
+// ===== Week-10 check-in ("prompt me later") → RHN 2.0 brief =====
+// Reads logs only; answers live in state.checkins (never in setLog).
+const CHECKINS = {
+  w10: { fromWeek: 10, toWeek: 19, title: 'Week-10 check-in', blurb: "10 weeks in. 3 minutes of taps so RHN 2.0 (from 20 Mar) is built around the real you. Nothing changes until you say so." },
+  w18: { fromWeek: 18, toWeek: 19, title: 'Before RHN 2.0', blurb: 'RHN 2.0 starts Sat 20 Mar. 30 seconds: has anything changed?' }
+};
+function checkinState(id) {
+  state.checkins = state.checkins || {};
+  return state.checkins[id] || (state.checkins[id] = { answers: {}, step: 0, snoozes: 0, snoozeUntil: null, doneAt: null });
+}
+function dueCheckin() {
+  if (!isReset()) return null;
+  const wk = weekNumber();
+  for (const id of ['w18', 'w10']) {
+    const c = CHECKINS[id];
+    const st = state.checkins?.[id];
+    if (wk >= c.fromWeek && wk <= c.toWeek && !(st && st.doneAt)) return id;
+  }
+  return null;
+}
+function renderCheckinPrompt(where) {
+  const hostId = where === 'today' ? 'checkinCardToday' : 'checkinCardProgress';
+  let card = document.getElementById(hostId);
+  if (!card) {
+    card = document.createElement('section');
+    card.id = hostId;
+    card.className = 'card checkin-card';
+    if (where === 'today') document.getElementById('workoutCard')?.before(card);
+    else document.querySelector('#view-progress .coach-card')?.after(card);
+  }
+  const id = dueCheckin();
+  const st = id ? checkinState(id) : null;
+  let show = !!id;
+  if (show && where === 'today') {
+    show = !hasLoggedToday() && st.snoozes < 3 && !(st.snoozeUntil && today() < st.snoozeUntil);
+  }
+  // Progress keeps a done card too, so the brief can be re-copied.
+  const doneId = !id && state.checkins && ['w18', 'w10'].find(k => state.checkins[k]?.doneAt);
+  if (where === 'progress' && !show && doneId && isReset()) {
+    card.hidden = false;
+    card.innerHTML = `
+      <header class="card-header"><h2>RHN 2.0 brief</h2><span class="card-meta">check-in done ${fmtDate(state.checkins[doneId].doneAt)}</span></header>
+      <p class="coach-note">Copy it and paste it into the chat — RHN 2.0 gets built from this.</p>
+      <button type="button" class="btn-primary" id="briefCopyBtn2">Copy RHN 2.0 brief</button>`;
+    card.querySelector('#briefCopyBtn2').addEventListener('click', copyBrief);
+    return;
+  }
+  card.hidden = !show;
+  if (!show) { card.innerHTML = ''; return; }
+  const c = CHECKINS[id];
+  const resumed = st.step > 0 ? ` · resume at ${st.step + 1}` : '';
+  card.innerHTML = `
+    <header class="card-header"><h2>${c.title}</h2><span class="card-meta">${id === 'w10' ? '~3 min' : '30 sec'}${resumed}</span></header>
+    <p class="coach-note">${c.blurb}</p>
+    <button type="button" class="btn-primary" data-ci-open>Start</button>
+    ${where === 'today' ? '<button type="button" class="btn-ghost" data-ci-snooze>Not now — ask in 3 days</button>' : ''}`;
+  card.querySelector('[data-ci-open]').addEventListener('click', () => openCheckin(id));
+  card.querySelector('[data-ci-snooze]')?.addEventListener('click', () => {
+    st.snoozes += 1;
+    const d = parseIso(today()); d.setDate(d.getDate() + 3);
+    st.snoozeUntil = localIso(d);
+    save();
+    renderCheckinPrompt('today');
+    renderCheckinPrompt('progress');
+    showToast(st.snoozes >= 3 ? "Okay — it'll wait on the Progress tab" : 'Asking again in 3 days');
+  });
+}
+
+// --- auto stats (read-only over the logs) ---
+function resetWindowSessions(fromWk, toWk) {
+  const a = weekWindow(fromWk).start, b = weekWindow(toWk).end;
+  const ids = [...DAY_SEQUENCE_RESET, ...RESET_EXTRAS];
+  const seen = new Set();
+  for (const s of (state.sessions || [])) if (ids.includes(s.workoutId) && s.date >= a && s.date < b) seen.add(s.date + '|' + s.workoutId);
+  for (const d of Object.keys(state.setLog || {})) {
+    if (d < a || d >= b) continue;
+    for (const wid of ids) {
+      const wl = state.setLog[d]?.[wid];
+      if (wl && Object.values(wl).some(sets => Array.isArray(sets) && sets.some(x => x && x.done))) seen.add(d + '|' + wid);
+    }
+  }
+  return [...seen].map(x => { const [date, workoutId] = x.split('|'); return { date, workoutId }; });
+}
+function liftHistory(wid, keyBase, ex, alt) {
+  const rows = [];
+  for (const d of Object.keys(state.setLog || {}).sort()) {
+    if (state.startDate && d < state.startDate) continue;
+    for (const k of [alt ? keyBase + '~alt' : keyBase]) {
+      const sets = (state.setLog[d]?.[wid]?.[k] || []).filter(x => x && x.done);
+      if (!sets.length) continue;
+      const mode = ex.inputMode || 'weight_reps';
+      const best = sets.reduce((m, x) => setScore(x, mode, ex) > setScore(m, mode, ex) ? x : m, sets[0]);
+      rows.push({ date: d, alt: k.endsWith('~alt'), best, mode, sets });
+    }
+  }
+  return rows;
+}
+function computeCheckinAuto() {
+  const wk = weekNumber();
+  const lastWk = Math.max(1, wk - 1);
+  const per = (a, b) => { const n = resetWindowSessions(a, b).length; return b >= a ? +(n / (b - a + 1)).toFixed(1) : 0; };
+  const all = resetWindowSessions(1, lastWk);
+  const counts = {};
+  all.forEach(s => { const k = RESET_BADGE[s.workoutId] || s.workoutId; counts[k] = (counts[k] || 0) + 1; });
+  // minimum-only vs fuller sessions for A/B/C
+  let minOnly = 0, fuller = 0;
+  all.filter(s => DAY_SEQUENCE_RESET.includes(s.workoutId)).forEach(s => {
+    const w = DATA.workouts.find(x => x.id === s.workoutId);
+    const wl = state.setLog?.[s.date]?.[s.workoutId] || {};
+    const beyond = w.blocks.slice(1).some(b => Object.keys(wl).some(k => k.startsWith(b.title + '::') && (wl[k] || []).some(x => x && x.done)));
+    if (beyond) fuller += 1; else minOnly += 1;
+  });
+  const lifts = [];
+  DAY_SEQUENCE_RESET.forEach(wid => {
+    const w = DATA.workouts.find(x => x.id === wid);
+    w.blocks.forEach(b => b.exercises.forEach((ex, i) => {
+      if (!(ex.alt || ex.assist || /Dead Hang/.test(ex.name))) return;
+      [false, true].forEach(alt => {
+        if (alt && !ex.alt) return;
+        const exV = alt ? { ...ex, ...ex.alt } : ex;
+        const h = liftHistory(wid, `${b.title}::${i}`, exV, alt);
+        if (!h.length) return;
+        const f = h[0], l = h.at(-1);
+        lifts.push({ session: RESET_BADGE[wid], name: exV.name, first: formatPrevRaw(f.best, f.mode, exV), last: formatPrevRaw(l.best, l.mode, exV), firstDate: f.date, lastDate: l.date, sessions: h.length, usedAlt: alt });
+      });
+    }));
+  });
+  const swim = (() => {
+    let best = null;
+    for (const d of Object.keys(state.setLog || {})) {
+      const wl = state.setLog[d]?.reset_swim || {};
+      Object.entries(wl).forEach(([k, sets]) => { if (k.startsWith('Main')) (sets || []).forEach(x => { const m = parseFloat(x?.min); if (x?.done && Number.isFinite(m) && (best == null || m > best)) best = m; }); });
+    }
+    return best;
+  })();
+  const swaps = {};
+  Object.keys(state.swaps || {}).forEach(k => {
+    if (!state.swaps[k]) return;
+    const [d, wid, title, idx] = k.split('::');
+    if (state.startDate && d < state.startDate) return;
+    const w = DATA.workouts.find(x => x.id === wid);
+    const ex = w?.blocks.find(b => b.title === title)?.exercises[+String(idx).replace(/~alt$/, '')];
+    if (ex) swaps[ex.name] = (swaps[ex.name] || 0) + 1;
+  });
+  const pain = {};
+  Object.keys(state.pain || {}).forEach(k => {
+    if (!state.pain[k]) return;
+    const [d, wid, title, idx] = k.split('::');
+    if (state.startDate && d < state.startDate) return;
+    const w = DATA.workouts.find(x => x.id === wid);
+    const ex = w?.blocks.find(b => b.title === title)?.exercises[+String(idx).replace(/~(alt|sub)/g, '')];
+    if (ex) pain[ex.name] = (pain[ex.name] || 0) + 1;
+  });
+  const wts = blockWeights();
+  const avg = rollingAvgWeight();
+  const startKg = wts.length ? wts[0].kg : DATA.startKg;
+  const daysSpan = wts.length > 1 ? (parseIso(wts.at(-1).date) - parseIso(wts[0].date)) / 86400000 : 0;
+  const waists = (state.waists || []).filter(x => !state.startDate || x.date >= weekWindow(1).start).sort((a, b) => a.date.localeCompare(b.date));
+  return {
+    week: wk,
+    sessionsPerWeek: { 'weeks 1–6': per(1, Math.min(6, lastWk)), 'weeks 7–9 (holidays)': lastWk >= 7 ? per(7, Math.min(9, lastWk)) : null, [`weeks 1–${lastWk}`]: per(1, lastWk) },
+    totals: counts,
+    minimumOnly: minOnly, fullerSessions: fuller,
+    lifts,
+    longestSwimMin: swim,
+    swaps, painFlags: pain,
+    weight: { startKg: +(+startKg).toFixed(1), avgNow: avg != null ? +avg.toFixed(1) : null, kgPerWeek: avg != null && daysSpan > 13 ? +((startKg - avg) / (daysSpan / 7)).toFixed(2) : null },
+    waist: waists.length ? { first: waists[0].cm, latest: waists.at(-1).cm } : null,
+    variants: Object.keys(state.variants || {}),
+    day0: state.baselineDay0 || null
+  };
+}
+
+const CI_SCREENS = {
+  w10: [
+    { t: 'Your weeks so far', auto: true, qs: [{ k: 'prefill', opts: ['Looks right', 'Fix a number'] }], text: { k: 'fixes', show: 'prefill=Fix a number', ph: 'e.g. chin assist started at 40, not 35' } },
+    { t: 'Body', waist: true, qs: [
+      { k: 'belly', q: 'Belly vs Day 0', opts: ['Flatter', 'Same', 'Bigger'] },
+      { k: 'photos', q: 'Photos taken today (camera roll)?', opts: ['Yes', 'Not yet'] }] },
+    { t: 'The exercises', lifts: true },
+    { t: 'Joints', qs: [
+      { k: 'ankle', q: 'Left ankle', opts: ['Better', 'Same', 'Worse'] },
+      { k: 'shoulders', q: 'Shoulders', opts: ['Fine', 'Niggly', 'Painful'] },
+      { k: 'other', q: 'Anything else?', opts: ['Knees', 'Low back', 'Elbows', 'None'], multi: 3 }] },
+    { t: 'Real life', qs: [
+      { k: 'perWeek', q: 'Sessions a week you can REALLY do', opts: ['2', '3', '4'] },
+      { k: 'minutes', q: 'Minutes per session', opts: ['25', '35', '45'] },
+      { k: 'slot', q: 'Best time', opts: ['Early', 'Lunch', 'Evening', 'Weekend'], multi: 2 },
+      { k: 'work', q: 'Work lately', opts: ['Light', 'Normal', 'Crushing'] },
+      { k: 'dread', q: 'Gym dread (1 = keen, 5 = dread)', opts: ['1', '2', '3', '4', '5'] }] },
+    { t: 'Next adventure', qs: [
+      { k: 'adventure', q: 'What is it?', opts: ['Via ferrata / climb', 'Swim', 'Hike / trek', 'Run', 'Sport', 'None yet'], multi: 2 },
+      { k: 'when', q: 'When?', opts: ['< 3 months', '3–6 months', '6+ months', 'Not set'] }], text: { k: 'where', ph: 'Where / what, if you know (optional)' } },
+    { t: 'Look + fuel', qs: [
+      { k: 'priority', q: 'Physique priority', opts: ['Shoulders / V-taper', 'Arms', 'Chest', 'Waist', 'Legs'], multi: 2 },
+      { k: 'protein', q: 'Protein hits on most days', opts: ['2', '3', '4'] },
+      { k: 'hunger', q: 'Hunger', opts: ['Fine', 'Hungry', 'Starving'] },
+      { k: 'energy', q: 'Energy', opts: ['Good', 'Flat', 'Wrecked'] },
+      { k: 'hardMeal', q: 'Hardest meal to get right', opts: ['Breakfast', 'Lunch', 'Late dinner', 'Weekends'] }] },
+    { t: 'Quick re-tests · optional', retest: true }
+  ],
+  w18: [
+    { t: 'Anything changed?', qs: [
+      { k: 'schedule', q: 'Work schedule since week 10', opts: ['Same', 'Lighter', 'Heavier'] },
+      { k: 'niggle', q: 'New niggle?', opts: ['None', 'Ankle', 'Shoulder', 'Knee', 'Low back'], multi: 2 },
+      { k: 'perWeek', q: 'Sessions a week from 20 Mar', opts: ['2', '3', '4'] },
+      { k: 'excited', q: 'Ready for something new?', opts: ['Bring it', 'Ease me in', 'Keep it like Reset'] }], text: { k: 'notes', ph: 'Anything else (optional)' } }
+  ]
+};
+const CI_RETESTS = [
+  { k: 'kneeL', label: 'Knee-to-wall LEFT (cm)' }, { k: 'kneeR', label: 'Knee-to-wall RIGHT (cm)' },
+  { k: 'hang', label: 'Dead hang (s)' }, { k: 'pushups', label: 'Max push-ups (one set)' }, { k: 'swimMin', label: 'Longest no-touch swim (min)' }
+];
+
+function openCheckin(id) {
+  const st = checkinState(id);
+  const screens = CI_SCREENS[id];
+  if (st.step >= screens.length) st.step = 0;
+  if (id === 'w10' && !st.auto) st.auto = computeCheckinAuto();
+  renderCheckinStep(id);
+}
+function renderCheckinStep(id) {
+  const st = checkinState(id);
+  const screens = CI_SCREENS[id];
+  const sc = screens[st.step];
+  const a = st.answers;
+  const sheet = openSheet();
+  let body = '';
+  if (sc.auto) {
+    const au = st.auto || computeCheckinAuto();
+    const spw = Object.entries(au.sessionsPerWeek).filter(([, v]) => v != null).map(([k, v]) => `${k}: <strong>${v}</strong>/wk`).join(' · ');
+    const liftRows = au.lifts.length ? au.lifts.map(l => `<li>${esc(l.name)}: <strong>${esc(l.first)}</strong> → <strong>${esc(l.last)}</strong></li>`).join('') : '<li>No lift logs yet.</li>';
+    body += `<ul class="ci-auto">
+      <li>${au.weight.avgNow != null ? `Weight (7-day avg): <strong>${au.weight.startKg}</strong> → <strong>${au.weight.avgNow}</strong> kg${au.weight.kgPerWeek != null ? ` · ${au.weight.kgPerWeek} kg/wk` : ''}` : 'Weight: no weigh-ins logged yet'}</li>
+      <li>Sessions: ${spw || '—'}</li>
+      <li>First block only: ${au.minimumOnly} · fuller: ${au.fullerSessions}</li>
+      ${au.waist ? `<li>Waist: <strong>${au.waist.first}</strong> → <strong>${au.waist.latest}</strong> cm</li>` : ''}
+      ${au.longestSwimMin != null ? `<li>Longest no-touch swim: <strong>${au.longestSwimMin} min</strong></li>` : ''}
+      ${liftRows}
+    </ul>`;
+  }
+  if (sc.waist) {
+    const lastW = (state.waists || []).slice().sort((x, y) => x.date.localeCompare(y.date)).at(-1);
+    body += `<label class="ci-field"><span>Waist today (cm, navel)</span><input type="number" step="0.1" inputmode="decimal" data-num="waist" value="${a.waist ?? ''}" placeholder="${lastW ? lastW.cm : 'cm'}"></label>`;
+  }
+  if (sc.lifts) {
+    body += '<p class="ci-sub">Default is Keep. Hurts = it hurts a joint, not just hard.</p>';
+    a.lifts = a.lifts || {};
+    DAY_SEQUENCE_RESET.forEach(wid => {
+      const w = getWorkout(wid);
+      w.blocks.forEach(b => b.exercises.forEach(ex => {
+        if (!(ex.alt || ex._alt || ex.assist || b === w.blocks[0])) return;
+        body += `<div class="ci-lift"><div class="ci-lift-name"><span class="ci-badge">${RESET_BADGE[wid]}</span>${esc(ex.name)}</div>
+          <div class="ci-chips" data-k="lift:${esc(ex.name)}">${chipsHTML(['Keep', 'Bored', 'Hate', 'Hurts'], a.lifts[ex.name] || 'Keep')}</div></div>`;
+      }));
+    });
+  }
+  (sc.qs || []).forEach(q => {
+    body += `${q.q ? `<div class="ci-q">${esc(q.q)}${q.multi ? ` <span class="ci-hint">pick up to ${q.multi}</span>` : ''}</div>` : ''}
+      <div class="ci-chips" data-k="${q.k}"${q.multi ? ` data-multi="${q.multi}"` : ''}>${chipsHTML(q.opts, a[q.k], !!q.multi)}</div>`;
+  });
+  if (sc.text) {
+    const [sk, sv] = (sc.text.show || '').split('=');
+    const visible = !sc.text.show || a[sk] === sv;
+    body += `<textarea class="ci-text" data-txt="${sc.text.k}" rows="2" placeholder="${esc(sc.text.ph)}"${visible ? '' : ' hidden'}>${esc(a[sc.text.k] || '')}</textarea>`;
+  }
+  if (sc.retest) {
+    const au = st.auto || {};
+    body += '<p class="ci-sub">Skip any you can\'t do right now.</p>' + CI_RETESTS.map(r => {
+      const ph = r.k === 'swimMin' && au.longestSwimMin != null ? au.longestSwimMin : '';
+      return `<label class="ci-field"><span>${r.label}</span><input type="number" step="0.5" inputmode="decimal" data-num="${r.k}" value="${a[r.k] ?? ''}" placeholder="${ph}"></label>`;
+    }).join('');
+  }
+  const last = st.step === screens.length - 1;
+  sheet.innerHTML = `
+    <div class="ci-head"><span class="ci-step">${st.step + 1} / ${screens.length}</span><button type="button" class="ci-x" data-close aria-label="Close — progress is saved">✕</button></div>
+    <div class="ci-progress"><i style="width:${Math.round(((st.step + 1) / screens.length) * 100)}%"></i></div>
+    <h2 class="ci-title">${esc(sc.t)}</h2>
+    ${body}
+    <div class="ci-nav">
+      ${st.step > 0 ? '<button type="button" class="btn-secondary" data-ci-back>Back</button>' : ''}
+      <button type="button" class="btn-primary" data-ci-next>${last ? 'Finish' : 'Next'}</button>
+    </div>`;
+  wireChips(sheet, (k, v) => {
+    if (k.startsWith('lift:')) a.lifts[k.slice(5)] = v;
+    else a[k] = v;
+    if (sc.text && sc.text.show) {
+      const [sk, sv] = sc.text.show.split('=');
+      const ta = sheet.querySelector('[data-txt]');
+      if (ta) ta.hidden = a[sk] !== sv;
+    }
+    save();
+  });
+  const collect = () => {
+    sheet.querySelectorAll('[data-num]').forEach(inp => {
+      const v = parseFloat(inp.value);
+      if (Number.isFinite(v)) a[inp.dataset.num] = v; else delete a[inp.dataset.num];
+    });
+    sheet.querySelectorAll('[data-txt]').forEach(ta => { if (ta.value.trim()) a[ta.dataset.txt] = ta.value.trim().slice(0, 500); else delete a[ta.dataset.txt]; });
+  };
+  sheet.querySelector('[data-ci-back]')?.addEventListener('click', () => { collect(); st.step -= 1; save(); renderCheckinStep(id); });
+  sheet.querySelector('[data-ci-next]').addEventListener('click', () => {
+    collect();
+    if (!last) { st.step += 1; save(); renderCheckinStep(id); return; }
+    finishCheckin(id);
+  });
+  sheet.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => { collect(); save(); renderCheckinPrompt('today'); renderCheckinPrompt('progress'); }));
+}
+function finishCheckin(id) {
+  const st = checkinState(id);
+  const a = st.answers;
+  if (id === 'w10') {
+    if (Number.isFinite(a.waist)) {
+      state.waists = (state.waists || []).filter(x => x.date !== today());
+      state.waists.push({ date: today(), cm: a.waist });
+    }
+    st.auto = computeCheckinAuto();
+    if (Number.isFinite(a.kneeL) || Number.isFinite(a.kneeR)) {
+      state.baseline = { ...(state.baseline || {}), kneeL: a.kneeL ?? state.baseline?.kneeL ?? null, kneeR: a.kneeR ?? state.baseline?.kneeR ?? null };
+    }
+  }
+  st.doneAt = today();
+  st.step = 0;
+  save();
+  const sheet = openSheet();
+  sheet.innerHTML = `
+    <div class="ci-head"><span class="ci-step">Done</span><button type="button" class="ci-x" data-close>✕</button></div>
+    <h2 class="ci-title">That's everything</h2>
+    <p class="ci-sub">Nothing in your plan has changed. Copy the brief and paste it into the chat — RHN 2.0 gets built from it and starts Sat 20 Mar.</p>
+    <button type="button" class="btn-primary" id="briefCopyBtn">Copy RHN 2.0 brief</button>
+    <button type="button" class="btn-secondary" id="ciBackupBtn">Export a backup too</button>`;
+  sheet.querySelector('#briefCopyBtn').addEventListener('click', copyBrief);
+  sheet.querySelector('#ciBackupBtn').addEventListener('click', exportBackup);
+  renderCheckinPrompt('today');
+  renderCheckinPrompt('progress');
+  renderVariantCard();
+}
+function buildCheckinBrief() {
+  const L = [];
+  const ci = state.checkins || {};
+  if (!ci.w10?.doneAt && !ci.w18?.doneAt) return '';
+  L.push('RHN 2.0 BRIEF — from the Reset check-ins');
+  L.push(`generated ${today()} · week ${weekNumber()}/${DATA.totalWeeks} · RHN 2.0 starts Sat 20 Mar 2027 (week 20)`);
+  L.push('Constraints: no sled / trap bar / leg curl / leg press / calf machine · DBs over Smith for chest · protect shoulders (no overhead pressing, no dips) · stiff LEFT ankle · offline app · no doctor push · physique (V-taper) + functional (via ferrata, swims, hikes).');
+  const w10 = ci.w10;
+  if (w10?.doneAt) {
+    const a = w10.answers || {}, au = w10.auto || {};
+    L.push('', `WEEK-10 CHECK-IN (${w10.doneAt})`);
+    if (au.weight) L.push(`  Weight 7-day avg: ${au.weight.startKg} → ${au.weight.avgNow ?? '—'} kg${au.weight.kgPerWeek != null ? ` (${au.weight.kgPerWeek} kg/wk)` : ''}`);
+    if (au.waist) L.push(`  Waist: ${au.waist.first} → ${au.waist.latest} cm${Number.isFinite(a.waist) ? ` · today ${a.waist}` : ''} (target ≤ 83.5)`);
+    if (au.sessionsPerWeek) L.push('  Sessions/wk: ' + Object.entries(au.sessionsPerWeek).filter(([, v]) => v != null).map(([k, v]) => `${k} ${v}`).join(' · '));
+    if (au.totals) L.push('  Totals: ' + Object.entries(au.totals).map(([k, v]) => `${k} ${v}`).join(' · ') + ` · first-block-only ${au.minimumOnly} · fuller ${au.fullerSessions}`);
+    (au.lifts || []).forEach(l => L.push(`  ${l.session} ${l.name}: ${l.first} → ${l.last} (${l.sessions} sessions${l.usedAlt ? ', alt used' : ''})`));
+    if (au.longestSwimMin != null) L.push(`  Longest no-touch swim: ${au.longestSwimMin} min`);
+    if (au.swaps && Object.keys(au.swaps).length) L.push('  Swaps: ' + Object.entries(au.swaps).map(([k, v]) => `${k} ×${v}`).join(' · '));
+    if (au.painFlags && Object.keys(au.painFlags).length) L.push('  Pain flags: ' + Object.entries(au.painFlags).map(([k, v]) => `${k} ×${v}`).join(' · '));
+    if (au.variants?.length) L.push(`  Alternates chosen: ${au.variants.length}`);
+    if (au.day0) L.push(`  Day 0: waist ${au.day0.waist ?? '—'} · knee-to-wall L ${au.day0.kneeL ?? '—'} R ${au.day0.kneeR ?? '—'}`);
+    L.push(`  Prefill: ${a.prefill || '—'}${a.fixes ? ' · fixes: ' + a.fixes : ''}`);
+    L.push(`  Body: belly ${a.belly || '—'} · photos ${a.photos || '—'}`);
+    if (a.lifts) L.push('  Exercise verdicts: ' + Object.entries(a.lifts).filter(([, v]) => v !== 'Keep').map(([k, v]) => `${k} = ${v}`).join(' · ') || '  Exercise verdicts: all Keep');
+    L.push(`  Joints: L ankle ${a.ankle || '—'} · shoulders ${a.shoulders || '—'} · other ${(a.other || []).join(', ') || '—'}`);
+    L.push(`  Real life: ${a.perWeek || '—'}×/wk · ${a.minutes || '—'} min · best ${(a.slot || []).join('/') || '—'} · work ${a.work || '—'} · dread ${a.dread || '—'}/5`);
+    L.push(`  Adventure: ${(a.adventure || []).join(' + ') || '—'} · ${a.when || '—'}${a.where ? ' · ' + a.where : ''}`);
+    L.push(`  Look/fuel: priority ${(a.priority || []).join(' + ') || '—'} · protein hits ${a.protein || '—'} · hunger ${a.hunger || '—'} · energy ${a.energy || '—'} · hardest meal ${a.hardMeal || '—'}`);
+    const rt = CI_RETESTS.filter(r => Number.isFinite(a[r.k])).map(r => `${r.label.replace(/ \(.*\)/, '')} ${a[r.k]}`);
+    if (rt.length) L.push('  Re-tests: ' + rt.join(' · '));
+    const guard = (+a.dread >= 4) || a.work === 'Crushing';
+    L.push('', 'RULES FOR BUILDING 2.0');
+    L.push(guard ? '  ⚠ Dread ≥ 4 or work = crushing → 2.0 adds NO volume over Reset.' : '  Volume may rise modestly over Reset.');
+    L.push('  Recalculate calories from the current 7-day average. Keep the first-block-counts rule. Opens easy like Reset week 1.');
+  }
+  const w18 = ci.w18;
+  if (w18?.doneAt) {
+    const a = w18.answers || {};
+    L.push('', `PRE-LAUNCH RE-CHECK (${w18.doneAt})`);
+    L.push(`  Schedule ${a.schedule || '—'} · niggle ${(a.niggle || []).join(', ') || '—'} · ${a.perWeek || '—'}×/wk · ${a.excited || '—'}${a.notes ? ' · ' + a.notes : ''}`);
+  }
+  L.push('', '```json', JSON.stringify(ci), '```');
+  return L.join('\n');
+}
+async function copyBrief() {
+  const text = buildCheckinBrief() || buildCoachReport();
+  let ok = false;
+  try { if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(text); ok = true; } } catch (_) { ok = false; }
+  if (!ok) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { ok = document.execCommand('copy'); } catch (_) { ok = false; }
+    document.body.removeChild(ta);
+  }
+  showToast(ok ? 'Brief copied — paste it into the chat' : 'Copy blocked — use Copy my training data instead');
 }
 
 // ===== Intelligence-layer renderers =====
@@ -1588,6 +2277,9 @@ function renderPrayer() {
   const t = prayerTimes(now);
   const np = nextPrayer(t, nowH);
   const ramadan = !!state.ramadan;
+  const dUntil = daysUntilRamadan();
+  const ramadanSoon = !ramadan && dUntil >= 1 && dUntil <= 3
+    ? `<div class="pr-ramadan"><strong>Ramadan starts in ~${dUntil} day${dUntil > 1 ? 's' : ''}.</strong> Hold phase: eat at maintenance, first block only after iftar, keep protein high. Ramadan mode switches on by itself.</div>` : '';
 
   const cells = PRAYER_ORDER.map(([k, label]) => {
     const isNext = !np.tomorrow && k === np.key;
@@ -1607,7 +2299,7 @@ function renderPrayer() {
       <div class="pr-ramadan">
         <div class="pr-ram-row"><span>Suhoor ends · Fajr</span><strong>${fmtClock(t.fajr)}</strong></div>
         <div class="pr-ram-row"><span>Iftar · Maghrib</span><strong>${fmtClock(t.maghrib)}</strong></div>
-        <div class="pr-ram-note">Train <strong>after iftar</strong> — break the fast and hydrate first. Hold your loads, no PRs while fasting. <strong>Deficit paused:</strong> eat at maintenance to protect muscle. Suhoor = protein + slow carbs + a litre of water.</div>
+        <div class="pr-ram-note">Train <strong>60–90 min after iftar</strong> (never in a prayer slot) — first block only, 2× a week. Hold your loads, no PRs while fasting. <strong>Deficit paused:</strong> eat at maintenance. Protein in 2–3 hits of ~45 g (suhoor, iftar, before bed). Water spread from iftar to suhoor, ~2.5 L.</div>
       </div>`;
   }
 
@@ -1616,7 +2308,7 @@ function renderPrayer() {
     <div class="pr-next-line">Next · <strong>${np.label}</strong> ${np.tomorrow ? 'tomorrow' : `in ${cd}`}</div>
     <div class="pr-grid">${cells}</div>
     <button class="pr-toggle ${ramadan ? 'on' : ''}" id="ramadanToggle">${ramadan ? '✓ Ramadan mode on' : 'Ramadan mode'}</button>
-    ${ramadanHTML}
+    ${ramadanHTML}${ramadanSoon}
     <div class="pr-windown">Wind-down for Fajr ${fmtClock(t.fajr)} — lights out by <strong>${fmtClock(wd)}</strong> to bank 7 hours.</div>
     <div class="pr-caveat">Calculated from MUIS angles (Fajr 20° · Isha 18° · Shafi'i Asr). For fasting, confirm suhoor &amp; iftar against the official MUIS table.</div>`;
 
@@ -1692,12 +2384,12 @@ function renderAllWorkouts() {
 // ========== PROGRESS ==========
 function renderWeightChart() {
   const el = document.getElementById('weightChart');
-  if (!state.weights.length) {
+  if (!blockWeights().length) {
     el.innerHTML = '<div class="chart-empty">Log your first weight to see the curve</div>';
     return;
   }
 
-  const data = state.weights.slice().sort((a, b) => a.date.localeCompare(b.date));
+  const data = blockWeights();
   const target = DATA.targetKg;
   const allKg = data.map(d => d.kg).concat([target, DATA.startKg]);
   const min = Math.floor(Math.min(...allKg) - 1);
@@ -1761,14 +2453,22 @@ function rollingAvgWeight() {
 
 function renderWeightStats() {
   const el = document.getElementById('weightStats');
-  const data = state.weights.slice().sort((a, b) => a.date.localeCompare(b.date));
+  const data = blockWeights();
   const today = data.at(-1)?.kg ?? DATA.startKg;
   const avg = rollingAvgWeight() ?? DATA.startKg;
   const start = data.length > 1 ? data[0].kg : DATA.startKg;
   const lost = start - avg;
   const target = DATA.targetKg;
   const toGo = avg - target;
-  const atFloor = avg <= 68;
+  const waistTarget = 83.5;
+  const lastWaist = (state.waists || []).slice().sort((a, b) => a.date.localeCompare(b.date)).at(-1);
+  const waistHit = isReset() && lastWaist && lastWaist.cm <= waistTarget;
+  const atFloor = isReset() ? (avg <= target || waistHit) : avg <= 68;
+  const hero = document.querySelector('#view-progress .hero-sub');
+  if (hero && isReset()) {
+    const goalKg = DATA.startKg - target;
+    hero.innerHTML = `<strong>−${Math.max(0, DATA.startKg - avg).toFixed(1)} of ${goalKg} kg</strong> · waist ${lastWaist ? lastWaist.cm.toFixed(1) : '—'} → ${waistTarget} cm · hit either = health goal done`;
+  }
 
   el.innerHTML = `
     <div class="progress-stat">
@@ -1781,7 +2481,7 @@ function renderWeightStats() {
       <div class="progress-stat-value ${lost > 0 ? 'green' : ''}">${lost > 0 ? '−' : ''}${Math.abs(lost).toFixed(1)}</div>
     </div>
     <div class="progress-stat">
-      <div class="progress-stat-label">${atFloor ? 'At floor' : 'To target'}</div>
+      <div class="progress-stat-label">${atFloor ? (isReset() ? 'Goal' : 'At floor') : 'To target'}</div>
       <div class="progress-stat-value">${atFloor ? '✓' : (toGo > 0 ? toGo.toFixed(1) : '✓')}</div>
     </div>
   `;
@@ -1799,7 +2499,7 @@ function weightTrendNote(data, avg, atFloor) {
     return 'Weigh in daily. The 7-day average is the real trend — ignore the daily ±1 kg of water and food.';
   }
   if (atFloor) {
-    return '<strong>Goal reached.</strong> Add back a fist of rice at lunch (maintenance) and keep lifting.';
+    return '<strong>Health target hit.</strong> Hold here or keep going — either is a win. Holding = add back a fist of rice at lunch and keep lifting.';
   }
   // Find a data point ~14 days before the latest to measure the slope.
   const latest = data.at(-1);
@@ -1865,7 +2565,7 @@ function fmtForecastDate(d) {
 // to the target. Confidence band scales with the slope's standard error so the
 // estimate is honest about noise. Returns a status object the card can render.
 function forecastTrajectory(targetKg) {
-  const data = state.weights.slice().sort((a, b) => a.date.localeCompare(b.date));
+  const data = blockWeights();
   if (data.length < 6) return { status: 'thin', n: data.length };
   const t0 = new Date(data[0].date + 'T00:00:00').getTime();
   const latestT = new Date(data.at(-1).date + 'T00:00:00').getTime();
@@ -2175,7 +2875,7 @@ function renderWeekGrid() {
     el.innerHTML += `<div class="${cls}"${title ? ` title="${title}"` : ''}>${i}</div>`;
   }
   const meta = document.getElementById('weekMapMeta');
-  if (meta) meta.textContent = isReset() ? `Week ${cw} of ${DATA.totalWeeks} · target 2–3 a week` : `16 weeks · ${sessionsThisTrainingWeek()}/5 this wk`;
+  if (meta) meta.textContent = isReset() ? `Week ${cw} of ${DATA.totalWeeks} · ${resetPhase(cw)?.title || ''}` : `16 weeks · ${sessionsThisTrainingWeek()}/5 this wk`;
   // Legend
   const legend = document.getElementById('weekMapLegend');
   if (legend) legend.innerHTML = `
@@ -2191,7 +2891,9 @@ function buildHistoryDetail(session) {
   const dayLog = state.setLog?.[session.date]?.[session.workoutId] || {};
   const blocks = w.blocks.map(block => {
     const exHTML = block.exercises.map((ex, exIdx) => {
-      const exKey = `${block.title}::${exIdx}`;
+      const base = `${block.title}::${exIdx}`;
+      const exKey = [base, base + '~sub', base + '~alt', base + '~alt~sub']
+        .find(k => (dayLog[k] || []).some(s => s && s.done)) || base;
       const sets = dayLog[exKey] || [];
       const done = sets.filter(s => s && s.done);
       if (!done.length) return '';
@@ -2222,7 +2924,7 @@ function buildHistoryDetail(session) {
     }).filter(Boolean).join('');
     if (!exHTML) return '';
     return `<div class="det-block">
-      <div class="det-block-title">${block.title}</div>
+      <div class="det-block-title">${esc(blockLabel(block.title))}</div>
       ${exHTML}
     </div>`;
   }).filter(Boolean).join('');
@@ -2559,11 +3261,14 @@ function buildCoachReport() {
     : 0;
 
   L.push('RHN PROTOCOL — COACH REVIEW');
-  L.push(`generated ${today()} · week ${wk}/16 · phase ${ph} · started ${start} (${daysIn}d in)`);
+  const brief = buildCheckinBrief();
+  if (brief) { L.push(brief.split('\n```json')[0]); L.push(''); }
+  const phLabel = isReset() ? (resetPhase(wk)?.title || '—') : 'phase ' + ph;
+  L.push(`generated ${today()} · ${isReset() ? 'RESET' : 'RHN'} · week ${wk}/${isReset() ? DATA.totalWeeks : 16} · ${phLabel} · started ${start} (${daysIn}d in)`);
   L.push('');
 
   // ----- BODY -----
-  const weights = (state.weights || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+  const weights = blockWeights();
   const waists = (state.waists || []).slice().sort((a, b) => a.date.localeCompare(b.date));
   L.push('BODY');
   if (weights.length) {
@@ -2823,6 +3528,7 @@ function renderMobility() {
 }
 
 function renderProgress() {
+  renderCheckinPrompt('progress');
   renderWeightChart();
   renderWeightStats();
   renderForecast();
@@ -2898,7 +3604,26 @@ function renderNutrition() {
 }
 
 // ========== PROTOCOL ==========
+function renderLookThePart() {
+  let card = document.getElementById('lookCard');
+  const anchor = document.getElementById('maintainToggleBtn')?.closest('.card');
+  if (!card && anchor) {
+    card = document.createElement('section');
+    card.id = 'lookCard';
+    card.className = 'card card-collapsible collapsed';
+    anchor.before(card);
+  }
+  if (!card) return;
+  card.innerHTML = `
+    <header class="card-header"><h2>Look the part</h2><span class="card-meta">optional · untracked</span><span class="card-toggle" aria-hidden="true"></span></header>
+    <div class="rules">${(DATA.lookThePart || []).map((r, i) => `<div class="rule"><div class="rule-num">${String(i + 1).padStart(2, '0')}</div><div class="rule-body">${r}</div></div>`).join('')}
+    ${isReset() ? '<div class="rule"><div class="rule-num">→</div><div class="rule-body">Planning RHN 2.0 early? <button type="button" class="nudge-btn" id="ciEarlyBtn">Open the check-in now</button></div></div>' : ''}</div>`;
+  card.querySelector('.card-header').addEventListener('click', () => card.classList.toggle('collapsed'));
+  card.querySelector('#ciEarlyBtn')?.addEventListener('click', e => { e.stopPropagation(); openCheckin('w10'); });
+}
+
 function renderProtocol() {
+  renderLookThePart();
   document.getElementById('executionRules').innerHTML = DATA.executionRules.map((r, i) => `
     <div class="rule">
       <div class="rule-num">${String(i + 1).padStart(2, '0')}</div>
@@ -3063,6 +3788,13 @@ if (state.resetBlock !== RESET_START_KEY) {
   document.querySelectorAll('.prog-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.program === 'reset'));
 }
 
+// Baseline was hard-coded at the 75 kg recomp — reset it for the 82 kg Reset start.
+if (!state.baselineV2) {
+  state.baselineV2 = true;
+  state.baseline = { ...(state.baseline || {}), weight: DATA.startKg, waist: null, kneeL: null, kneeR: null };
+}
+autoRamadan();
+
 // Lock in today's pick so it can't shift mid-day (e.g. Day 1 → Day 2 the moment
 // Day 1 counts as done this week).
 setSelectedWorkoutForToday(getSelectedWorkoutForToday());
@@ -3116,5 +3848,9 @@ document.querySelectorAll('.card-collapsible .card-header').forEach(header => {
 
 // Ask the browser not to evict our storage under pressure (no-op where unsupported).
 try { navigator.storage?.persist?.()?.catch?.(() => {}); } catch (_) { /* unsupported */ }
+// Offline: network-first service worker — always fresh when online, cached copy when the gym has no signal.
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
 
 renderAll();

@@ -2294,3 +2294,87 @@ input:focus:not(:focus-visible) { outline: none; }
 .workout-cue { padding: 4px 22px 2px; }
 .card-header { flex-wrap: wrap; row-gap: 4px; }
 .card-header h2 { white-space: nowrap; }
+
+/* ===== Council + arena UX pass (Nov 2026) ===== */
+/* 12px floor for the labels you read mid-set (were 9–11px). */
+.set-input span, .set-bar-total, .ms-inputs span, .ms-label, .ms-set-label,
+.session-progress-label, .day-pill-num, .card-meta, .swapped-tag, .block-title,
+.info-spec, .timed-go, .rest-bar-label, .progress-stat-label, .progress-stat-sub,
+.history-date, .rule-num, .hero-eyebrow, .stat-label, .logo-sub, .mob-spec, .mob-last,
+.cable-machine-hint, .pr-name, .lift-sub, .target-label, .workout-block-tag,
+.exercise-prev::before { font-size: 12px; }
+/* 44px rows for set entry, day pills and set buttons. */
+.set-input { min-height: 48px; }
+.set-input input { min-height: 40px; }
+.repeat-btn, .swap-btn, .pain-flag { min-width: 44px; min-height: 44px; }
+.day-pill { min-height: 56px; }
+.block-title { min-height: 44px; }
+
+/* Minimum done → reassurance strip pinned to the bottom of the screen */
+.session-progress.pinned-done {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 40;
+  width: min(560px, calc(100% - 24px)); margin: 0;
+  background: var(--bg-1); border: 1px solid var(--wine-bright); border-radius: 14px;
+  padding: 10px 14px; box-shadow: 0 8px 28px rgba(0,0,0,.45);
+}
+body:has(.session-progress.pinned-done:not([hidden])) main { padding-bottom: 90px; }
+body.rest-active .session-progress.pinned-done { bottom: calc(96px + env(safe-area-inset-bottom)); }
+
+/* Today: dated nudge line (Day 0 / waist Saturday / monthly shoulders) */
+.today-nudge {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px;
+  background: var(--bg-2); border: 1px solid var(--line); color: var(--text-dim);
+  font-size: 13.5px; line-height: 1.5;
+}
+.today-nudge strong { color: var(--text); }
+.nudge-btn {
+  display: inline-flex; align-items: center; min-height: 36px; margin: 6px 0 0;
+  padding: 0 14px; border-radius: 9px; border: 1px solid var(--wine);
+  background: transparent; color: var(--wine-bright); font: 600 13px 'Hanken Grotesk', sans-serif;
+}
+.variant-card, .checkin-card { border-color: var(--wine); }
+.checkin-card .btn-ghost, .variant-card .btn-ghost { color: var(--text-dim); }
+
+/* Bottom sheet: check-in, Day 0, lift picks */
+.ci-wrap {
+  position: fixed; inset: 0; z-index: 100; background: rgba(8,8,12,.72);
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.ci-sheet {
+  width: min(560px, 100%); max-height: 92vh; overflow-y: auto; overscroll-behavior: contain;
+  background: var(--bg-1); border: 1px solid var(--line-bright); border-bottom: none;
+  border-radius: 20px 20px 0 0; padding: 14px 18px calc(22px + env(safe-area-inset-bottom));
+}
+body.sheet-open { overflow: hidden; }
+.ci-head { display: flex; align-items: center; justify-content: space-between; }
+.ci-step { font: 600 12px 'JetBrains Mono', monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--text-faint); }
+.ci-x { min-width: 44px; min-height: 44px; border: none; background: transparent; color: var(--text-dim); font-size: 18px; }
+.ci-progress { height: 4px; border-radius: 4px; background: var(--bg-3); margin: 4px 0 14px; overflow: hidden; }
+.ci-progress i { display: block; height: 100%; background: var(--wine-bright); }
+.ci-title { font-size: 22px; margin: 0 0 6px; color: var(--text); }
+.ci-sub { font-size: 14px; line-height: 1.5; color: var(--text-dim); margin: 0 0 12px; }
+.ci-q { font-size: 14px; font-weight: 600; color: var(--text); margin: 14px 0 8px; }
+.ci-hint { font-weight: 400; color: var(--text-faint); font-size: 12.5px; }
+.ci-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ci-chip {
+  min-height: 44px; padding: 0 16px; border-radius: 22px;
+  border: 1px solid var(--line-bright); background: var(--bg-2); color: var(--text);
+  font: 500 14.5px 'Hanken Grotesk', sans-serif;
+}
+.ci-chip.on { background: var(--wine); border-color: var(--wine-bright); color: #fff; font-weight: 700; }
+.ci-field { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; font-size: 14px; color: var(--text-dim); }
+.ci-field input, .ci-text {
+  min-height: 46px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line-bright);
+  background: var(--bg-3); color: var(--text); font: 600 16px 'JetBrains Mono', monospace;
+}
+.ci-text { width: 100%; padding: 10px 12px; margin-top: 10px; font: 400 16px 'Hanken Grotesk', sans-serif; box-sizing: border-box; }
+.ci-lift { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.ci-lift-name { font-size: 14.5px; color: var(--text); margin-bottom: 8px; line-height: 1.4; }
+.ci-badge { display: inline-block; min-width: 22px; margin-right: 8px; padding: 1px 6px; border-radius: 6px; background: var(--bg-3); color: var(--wine-bright); font: 700 12px 'JetBrains Mono', monospace; text-align: center; }
+.ci-arrow { color: var(--text-faint); }
+.ci-auto { margin: 0 0 6px; padding-left: 18px; font-size: 14px; line-height: 1.65; color: var(--text-dim); }
+.ci-auto strong { color: var(--text); }
+.ci-nav { display: flex; gap: 10px; margin-top: 18px; }
+.ci-nav > * { flex: 1; margin: 0; }
+.ci-sheet .btn-primary, .ci-sheet .btn-secondary { margin-top: 14px; }
