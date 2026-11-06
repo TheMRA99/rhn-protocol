@@ -37,7 +37,7 @@ const defaultState = {
 // Home day between Day 2 and Day 4 — both are leg days.
 const DAY_SEQUENCE = ['day1', 'day2', 'day3', 'day4', 'day5'];
 const DAY_SEQUENCE_OMAN = ['oman1', 'oman2', 'oman3', 'oman4', 'oman5'];
-// Reset block (Nov 2026 →): A/B/C in order + 'Move' sessions. Every Reset session counts toward the week.
+// Reset block (Nov 2026 →): A/B/C in order (2 = full week) + optional extras that never replace a lift.
 const DAY_SEQUENCE_RESET = ['reset_a', 'reset_b', 'reset_c'];
 const RESET_EXTRAS = ['reset_intervals', 'reset_swim', 'reset_z2', 'reset_hill', 'reset_home'];
 const RESET_START_KEY = '2026-11-reset-v2';
@@ -960,6 +960,50 @@ function computeStreak() {
 }
 
 // ========== TODAY: DAY PICKER ==========
+// Reset: the week is 2–3 lifts. Extras live behind one toggle so the picker
+// never looks like a to-do list.
+let extrasOpen = false;
+function resetExtrasFor(wk) {
+  const ram = isRamadanHold(wk);
+  return RESET_EXTRAS.filter(id => {
+    if (id === 'reset_intervals') return wk >= 5 && !ram;
+    return true;
+  });
+}
+const EXTRA_LABEL = { reset_swim: 'Swim', reset_z2: 'Easy cardio', reset_intervals: 'Intervals', reset_hill: 'Hill walk', reset_home: 'Home 20' };
+function renderResetPicker(wrap, done, next) {
+  const wk = weekNumber();
+  const extras = resetExtrasFor(wk);
+  const open = extrasOpen || extras.includes(state.selectedWorkout);
+  const lifts = DAY_SEQUENCE_RESET.map(id => {
+    const w = getWorkout(id);
+    const isDone = done.has(id);
+    const cls = ['day-pill'];
+    if (state.selectedWorkout === id) cls.push('active');
+    if (isDone) cls.push('done');
+    if (id === next) cls.push('next');
+    return `<button class="${cls.join(' ')}" data-id="${id}">
+      <div class="day-pill-num">Session ${RESET_BADGE[id]}${isDone ? '<span class="day-pill-check">✓</span>' : ''}</div>
+      <div class="day-pill-name">${w.name.replace(/^[ABC] · /, '').trim()}</div>
+    </button>`;
+  }).join('');
+  const chips = extras.map(id => {
+    const cls = ['extra-chip'];
+    if (state.selectedWorkout === id) cls.push('active');
+    if (done.has(id)) cls.push('done');
+    return `<button class="${cls.join(' ')}" data-id="${id}">${EXTRA_LABEL[id]}${done.has(id) ? ' ✓' : ''}</button>`;
+  }).join('');
+  wrap.innerHTML = lifts
+    + `<button type="button" class="extras-toggle" id="extrasToggle" aria-expanded="${open}">${open ? 'Optional extras ▴' : '+ Optional extra · only if you feel like it'}</button>`
+    + (open ? `<div class="extras-row">${chips}<div class="extras-note">Nice to have, never required. They don't replace a lift.</div></div>` : '');
+  wrap.querySelector('#extrasToggle').addEventListener('click', () => { extrasOpen = !open; renderDayPicker(); });
+  wrap.querySelectorAll('.extra-chip').forEach(b => b.addEventListener('click', () => {
+    setSelectedWorkoutForToday(b.dataset.id);
+    save(); renderToday(); renderHeader();
+    requestAnimationFrame(() => document.getElementById('workoutCard')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }));
+}
+
 function renderDayPicker() {
   const wrap = document.getElementById('dayPicker');
   const done = daysDoneInWeek(weekNumber());
@@ -967,6 +1011,10 @@ function renderDayPicker() {
   const seq = getActiveSequence();
   // For RHN, include homecore as a rest day option. For Oman, show only the 5-day cycle.
   const showHomecore = state.program === 'rhn';
+  wrap.classList.toggle('reset-picker', isReset());
+  if (isReset()) {
+    renderResetPicker(wrap, done, next);
+  } else
   wrap.innerHTML = DATA.workouts.filter(w => {
     if (isReset()) return seq.includes(w.id) || RESET_EXTRAS.includes(w.id);
     if (w.special && w.id !== 'homecore') return false;
@@ -992,11 +1040,17 @@ function renderDayPicker() {
     const n = done.size;
     const activeSeq = getActiveSequence();
     if (isReset()) {
-      const nextTxt = next ? ` · next up <strong>Session ${RESET_BADGE[next]}</strong>` : ' · any Move session from here';
       const lifts = [...done].filter(id => DAY_SEQUENCE_RESET.includes(id)).length;
-      const moves = n - lifts;
+      const extras = n - lifts;
       const counted = isHolidayWeek(wk) ? n : lifts;
-      statusEl.innerHTML = `This week <strong>${lifts} lift${lifts === 1 ? '' : 's'}</strong>${moves ? ` + ${moves} move` : ''} · target ${weekTarget(wk)}${counted >= fullWeekAt(wk) ? ' · full week ✓' : ''}${nextTxt}`;
+      const full = fullWeekAt(wk);
+      const extraTxt = extras ? ` · +${extras} extra` : '';
+      if (counted >= full) {
+        const more = lifts >= 3 || isRamadanHold(wk) || isHolidayWeek(wk) ? 'you\'re done — rest is part of the plan' : `Session ${RESET_BADGE[next] || 'C'} is a bonus, not a must`;
+        statusEl.innerHTML = `<strong>Full week ✓</strong> (${lifts} lift${lifts === 1 ? '' : 's'}${extraTxt}) · ${more}`;
+      } else {
+        statusEl.innerHTML = `This week <strong>${counted} of ${full}</strong>${isHolidayWeek(wk) ? ' (holidays: any session counts)' : ' lifts'}${extraTxt} · next <strong>Session ${RESET_BADGE[next] || 'A'}</strong> · ${full} = a full week`;
+      }
     } else {
     const nextLabel = next ? (state.program === 'oman' ? 'Oman ' : 'Day ') + (activeSeq.indexOf(next) + 1) : null;
     let html = `Week ${wk} · <strong>${n}/5</strong> done`
@@ -1026,6 +1080,13 @@ function renderDayPicker() {
 // ========== TODAY: INFO LISTS (no checkboxes) ==========
 function renderInfoList(elId, items) {
   const el = document.getElementById(elId);
+  if (isReset() && items.some(it => it.core)) {
+    const row = it => `<div class="info-row"><div class="info-body"><div class="info-name">${it.name}</div><div class="info-note">${it.note}</div></div><div class="info-spec">${it.spec}</div></div>`;
+    const rest = items.filter(it => !it.core);
+    el.innerHTML = items.filter(it => it.core).map(row).join('')
+      + `<details class="finetune"><summary>Fine-tuning · ${rest.length} more, add one at a time when the 3 above are easy</summary>${rest.map(row).join('')}</details>`;
+    return;
+  }
   el.innerHTML = items.map(it => `
     <div class="info-row">
       <div class="info-body">
@@ -1550,9 +1611,12 @@ function renderToday() {
   applyResetLayout();
 
   const w = getWorkout(state.selectedWorkout);
-  document.getElementById('todayTitle').textContent = w ? w.name : "Today's session";
-  document.getElementById('todaySub').textContent = w ? w.blurb : "Pick what fits your week. Don't stack delts back-to-back.";
-  document.getElementById('todayTag').textContent = w ? w.tagline : 'Show up';
+  const resetIdle = isReset() && !w;
+  document.getElementById('todayTitle').textContent = w ? w.name : resetIdle ? 'Pick today\'s lift' : "Today's session";
+  document.getElementById('todaySub').textContent = w ? w.blurb : resetIdle
+    ? 'The whole plan: 2 lifts a week (~35 min, or just the first block) + a short walk after meals. That\'s a full week. Everything else is optional.'
+    : "Pick what fits your week. Don't stack delts back-to-back.";
+  document.getElementById('todayTag').textContent = w ? w.tagline : resetIdle ? '2 a week = done' : 'Show up';
 }
 
 // Reset: workout first, everything else out of the way. RHN keeps its full layout.
@@ -1562,15 +1626,20 @@ function applyResetLayout() {
   document.querySelector('.escape-links')?.toggleAttribute('hidden', r);
   [cardOf('resetList'), cardOf('staminaList'), cardOf('officeRotator')].forEach(c => c && (c.hidden = r));
   if (r) [cardOf('ritualList'), cardOf('dailyList')].forEach(c => c?.classList.add('collapsed'));
+  const dailyHead = cardOf('dailyList')?.querySelector('.card-header');
+  if (dailyHead) {
+    dailyHead.querySelector('h2').innerHTML = `<span class="num">04</span>${r ? 'Daily habits' : 'Daily non-negotiables'}`;
+    dailyHead.querySelector('.card-meta').textContent = r ? '3 that matter · the rest is optional' : 'Every day';
+  }
   const cue = document.querySelector('.workout-cue');
   if (cue) cue.innerHTML = r ? effortCue()
     : 'Working sets · stop <strong>1–2 reps shy of failure</strong> · slow 3-sec lower on isolation';
   // Workouts tab + Protocol copy that was written for the old 16-week RHN block
   const wHero = document.querySelector('#view-workouts .hero');
   if (wHero && r) {
-    wHero.querySelector('.hero-eyebrow').textContent = 'Reset · 3 sessions + Move';
+    wHero.querySelector('.hero-eyebrow').textContent = 'Reset · 3 lifts · extras optional';
     wHero.querySelector('.hero-title').textContent = 'The sessions';
-    wHero.querySelector('.hero-sub').textContent = 'Go A → B → C in order, any weekday. Missed one? Just do the next. The first block of each is a full session.';
+    wHero.querySelector('.hero-sub').textContent = 'Go A → B → C in order, any weekday. 2 a week is a full week, 3 is a bonus. Missed one? Just do the next. The first block of each is a full session. The extras at the bottom are optional.';
   }
   document.getElementById('plateTarget')?.closest('.card')?.toggleAttribute('hidden', r);
   renderTodayNudge();
@@ -2380,11 +2449,12 @@ document.getElementById('plateBar')?.addEventListener('change', renderPlateResul
 function renderAllWorkouts() {
   const wrap = document.getElementById('workoutsAll');
   const phaseTag = `<div style="font:700 11px/1 var(--font-mono,ui-monospace,monospace);letter-spacing:.12em;text-transform:uppercase;opacity:.55;margin-bottom:16px">Showing Phase ${phaseNumber()} · Week ${weekNumber()}</div>`;
-  const list = isReset() ? DATA.workouts.filter(w => DAY_SEQUENCE_RESET.includes(w.id) || RESET_EXTRAS.includes(w.id)) : phaseWorkouts();
+  const list = isReset() ? [...DAY_SEQUENCE_RESET, ...resetExtrasFor(weekNumber())].map(getWorkout).filter(Boolean) : phaseWorkouts();
   wrap.innerHTML = (isReset() ? '' : phaseTag) + list.map((w, i) => `
+    ${isReset() && w.id === resetExtrasFor(weekNumber())[0] ? '<div class="extras-divider">Optional extras · only if you want more</div>' : ''}
     <section class="workout-block">
       <div class="workout-block-head">
-        <div class="workout-block-tag">${isReset() ? (RESET_EXTRAS.includes(w.id) ? 'Move' : 'Session ' + RESET_BADGE[w.id]) : w.id === 'homecore' ? 'Home · core' : 'Day 0' + (i + 1)}</div>
+        <div class="workout-block-tag">${isReset() ? (RESET_EXTRAS.includes(w.id) ? 'Optional' : 'Session ' + RESET_BADGE[w.id]) : w.id === 'homecore' ? 'Home · core' : 'Day 0' + (i + 1)}</div>
         <div class="workout-block-name">${w.name}</div>
         <div class="workout-block-blurb">${w.blurb}</div>
       </div>

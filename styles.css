@@ -2382,3 +2382,31 @@ body.sheet-open { overflow: hidden; }
 .history-tag { margin-left: 6px; padding: 1px 7px; border-radius: 6px; background: var(--bg-3); color: var(--text-dim); font: 600 11.5px 'JetBrains Mono', monospace; vertical-align: middle; }
 #logShoulderBtn { width: auto; margin: 0; padding: 0 16px; }
 .logo-sub { white-space: nowrap; }
+
+/* ===== Reset picker: 3 lifts + folded extras ===== */
+.day-picker.reset-picker { grid-template-columns: repeat(3, 1fr); }
+.day-picker.reset-picker .day-pill { padding: 12px; }
+.extras-toggle {
+  grid-column: 1 / -1; justify-self: start; min-height: 44px; padding: 8px 2px;
+  background: none; border: 0; color: var(--text-dim); font-size: 13px; text-align: left;
+}
+.extras-toggle:hover { color: var(--text); }
+.extras-row { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; }
+.extra-chip {
+  min-height: 40px; padding: 8px 14px; border-radius: 999px; font-size: 13px;
+  background: transparent; border: 1px dashed var(--line-bright); color: var(--text-dim);
+}
+.extra-chip.active { border: 1px solid var(--wine); color: var(--text); background: rgba(200,51,75,0.08); }
+.extra-chip.done { color: var(--text); border-style: solid; }
+.extras-note { flex-basis: 100%; font-size: 12px; color: var(--text-faint); }
+.finetune { margin-top: 4px; }
+.finetune > summary {
+  cursor: pointer; padding: 12px 0; font-size: 13px; color: var(--text-dim); min-height: 44px;
+}
+.extras-divider {
+  margin: 28px 0 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--text-faint);
+  border-top: 1px dashed var(--line-bright); padding-top: 16px;
+}
+@media (max-width: 380px) { .day-picker.reset-picker .day-pill-name { font-size: 14px; } }
+.day-picker.reset-picker .day-pill.next .day-pill-num::after { content: none; }

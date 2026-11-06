@@ -24,11 +24,11 @@ const DATA = {
   ],
 
   daily: [
-    { name: "Walk after meals", spec: "10–15 min · lunch + dinner", note: "The single best habit for South Asian bodies — muscles soak up the rice/roti sugar instead of it turning into belly fat. Even 5 min counts. Office lunch → walk the block; dinner → walk downstairs." },
+    { core: true, name: "Walk after meals", spec: "10–15 min · lunch + dinner", note: "The single best habit for South Asian bodies — muscles soak up the rice/roti sugar instead of it turning into belly fat. Even 5 min counts. Office lunch → walk the block; dinner → walk downstairs." },
     { name: "Eat in order", spec: "Veg → protein → carbs", note: "Same meal, smaller blood-sugar spike. Start with the sabzi/salad, then the chicken/fish/dal, rice or roti last." },
     { name: "Calories", spec: "1,900–2,000", note: "Weeks 1–2: log everything once to calibrate (half-rice briyani ≈ 750 kcal, chapati set ≈ 600 + ghee). Then order the defaults. If the 7-day average drops less than 0.5 kg/week by week 4, cut 150–200 kcal." },
-    { name: "Protein", spec: "140 g · fixed base", note: "Every day, no thinking: 1 whey scoop + 3 eggs + 1 chicken pouch/portion (~70 g). Hawker meat counts as only 20–25 g a plate. Short day → a 2nd scoop. Dal is fibre, not protein (~9 g a bowl)." },
-    { name: "Plate rule", spec: "½ veg · ¼ protein · ¼ carbs", note: "Carbs = 1 fist of rice OR 2 small chapati — never both. Training day: put that carb in the meal before or after the lift. Dinner: half. Gravy on the side." },
+    { core: true, name: "Protein", spec: "140 g · fixed base", note: "Every day, no thinking: 1 whey scoop + 3 eggs + 1 chicken pouch/portion (~70 g). Hawker meat counts as only 20–25 g a plate. Short day → a 2nd scoop. Dal is fibre, not protein (~9 g a bowl)." },
+    { core: true, name: "Plate rule", spec: "½ veg · ¼ protein · ¼ carbs", note: "Carbs = 1 fist of rice OR 2 small chapati — never both. Training day: put that carb in the meal before or after the lift. Dinner: half. Gravy on the side." },
     { name: "Oil + ghee", spec: "1 tbsp a meal", note: "Indian cooking hides 300–500 kcal in oil. At home, measure it. Eating out: dry dishes (tandoori, tikka, grilled) over curries (butter chicken, korma)." },
     { name: "Fibre", spec: "30 g", note: "Dal, chana, rajma, veg at every meal, a fruit a day. Keeps you full and flattens the sugar spike." },
     { name: "Late dinner", spec: "After 8:30pm?", note: "Protein snack at 4–5pm. Dinner = protein + veg, half a fist of carbs (none after 9:30). Kitchen closes after." },
@@ -180,7 +180,7 @@ const DATA = {
       id: "reset_z2",
       name: "Zone 2 · any machine",
       tagline: "Easy engine work · 25–60 min",
-      blurb: "Burns belly fat without eating into recovery, and builds the engine. Talk test only — full sentences yes, singing no. Weeks 1–3: 25–35 min · week 4+: 40–60 min. From week 5, Engine intervals REPLACE one of these each week.",
+      blurb: "Burns belly fat without eating into recovery, and builds the engine. Talk test only — full sentences yes, singing no. 25–60 min, whatever you have. Optional.",
       warmup: "3 min very easy, then settle into pace",
       blocks: [
         {
@@ -194,8 +194,8 @@ const DATA = {
     {
       id: "reset_intervals",
       name: "Engine intervals · 20 min",
-      tagline: "Stamina · from week 5 · bike or Stairmaster",
-      blurb: "The fastest stamina upgrade there is — and it burns belly fat hard. Weeks 1–4: do Zone 2 instead. From week 5: once a week, never the day before Session B.",
+      tagline: "Optional · from week 5 · bike or Stairmaster",
+      blurb: "The fastest stamina upgrade there is, in 20 minutes. Optional — at most once a week, never the day before Session B.",
       warmup: "5 min easy, getting slightly faster",
       blocks: [
         {
@@ -215,7 +215,7 @@ const DATA = {
     {
       id: "reset_swim",
       name: "Swim · engine",
-      tagline: "Once a week · whenever you're free · 30–40 min",
+      tagline: "Optional · whenever you feel like it · 30–40 min",
       blurb: "Full-body cardio that's easy on the joints, plus calm breathing and comfort in deep water. Easy effort — finish wanting more.",
       warmup: "2 easy lengths, any stroke · 10 arm circles each way",
       blocks: [
@@ -237,7 +237,7 @@ const DATA = {
     {
       id: "reset_hill",
       name: "Hill day",
-      tagline: "Weekend · doesn't feel like gym",
+      tagline: "Optional · weekend · doesn't feel like gym",
       blurb: "MacRitchie, Bukit Timah, Southern Ridges or an HDB stairwell. Start before 8am to beat the heat. Easy on the flats, steady on the climbs, slow and controlled on the way down.",
       warmup: "First 5 min flat and slow",
       blocks: [
@@ -252,7 +252,7 @@ const DATA = {
     {
       id: "reset_home",
       name: "Home 20 · no equipment",
-      tagline: "Crushed week · any day · 20 min",
+      tagline: "Optional · no gym today · 20 min",
       blurb: "For heavy work weeks. The 12-min circuit alone counts. Never a reason to feel behind.",
       warmup: "2 min · arm circles, 10 air squats, 5 inchworms",
       blocks: [
@@ -871,7 +871,7 @@ const DATA = {
 
   executionRules: [
     "The first block of every session is the MINIMUM — done = a full session. Only LIFTING sessions (A/B/C) count toward the week: 2 = full week, 3 = great week (week 4+ aim for 3). Swim, Zone 2, intervals, hill and Home 20 are bonus — they never replace a lift.",
-    "Short on time? Drop in this order, last first: lifts > lunch walk > one Move session > swim > hill.",
+    "Busy week? The only must is 2 lifts. Everything else (extras, swim, hill) drops first, no guilt.",
     "Go in order A → B → C → A, whatever the weekday. Missed one? Just do the next one — no make-ups, no doubling up.",
     "Effort: week 1 = only the first block, stop when 3–4 more reps were possible. Weeks 2–3 = add one more block, 2–3 left. Week 4+ = everything; the LAST set of each lift goes to 1–2 reps left, earlier sets 2–3.",
     "Progress: when every set hits the top of the rep range, add the smallest jump next time (DB +2 kg, Smith +2.5 kg, cable +1 pin). Want a change? Week 5 and week 10 each offer one alternate per main lift — keep or try, then it's locked.",
