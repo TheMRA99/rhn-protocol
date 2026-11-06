@@ -2379,3 +2379,6 @@ body.sheet-open { overflow: hidden; }
 .ci-nav > * { flex: 1; margin: 0; }
 .ci-sheet .btn-primary, .ci-sheet .btn-secondary { margin-top: 14px; }
 .sa-card { border-color: var(--wine); }
+.history-tag { margin-left: 6px; padding: 1px 7px; border-radius: 6px; background: var(--bg-3); color: var(--text-dim); font: 600 11.5px 'JetBrains Mono', monospace; vertical-align: middle; }
+#logShoulderBtn { width: auto; margin: 0; padding: 0 16px; }
+.logo-sub { white-space: nowrap; }

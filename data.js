@@ -6,11 +6,11 @@ const DATA = {
   totalWeeks: 34,
 
   morningRitual: [
-    { name: "Ankle rocks + calf raises + balance", spec: "15 L · 8 R · 10/leg · 20 s/leg", note: "Knee to wall, heel down — left is the stiff side and gets double. Calf raises off a step, 3-sec lower, left first. Then stand on one leg 20 s each side (uneven trails, ladders)." },
-    { name: "Half-kneeling hip-flexor stretch", spec: "30 s / side", note: "Squeeze the back glute, reach overhead. Undoes the desk." },
-    { name: "Band pull-apart + external rotation", spec: "15 + 12 / side", note: "Shoulder armour before any pressing." },
-    { name: "Dead bug", spec: "6 / side", note: "Slow, long exhale, low back stays down." },
-    { name: "Goblet squat to box", spec: "8 · 2-s pause", note: "Light. Warms knees and hips. Then 1 light ramp set of each lift in the first block." }
+    { name: "Bike, easy", spec: "2 min", note: "Just get warm and breathing." },
+    { name: "Ankle rocks + slow single-leg calf raise", spec: "10 rocks · 12/leg", note: "Knee to wall, heel down — left is the stiff side, do it first and give it extra. Then calf raises off a step, 3-sec lower." },
+    { name: "Cable external rotation", spec: "1 × 15 / side", note: "Elbow pinned to your side, light. Shoulder armour before any pressing." },
+    { name: "Half-kneeling hip-flexor stretch", spec: "20 s / side", note: "Squeeze the back glute. Undoes the desk." },
+    { name: "Ramp set", spec: "1 light set", note: "Of each first-block lift, ~half weight × 8. Then start." }
   ],
 
   // Optional mobility — the old long ritual, kept for days with 5 spare minutes.
@@ -26,9 +26,9 @@ const DATA = {
   daily: [
     { name: "Walk after meals", spec: "10–15 min · lunch + dinner", note: "The single best habit for South Asian bodies — muscles soak up the rice/roti sugar instead of it turning into belly fat. Even 5 min counts. Office lunch → walk the block; dinner → walk downstairs." },
     { name: "Eat in order", spec: "Veg → protein → carbs", note: "Same meal, smaller blood-sugar spike. Start with the sabzi/salad, then the chicken/fish/dal, rice or roti last." },
-    { name: "Calories", spec: "1,900–2,000", note: "Don't count — order the defaults (Fuel tab). The 7-day weight average is the judge: aim 0.4–0.5 kg/week after the first 3 weeks." },
-    { name: "Protein", spec: "140 g · 4 hits", note: "~35 g per meal/snack — a palm-plus of chicken, fish, eggs, or Greek yogurt. Dal is fibre, not your protein: a bowl is only ~9 g." },
-    { name: "Plate rule", spec: "½ veg · ¼ protein · ¼ carbs", note: "Carbs = 1 fist of rice OR 2 small chapati — never both. Dinner: half that. Gravy on the side." },
+    { name: "Calories", spec: "1,900–2,000", note: "Weeks 1–2: log everything once to calibrate (half-rice briyani ≈ 750 kcal, chapati set ≈ 600 + ghee). Then order the defaults. If the 7-day average drops less than 0.5 kg/week by week 4, cut 150–200 kcal." },
+    { name: "Protein", spec: "140 g · fixed base", note: "Every day, no thinking: 1 whey scoop + 3 eggs + 1 chicken pouch/portion (~70 g). Hawker meat counts as only 20–25 g a plate. Short day → a 2nd scoop. Dal is fibre, not protein (~9 g a bowl)." },
+    { name: "Plate rule", spec: "½ veg · ¼ protein · ¼ carbs", note: "Carbs = 1 fist of rice OR 2 small chapati — never both. Training day: put that carb in the meal before or after the lift. Dinner: half. Gravy on the side." },
     { name: "Oil + ghee", spec: "1 tbsp a meal", note: "Indian cooking hides 300–500 kcal in oil. At home, measure it. Eating out: dry dishes (tandoori, tikka, grilled) over curries (butter chicken, korma)." },
     { name: "Fibre", spec: "30 g", note: "Dal, chana, rajma, veg at every meal, a fruit a day. Keeps you full and flattens the sugar spike." },
     { name: "Late dinner", spec: "After 8:30pm?", note: "Protein snack at 4–5pm. Dinner = protein + veg, half a fist of carbs (none after 9:30). Kitchen closes after." },
@@ -83,29 +83,31 @@ const DATA = {
     {
       id: "reset_a",
       name: "A · Wide",
-      tagline: "≤35 min · lats, chest, side delts, grip",
-      blurb: "Width + grip for via ferrata. The first block (~15 min) is a full session on its own. Week 1: only the first block. Weeks 2–3: add one more block. Week 4+: all of it.",
+      tagline: "≤35 min · lats, chest, side delts, arms",
+      blurb: "The V-taper day: wider lats and side delts make the waist look smaller. The first block (~17 min) is a full session on its own. Week 1: only the first block. Weeks 2–3: add one more block. Week 4+: all of it.",
       warmup: "5-min warm-up card · 1 light ramp set of each first-block lift",
+      ramadanBlocks: [0, 2],
       blocks: [
         {
           title: "Floor · superset (counts as full session)",
           exercises: [
-            { name: "Assisted Neutral-Grip Chin-Up", sets: 3, reps: "6–10", note: "Chest to handles, 3-sec lower. Log the assist kg (lower = stronger) and reps. When every set hits 10, take one plate less assistance. Goal: your first unassisted chin-up.", inputMode: "bodyweight_reps", assist: true, sub: "Machine taken → half-kneeling single-arm cable pulldown, 10/side." },
-            { name: "Incline DB Press (30°)", sets: 3, reps: "8–10", note: "DBs to upper chest, elbows ~45°. Rest 90 s between the pair. Log each hand's DB.", sub: "DBs or bench taken → Smith incline press.", alt: { name: "Neutral-Grip Incline DB Press (30°)", note: "Palms facing each other, elbows tucked ~30°. Same bench, easier on the shoulders, more triceps. Log each hand's DB." } }
+            { name: "Assisted Neutral-Grip Chin-Up", sets: 3, reps: "6–10", rest: 20, note: "Chest to handles, 3-sec lower. Log the assist kg (lower = stronger) and reps. When every set hits 10, take one plate less assistance. Goal: your first unassisted chin-up.", inputMode: "bodyweight_reps", assist: true, sub: "Machine taken → lat pulldown, neutral grip, 8–10." },
+            { name: "Incline DB Press (30°)", sets: 3, reps: "8–10", rest: 20, note: "Upper chest — the shelf under the collarbone. DBs to upper chest, elbows ~45°. Log each hand's DB.", sub: "DBs or bench taken → Smith incline press.", alt: { name: "Neutral-Grip Incline DB Press (30°)", note: "Palms facing each other, elbows tucked ~30°. Easier on the shoulders, more triceps. Log each hand's DB." } },
+            { name: "DB Lateral Raise", sets: 3, reps: "15", rest: 60, note: "Side delts = width. Thumbs slightly up, raise to just below shoulder height, 2-sec lower. Rest 60 s after this, then back to the chin-up. From week 5: a 4th set.", sub: "Cable lateral raise.", byWeek: { 5: { sets: 4 } } }
           ]
         },
         {
-          title: "Superset · stay at the Smith",
+          title: "Legs · Smith squat",
           exercises: [
-            { name: "Heels-Elevated Smith Squat", sets: 3, reps: "8", note: "Plates under the heels (helps the stiff left ankle), upright torso. Straight sets, 90 s rest — no rushing.", sub: "Goblet squat, heels on plates.", alt: { name: "Heels-Elevated Goblet Squat · 1-s pause", note: "One heavy DB at the chest, heels on plates, 1-second pause at the bottom. Log the DB." } },
-            { name: "DB Lateral Raise", sets: 3, reps: "15", note: "Thumbs slightly up, raise to just below shoulder height. Done beside the Smith while you rest. From week 5: a 4th set.", sub: "Cable lateral raise.", byWeek: { 5: { sets: 4 } } }
+            { name: "Heels-Elevated Smith Squat", sets: 3, reps: "8", rest: 90, note: "Plates under the heels (helps the stiff left ankle), upright torso. Straight sets.", sub: "Goblet squat, heels on plates.", alt: { name: "Heels-Elevated Goblet Squat · 1-s pause", note: "One heavy DB at the chest, heels on plates, 1-second pause at the bottom. Log the DB." } }
           ]
         },
         {
-          title: "Grip · via ferrata",
+          title: "Sleeves + waist",
           exercises: [
-            { name: "Dead Hang", sets: 1, reps: "max hold", note: "Shoulders pulled slightly down — never a sloppy hang. Stop 5 s before you'd drop. Log seconds. Target: 60 s. Pinches? Toes on a box to take some weight.", inputMode: "time", sub: "Bar taken → heavy DB farmer hold." },
-            { name: "Flexed-Arm Hang", sets: 1, reps: "max hold", note: "Step up to the top of a chin-up and hold, elbows bent — that's holding on to a ladder rung. Shoulders down. Log seconds.", inputMode: "time", sub: "Assisted machine: hold the top position." }
+            { name: "Spider Curl", sets: 2, reps: "10–12", rest: 15, note: "Chest on a 45° incline bench, arms hanging straight down, curl and squeeze. Shoulder-safe — no stretch at the front of the shoulder. Log each hand's DB.", sub: "Bench taken → cable curl, elbows pinned." },
+            { name: "Rope Pushdown", sets: 2, reps: "12–15", rest: 15, note: "Elbows pinned to your sides, split the rope at the bottom. Triceps are 2/3 of the arm.", cable: true, sub: "Straight-bar pushdown." },
+            { name: "Cable Pallof Press", sets: 2, reps: "10 / side", rest: 45, note: "Stand side-on to the cable, press out and hold 2 s — resist the twist. Tight waist, flat belly.", cable: true, sub: "Band Pallof press, or a 20-s side plank per side." }
           ]
         }
       ]
@@ -113,29 +115,32 @@ const DATA = {
     {
       id: "reset_b",
       name: "B · Engine",
-      tagline: "≤35 min · hinge, back, power, grip",
-      blurb: "Posterior chain + stamina. The first block (Smith RDL + row) is a full session on its own. Week 1: only the first block. Weeks 2–3: add one more block. Week 4+: all of it.",
+      tagline: "≤35 min · hinge, back, delts, arms",
+      blurb: "Thick back, strong hips, and the heart-rate work that strips fat. The first block (~17 min) is a full session on its own. Week 1: only the first block. Weeks 2–3: add one more block. Week 4+: all of it.",
       warmup: "5-min warm-up card · 1 light ramp set of each first-block lift",
+      ramadanBlocks: [0, 2],
       blocks: [
         {
           title: "Floor · superset (counts as full session)",
           exercises: [
-            { name: "Smith Romanian Deadlift", sets: 3, reps: "8–10", note: "Soft knees, hips back, bar slides down the thighs. Stop the moment your back wants to round (usually just below the knee). 3-sec lower. Log the total on the bar.", sub: "DB RDL.", alt: { name: "DB B-Stance (Kickstand) RDL", sets: 3, reps: "8–10 / leg", note: "Back foot's toes on the floor for balance only — 80% of the weight on the front leg. Hips back, DBs slide down the shin. LEFT first. Log each hand's DB." } },
-            { name: "Incline-Bench Prone DB Row", sets: 3, reps: "10–12", note: "Chest on a 30° bench, elbows to hips, 1-sec squeeze. Lats, not traps.", sub: "Chest-supported row machine.", alt: { name: "Chest-Supported Row Machine · neutral grip", note: "Chest on the pad, elbows to hips, 1-sec squeeze. Log the stack." } }
+            { name: "Smith Romanian Deadlift", sets: 3, reps: "8–10", rest: 20, note: "Hamstrings + glutes — the 'glute shelf' that makes the waist look smaller. Soft knees, hips back, stop when the back wants to round. 3-sec lower. Log the total on the bar.", sub: "DB RDL.", alt: { name: "DB B-Stance (Kickstand) RDL", reps: "8–10 / leg", note: "Back foot's toes on the floor for balance only — 80% of the weight on the front leg. LEFT first. Log each hand's DB." } },
+            { name: "Incline-Bench Prone DB Row", sets: 3, reps: "10–12", rest: 20, note: "Back thickness. Chest on a 30° bench, elbows to hips, 1-sec squeeze. From week 5: a 4th set.", sub: "Chest-supported row machine.", byWeek: { 5: { sets: 4 } }, alt: { name: "Chest-Supported Row Machine · neutral grip", note: "Chest on the pad, elbows to hips, 1-sec squeeze. Log the stack." } },
+            { name: "Seated DB Lateral Raise", sets: 3, reps: "15", rest: 60, note: "Sit on the same bench, raise to just below shoulder height. Side delts = width. From week 5: a 4th set.", sub: "Cable lateral raise.", byWeek: { 5: { sets: 4 } } }
           ]
         },
         {
-          title: "Engine · straight sets",
+          title: "Engine · hips + chest",
           exercises: [
-            { name: "KB Swing", sets: 3, reps: "12", note: "Hinge, not squat — snap the hips, arms just hold on. Light in weeks 1–3. Hip power for scrambling up rocks. Log the KB.", sub: "KB taken → DB swing, or a DB Romanian deadlift 3 × 10." },
-            { name: "DB Floor Press", sets: 2, reps: "10", note: "Shoulder-friendly pressing — elbows stop at the floor.", sub: "Smith floor press, or push-ups on the Smith bar at hip height." }
+            { name: "KB Swing", sets: 3, reps: "12", rest: 20, note: "Hinge, not squat — snap the hips, arms just hold on. Heart rate up = fat gone. Light in weeks 1–3. Log the KB.", sub: "KB taken → DB swing, or a DB Romanian deadlift 3 × 10." },
+            { name: "DB Floor Press", sets: 2, reps: "10", rest: 60, note: "Chest thickness, shoulder-friendly — elbows stop at the floor.", sub: "Smith floor press, or push-ups on the Smith bar at hip height." }
           ]
         },
         {
-          title: "Grip + delts",
+          title: "Sleeves + grip",
           exercises: [
-            { name: "Farmer Carry", sets: 2, reps: "40 m", note: "Moderate DBs in weeks 1–3, heavy after. Tall posture. Grip + core for a pack, ladders and cables.", inputMode: "carry", sub: "KBs, or one DB at a time (suitcase carry).", alt: { name: "Heavy Suitcase Carry", reps: "30 m / side", note: "One heavy DB, don't lean. Obliques + grip — the 'one hand on the cable' carry. Log the DB and metres per side." } },
-            { name: "Cable Lateral Raise", sets: 2, reps: "15 / side", note: "Single handle, thumb slightly up, stop just below shoulder height. From week 5: a 3rd set.", cable: true, sub: "DB lateral raise.", byWeek: { 5: { sets: 3 } } }
+            { name: "Cable Bar Curl", sets: 2, reps: "10–12", rest: 15, note: "One stack for this, the other for the pushdown. Elbows pinned, full squeeze.", cable: true, sub: "DB hammer curl." },
+            { name: "Straight-Bar Pushdown", sets: 2, reps: "10–12", rest: 45, note: "Elbows pinned to your sides, lock out hard.", cable: true, sub: "Rope pushdown, or bench dips with feet on the floor (only if the shoulders feel fine)." },
+            { name: "Farmer Carry", sets: 1, reps: "40 m", rest: 60, note: "Heavy. Tall posture, slow steps. Forearms under a rolled sleeve + a braced core.", inputMode: "carry", sub: "KBs, or one DB at a time (suitcase carry).", alt: { name: "Heavy Suitcase Carry", reps: "30 m / side", note: "One heavy DB, don't lean. Obliques + grip. Log the DB and metres per side." } }
           ]
         }
       ]
@@ -143,30 +148,30 @@ const DATA = {
     {
       id: "reset_c",
       name: "C · Build",
-      tagline: "≤35 min · legs, shoulders, upper back",
-      blurb: "The unhurried session. The first block (lunges + cable press) is a full session on its own. Week 1: only the first block. Weeks 2–3: add one more block. Week 4+: all of it.",
+      tagline: "≤35 min · legs, shoulders, lats",
+      blurb: "Legs and shoulders for an athletic frame, plus lat width. The first block (~19 min) is a full session on its own. Week 1: only the first block. Weeks 2–3: add one more block. Week 4+: all of it.",
       warmup: "5-min warm-up card · 1 light ramp set of each first-block lift",
+      ramadanBlocks: [0, 1],
       blocks: [
         {
           title: "Floor · superset (counts as full session)",
           exercises: [
-            { name: "DB Reverse Lunge", sets: 3, reps: "8 / leg", note: "Step back, front shin vertical, push through the front heel. LEFT leg first.", sub: "Smith split squat.", alt: { name: "DB Bulgarian Split Squat", note: "Rear foot on the bench, front foot far enough that the shin stays near vertical. LEFT first. Start light — it's harder than it looks. Log each hand's DB." } },
-            { name: "Half-Kneeling Single-Arm Cable Press (low → high)", sets: 3, reps: "8–10 / side", note: "Pulley at the bottom, kneel on the same-side knee. Press up and forward to about eye height (45°) — never straight overhead. Let the shoulder blade wrap round the ribs at the top. Next pin when every set hits 10.", cable: true, sub: "Cable taken → 45° incline single-arm DB press, neutral grip.", alt: { name: "45° Incline DB Press · neutral grip", reps: "8–10", cable: false, note: "Bench at 45°, palms facing, press up and slightly back. Not overhead — the bench angle does the shoulder work. Log each hand's DB." } }
+            { name: "DB Reverse Lunge", sets: 3, reps: "8 / leg", rest: 15, note: "Step back, front shin vertical, push through the front heel. LEFT leg first.", sub: "Smith split squat.", alt: { name: "DB Bulgarian Split Squat", note: "Rear foot on the bench, front shin near vertical. LEFT first. Start light. Log each hand's DB." } },
+            { name: "Kneeling Cable Press · 45°", sets: 3, reps: "8–10 / side", rest: 15, note: "Half-kneeling, pulley at the bottom. Press up and forward to eye height — never straight overhead. Let the shoulder blade wrap round the ribs. Next pin when every set hits 10.", cable: true, sub: "Cable taken → 45° incline single-arm DB press, neutral grip.", alt: { name: "45° Incline DB Press · neutral grip", reps: "8–10", cable: false, note: "Bench at 45°, palms facing, press up and slightly back. Log each hand's DB." } },
+            { name: "Lean-Away DB Lateral Raise", sets: 3, reps: "12–15 / side", rest: 45, note: "Hold a post, lean away, raise to just below shoulder height. Side delts = width.", sub: "Cable lateral raise." }
           ]
         },
         {
-          title: "Back + rear delts",
+          title: "Width · lats + rear delts",
           exercises: [
-            { name: "Half-Kneeling Single-Arm Cable Pulldown", sets: 3, reps: "10 / side", note: "Pull the elbow down to your hip, full stretch at the top. Vertical pull for climbing.", cable: true, sub: "Lat pulldown, neutral grip.", alt: { name: "Neutral-Grip Lat Pulldown · 3-s lower", reps: "8–10", note: "V-handle, chest up, pull to the upper chest, 3 seconds on the way up. Log the stack." } },
-            { name: "Reverse-Delt Fly Machine", sets: 2, reps: "15", note: "Rear delts — balances all the pressing and builds the V from behind.", sub: "Cable or band face pull." },
-            { name: "Lean-Away DB Lateral Raise", sets: 2, reps: "12–15 / side", note: "Hold a post with the free hand, lean away, raise to just below shoulder height. Side delts = width. From week 5: a 3rd set.", sub: "Cable lateral raise.", byWeek: { 5: { sets: 3 } } }
+            { name: "Neutral-Grip Lat Pulldown", sets: 3, reps: "8–10", rest: 20, note: "V-handle, chest up, pull to the upper chest, 3 seconds on the way up. Lats = the V. Log the stack.", cable: true, sub: "Machine taken → assisted chin-up, 8.", alt: { name: "Half-Kneeling Single-Arm Cable Pulldown", reps: "10 / side", note: "Elbow down to your hip, full stretch at the top. Log the stack." } },
+            { name: "Reverse-Delt Fly Machine", sets: 2, reps: "15", rest: 60, note: "Rear delts — round shoulders from the side and back, fixes the desk hunch.", sub: "Cable or band face pull." }
           ]
         },
         {
           title: "Legs + engine",
           exercises: [
-            { name: "Single-Leg Calf Raise · slow", sets: 2, reps: "12 / leg", note: "Off a step, 3-sec lower, LEFT first. Hikes and the stiff ankle.", inputMode: "bodyweight_reps", sub: "Smith calf raise on a plate." },
-            { name: "Step-Up + Goblet Squat circuit", sets: 1, reps: "4–6 rounds", note: "One box, one DB: 8 step-ups/leg (step DOWN slowly — that's your hiking descents) + 10 goblet squats, then rest 60 s. Steady, could still talk in short sentences. Log rounds.", inputMode: "amrap", sub: "No box → walking lunges 10/leg + 10 goblet squats." }
+            { name: "Step-Up + Goblet Squat circuit", sets: 1, reps: "6 min", note: "One box, one DB: 8 step-ups/leg (step DOWN slowly — stairs and hikes) + 10 goblet squats, repeat until the timer ends. Steady, could still talk in short sentences. Log rounds.", inputMode: "amrap", timed: 360, sub: "No box → walking lunges 10/leg + 10 goblet squats." }
           ]
         }
       ]
@@ -175,7 +180,7 @@ const DATA = {
       id: "reset_z2",
       name: "Zone 2 · any machine",
       tagline: "Easy engine work · 25–60 min",
-      blurb: "Stamina for long hikes. Talk test only — full sentences yes, singing no (SG heat pushes heart rate up, so ignore it). Weeks 1–3: 25–35 min · week 4+: 40–60 min.",
+      blurb: "Burns belly fat without eating into recovery, and builds the engine. Talk test only — full sentences yes, singing no. Weeks 1–3: 25–35 min · week 4+: 40–60 min. From week 5, Engine intervals REPLACE one of these each week.",
       warmup: "3 min very easy, then settle into pace",
       blocks: [
         {
@@ -209,22 +214,22 @@ const DATA = {
     },
     {
       id: "reset_swim",
-      name: "Swim",
+      name: "Swim · engine",
       tagline: "Once a week · whenever you're free · 30–40 min",
-      blurb: "Wadi Shab practice: swim stamina, calm breathing, and comfort in deep water. Easy effort — finish wanting more.",
+      blurb: "Full-body cardio that's easy on the joints, plus calm breathing and comfort in deep water. Easy effort — finish wanting more.",
       warmup: "2 easy lengths, any stroke · 10 arm circles each way",
       blocks: [
         {
           title: "Main · continuous",
           exercises: [
-            { name: "Continuous swim · no touching the wall", sets: 1, reps: "start 3 min → build to 10 min", note: "Breaststroke or easy long-reach freestyle — no butterfly, no paddles. Wadis have no walls, so the clock only counts while you're swimming. Add a minute when it feels easy. Shoulder pinches → kickboard lengths instead. Log minutes + lengths (lengths in 'level').", inputMode: "cardio", machines: ["Pool"], sub: "Pool closed → Zone 2 session instead." }
+            { name: "Continuous swim · no touching the wall", sets: 1, reps: "start 3 min → build to 10 min", note: "Breaststroke or easy long-reach freestyle — no butterfly, no paddles. The clock only counts while you're swimming (no resting on the wall). Add a minute when it feels easy. Shoulder pinches → kickboard lengths instead. Log minutes + lengths (lengths in 'level').", inputMode: "cardio", machines: ["Pool"], sub: "Pool closed → Zone 2 session instead." }
           ]
         },
         {
-          title: "Wadi skills",
+          title: "Water skills",
           exercises: [
             { name: "Kickboard + bubble exhale", sets: 4, reps: "1 length", note: "Face in, exhale slowly through the nose/mouth — trains calm breathing.", inputMode: "bodyweight_reps", sub: "No kickboard → hold the wall and kick, 30 s." },
-            { name: "Tread water", sets: 3, reps: "45 s → 2 min", note: "Deep end. Slow egg-beater or scissor kick, relaxed breathing — the 'stuck in a wadi pool' skill. Build to 2 × 2 min.", inputMode: "time", sub: "No deep end → float on your back 60 s, relaxed." }
+            { name: "Tread water", sets: 3, reps: "45 s → 2 min", note: "Deep end. Slow egg-beater or scissor kick, relaxed breathing — the open-water safety skill. Build to 2 × 2 min.", inputMode: "time", sub: "No deep end → float on your back 60 s, relaxed." }
           ]
         }
       ]
@@ -809,7 +814,7 @@ const DATA = {
 
   targets: [
     { label: "Calories", value: "1,900–2,000", note: "Defaults, not counting" },
-    { label: "Protein", value: "140 g", note: "4 hits of ~35 g" },
+    { label: "Protein", value: "140 g", note: "Fixed base: whey + 3 eggs + chicken, then meals" },
     { label: "Weight", value: "−13 kg", note: "83 → 70 kg · 7-day avg · −0.4–0.5 kg/wk · ≈ early July 2027" },
     { label: "Waist", value: "94 → 90 → 83.5", note: "< 90 cm = out of the South Asian risk zone · ≤ 83.5 = half your height, the finish line. Navel, every 2nd Saturday" },
     { label: "Meal walks", value: "10–15 min", note: "After lunch + dinner · the South Asian superpower" },
@@ -821,9 +826,9 @@ const DATA = {
   proteinSources: [
     { name: "3 eggs", grams: 20, when: "Breakfast · 7-Eleven on early days" },
     { name: "Halal whey sachet (isolate if it bloats)", grams: 25, when: "4–5pm, or with a banana on the way in" },
-    { name: "Tandoori / grilled chicken (palm-plus)", grams: 35, when: "Lunch or dinner · the best Indian protein" },
-    { name: "Fish (curry fish on the side, grilled, or sliced fish soup)", grams: 30, when: "Twice a week minimum" },
-    { name: "Tuna or chicken pouch", grams: 25, when: "Desk drawer · late-night insurance" },
+    { name: "Tandoori / grilled chicken (hawker plate)", grams: 25, when: "Lunch or dinner · ask for extra chicken = +15 g" },
+    { name: "Fish — batang soup, ikan bakar, saba, salmon", grams: 25, when: "Twice a week minimum" },
+    { name: "Chicken breast pouch / ready-cooked chicken", grams: 25, when: "Desk drawer or 7-Eleven · late-night insurance" },
     { name: "Greek yogurt / hung curd cup", grams: 15, when: "Desk snack, or as raita" },
     { name: "Chana / rajma (1 cup) — bonus, not a main", grams: 12, when: "Fibre + some protein" }
   ],
@@ -831,7 +836,7 @@ const DATA = {
   snacks: [
     { name: "Greek yogurt / hung curd + berries", how: "~15–20 g protein · ~150 kcal · the best desk snack" },
     { name: "2 boiled eggs (7-Eleven)", how: "~13 g protein · ~140 kcal" },
-    { name: "Tuna or chicken pouch + cucumber", how: "~25 g protein · ~150 kcal · desk drawer" },
+    { name: "Chicken breast pouch + cucumber", how: "~25 g protein · ~150 kcal · desk drawer" },
     { name: "Whey shake + 1 fruit", how: "~25 g protein · ~200 kcal · before a late dinner" },
     { name: "Roasted chana (1 small cup)", how: "~10 g protein · ~180 kcal · crunchy, kills the murukku craving" },
     { name: "Edamame (1 cup)", how: "~17 g protein · ~190 kcal · FairPrice frozen section" },
@@ -865,12 +870,13 @@ const DATA = {
   ],
 
   executionRules: [
-    "The first block of every session is the MINIMUM — done = a full session. Weeks 1–3: 2 sessions is a full week. Week 4+: aim for 3 lifting sessions (muscle is your #1 fat-loss tool as a South Asian) — 2 still counts. Any Reset session counts — gym, swim, hill, intervals, home.",
+    "The first block of every session is the MINIMUM — done = a full session. Only LIFTING sessions (A/B/C) count toward the week: 2 = full week, 3 = great week (week 4+ aim for 3). Swim, Zone 2, intervals, hill and Home 20 are bonus — they never replace a lift.",
+    "Short on time? Drop in this order, last first: lifts > lunch walk > one Move session > swim > hill.",
     "Go in order A → B → C → A, whatever the weekday. Missed one? Just do the next one — no make-ups, no doubling up.",
-    "Effort: week 1 = only the first block, stop when 3–4 more reps were possible. Weeks 2–3 = add one more block, stop when 2–3 more were possible. Week 4+ = everything, stop when 2 more were possible.",
+    "Effort: week 1 = only the first block, stop when 3–4 more reps were possible. Weeks 2–3 = add one more block, 2–3 left. Week 4+ = everything; the LAST set of each lift goes to 1–2 reps left, earlier sets 2–3.",
     "Progress: when every set hits the top of the rep range, add the smallest jump next time (DB +2 kg, Smith +2.5 kg, cable +1 pin). Want a change? Week 5 and week 10 each offer one alternate per main lift — keep or try, then it's locked.",
     "Fit it around work: weekday sessions after Zuhr at lunch or straight after work (never go home first); one on the weekend morning. Crushed week → Home 20.",
-    "Weeks 7–9 (year-end holidays): ONE session = a full week. A hill walk or Home 20 counts.",
+    "Weeks 7–9 (year-end holidays): ONE session = a full week — and here a hill walk or Home 20 counts too.",
     "Back after 10+ days off? Just the first block, lighter than last time. No catching up.",
     "Gym packed? Take the TAKEN? swap under the lift and keep moving.",
     "Slept under 6 hrs? First block only, easy — or a 30-min walk instead.",
@@ -878,7 +884,7 @@ const DATA = {
     "Pain: next-day soreness ≤3/10 is fine. Joint pain still there next morning → no load increase, go lighter or swap. Sharp pain → stop that exercise.",
     "Food does ~75% of the fat loss. Weigh daily, judge only the 7-day average. Don't add gym days to fix a stall — add meal walks and fix the carb portion first.",
     "Walk 10–15 min after lunch and dinner. For South Asian bodies this does more for belly fat than an extra gym session.",
-    "Long days: keep 2 tuna/chicken pouches and whey sachets in the desk drawer — the 4–5pm protein hit stops the 10pm raid. Catered meeting: take the protein and fruit, skip the kueh."
+    "Long days: keep 2 chicken pouches and whey sachets in the desk drawer — the 4–5pm protein hit stops the 10pm raid. Catered meeting: take the protein and fruit, skip the kueh."
   ],
 
   lookThePart: [
@@ -919,8 +925,8 @@ const DATA = {
 
   phases: [
     { weeks: "1–4", title: "RHN · COME BACK", body: "Phase 1 of the RHN road. Easy on purpose. Scale drops 2–3 kg — mostly water, expected. Stamina and sleep improve first. ~80–81 kg." },
-    { weeks: "5–13", title: "RHN · STEADY LOSS", body: "0.4–0.5 kg a week, 3 lifts a week + intervals start. Waist under 90 cm (out of the South Asian risk zone) around here. Belly shrinks, chin-up assist drops, hikes get easier. Week 5: optional lift swaps. Week 10: the app asks for your check-in (3 min) to build RHN 2.0. ~76–77 kg by Ramadan." },
-    { weeks: "14–19", title: "RAMADAN · HOLD", body: "~8 Feb → Raya ~10 Mar + open-house week. Maintenance calories. First block only, 2× a week, 60–90 min after iftar (never in a prayer slot). Hold your weights — 2 fewer reps is fine. Suhoor + iftar: 2–3 protein hits of ~45 g, water spread from iftar to suhoor. Finish at the same weight = a win." },
-    { weeks: "20–34", title: "RHN 2.0 · FINISH", body: "From Sat 20 Mar 2027: RHN 2.0 — physique + functional, built from your week-10 check-in. Opens easy like week 1. ~0.4 kg a week to 70 kg (or waist ≤ 83.5 cm) around early July 2027." }
+    { weeks: "5–13", title: "RHN · STEADY LOSS", body: "0.4–0.5 kg a week, 3 lifts a week + intervals start. Waist under 90 cm (out of the South Asian risk zone) around here. Belly shrinks, chin-up assist drops, hikes get easier. Week 5: optional lift swaps. Week 10: the app asks for your check-in (3 min) to build RHN 2.0. ~78 kg and a waist near 90 cm by Ramadan." },
+    { weeks: "14–19", title: "RAMADAN · HOLD", body: "~8 Feb → Raya ~10 Mar + open-house week. Maintenance calories. 2 lifts a week, still A → B → C, 60–90 min after iftar (never in a prayer slot): the app trims each to ~25 min but KEEPS the laterals and arms. Hold your weights, 2–3 reps left. Walks only, no intervals. Iftar: 3 dates + water, then protein, then one carb. Bandung: one small glass. Kuih 1–2. Open house: one plate, protein + veg first. Finish at the same weight = a win." },
+    { weeks: "20–34", title: "RHN 2.0 · FINISH", body: "From Sat 20 Mar 2027: RHN 2.0 — physique + functional, built from your week-10 check-in. Opens easy like week 1. ~0.4 kg a week. Waist 86 → 83.5 cm (≈ 70 kg, ~14% body fat — the RHN look) around week 30, mid-2027." }
   ]
 };

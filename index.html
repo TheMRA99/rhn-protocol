@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=52" />
+<link rel="stylesheet" href="styles.css?v=53" />
 </head>
 <body>
 <header class="topbar">
@@ -247,6 +247,11 @@
         <span class="unit">cm</span>
         <button class="btn-primary" id="logWaistBtn">Log</button>
       </div>
+      <div class="weight-input">
+        <input type="number" step="0.1" id="shoulderInput" placeholder="shoulders" />
+        <span class="unit">cm · every 4 wks</span>
+        <button class="btn-secondary" id="logShoulderBtn">Log</button>
+      </div>
       <div class="chart chart-short" id="waistChart"></div>
       <div class="progress-stats" id="waistStats"></div>
     </section>
@@ -321,7 +326,7 @@
     <section class="card">
       <header class="card-header">
         <h2><span class="num">02</span>Protein builders</h2>
-        <span class="card-meta">140 g · 4 hits of ~35 g</span>
+        <span class="card-meta">140 g · whey + 3 eggs + chicken daily</span>
       </header>
       <div id="proteinList" class="rows"></div>
     </section>
@@ -453,7 +458,7 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=66"></script>
-<script src="app.js?v=66"></script>
+<script src="data.js?v=67"></script>
+<script src="app.js?v=67"></script>
 </body>
 </html>

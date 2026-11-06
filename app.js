@@ -238,7 +238,7 @@ function autoRamadan() {
   const t = today();
   if (t >= RAMADAN_2027.start && t <= RAMADAN_2027.end && state.ramadanAuto !== '2027-on' && state.ramadanAuto !== '2027-off') {
     state.ramadan = true; state.ramadanAuto = '2027-on';
-  } else if (t > RAMADAN_2027.end && state.ramadanAuto === '2027-on') {
+  } else if ((t > RAMADAN_2027.end || t < RAMADAN_2027.start) && state.ramadanAuto === '2027-on') {
     state.ramadan = false; state.ramadanAuto = '2027-off';
   }
 }
@@ -307,7 +307,9 @@ function resolveWorkout(w, phase) {
   if (!w || !w.blocks) return w;
   const ph = phase || phaseNumber();
   const wk = weekNumber();
+  const ramadanTrim = w.ramadanBlocks && isReset() && isRamadanHold(wk);
   const blocks = w.blocks
+    .filter((b, bi) => !ramadanTrim || w.ramadanBlocks.includes(bi))
     .map(b => ({
       ...b,
       exercises: b.exercises
@@ -753,6 +755,7 @@ document.addEventListener('visibilitychange', () => {
 
 function restDurationFor(ex) {
   if (!ex) return 60;
+  if (Number.isFinite(ex.rest)) return ex.rest; // supersets: short hop to the partner lift
   const mode = ex.inputMode;
   if (mode === 'time' || mode === 'time_speed' || mode === 'bodyweight_reps') return 60;
   const m = (ex.reps || '').match(/(\d+)\s*[-–]\s*(\d+)/);
@@ -990,7 +993,10 @@ function renderDayPicker() {
     const activeSeq = getActiveSequence();
     if (isReset()) {
       const nextTxt = next ? ` · next up <strong>Session ${RESET_BADGE[next]}</strong>` : ' · any Move session from here';
-      statusEl.innerHTML = `This week <strong>${n} ✓</strong> · target ${weekTarget(wk)}${n >= fullWeekAt(wk) ? ' · full week ✓' : ''}${nextTxt}`;
+      const lifts = [...done].filter(id => DAY_SEQUENCE_RESET.includes(id)).length;
+      const moves = n - lifts;
+      const counted = isHolidayWeek(wk) ? n : lifts;
+      statusEl.innerHTML = `This week <strong>${lifts} lift${lifts === 1 ? '' : 's'}</strong>${moves ? ` + ${moves} move` : ''} · target ${weekTarget(wk)}${counted >= fullWeekAt(wk) ? ' · full week ✓' : ''}${nextTxt}`;
     } else {
     const nextLabel = next ? (state.program === 'oman' ? 'Oman ' : 'Day ') + (activeSeq.indexOf(next) + 1) : null;
     let html = `Week ${wk} · <strong>${n}/5</strong> done`
@@ -1584,7 +1590,7 @@ function applyResetLayout() {
 // ===== Reset helpers: labels, effort, holidays, comebacks =====
 function blockLabel(title) {
   if (!isReset()) return title;
-  if (/^Floor · superset/.test(title)) return 'Minimum · ~15 min — this alone = full session';
+  if (/^Floor · superset/.test(title)) return 'Minimum — this alone = full session';
   if (/^Floor · /.test(title)) return title.replace(/^Floor · /, 'Minimum · ') + ' — this alone counts';
   return title;
 }
@@ -1614,10 +1620,10 @@ function effortCue() {
   if (gap != null && gap >= 10 && !hasLoggedToday()) {
     return `<strong>Welcome back — ${gap} days off.</strong> Today: just the first block, lighter than last time. No catching up.`;
   }
-  if (isRamadanHold(wk)) return '<strong>Ramadan:</strong> first block only, 60–90 min after iftar · hold your weights · 2 fewer reps is fine';
+  if (isRamadanHold(wk)) return '<strong>Ramadan:</strong> ~25 min, 60–90 min after iftar · hold your weights · stop when 2–3 more reps were possible';
   if (wk <= 1) return '<strong>Week 1:</strong> only the first block · stop when <strong>3–4 more reps</strong> were possible';
   if (wk <= 3) return `<strong>Week ${wk}:</strong> first block + one more · stop when <strong>2–3 more reps</strong> were possible`;
-  return 'All blocks if you have time · stop when <strong>2 more reps</strong> were possible · first block alone still counts';
+  return 'All blocks if you have time · last set of each lift: stop when <strong>1–2 more reps</strong> were possible · first block alone still counts';
 }
 
 // One small, dated line on Today: Day 0, waist Saturdays, monthly shoulders + photos.
@@ -1643,6 +1649,10 @@ function renderTodayNudge() {
       else if (wk % 2 === 1 && !hasWaistSince(t)) msgs.push('<strong>Waist day:</strong> tape at the navel, relaxed — Progress tab.');
     }
   }
+  const hr = new Date().getHours();
+  if (isReset() && !todayOverride() && hr >= 20 && !hasLoggedToday() && !isRamadanHold(weekNumber())) {
+    msgs.push('<strong>Late finish?</strong> Do the first block only — out in 20 minutes, and it counts as a full session.');
+  }
   el.innerHTML = msgs.join('');
   el.hidden = !msgs.length;
   document.getElementById('day0Btn')?.addEventListener('click', openDay0);
@@ -1657,6 +1667,7 @@ function openDay0() {
     <h2 class="ci-title">Your starting point</h2>
     <p class="ci-sub">Two minutes. This is what week 10 compares against. Photos stay in your camera roll — the app never stores them.</p>
     <label class="ci-field"><span>Waist at the navel (cm)</span><input type="number" step="0.1" inputmode="decimal" id="d0Waist" value="${lastW && lastW.date >= weekWindow(0).start ? lastW.cm : ''}" placeholder="e.g. 94.0"></label>
+    <label class="ci-field"><span>Shoulders at the widest point (cm) · optional, easier with help</span><input type="number" step="0.1" inputmode="decimal" id="d0Shoulders" value="" placeholder="tape round both delts"></label>
     <label class="ci-field"><span>Hips at the widest point (cm) · optional</span><input type="number" step="0.1" inputmode="decimal" id="d0Hip" value="${b.hip ?? ''}" placeholder="e.g. 105"></label>
     <label class="ci-field"><span>Knee-to-wall LEFT (cm)</span><input type="number" step="0.5" inputmode="decimal" id="d0KneeL" value="${b.kneeL ?? ''}" placeholder="toe-to-wall distance"></label>
     <label class="ci-field"><span>Knee-to-wall RIGHT (cm)</span><input type="number" step="0.5" inputmode="decimal" id="d0KneeR" value="${b.kneeR ?? ''}" placeholder="toe-to-wall distance"></label>
@@ -1666,13 +1677,17 @@ function openDay0() {
   wireChips(sheet, (k, v) => { sheet.dataset[k] = v; });
   sheet.querySelector('#d0Save').addEventListener('click', () => {
     const num = id => { const v = parseFloat(sheet.querySelector(id).value); return Number.isFinite(v) ? v : null; };
-    const waist = num('#d0Waist'), kL = num('#d0KneeL'), kR = num('#d0KneeR'), hip = num('#d0Hip');
+    const waist = num('#d0Waist'), kL = num('#d0KneeL'), kR = num('#d0KneeR'), hip = num('#d0Hip'), shoulders = num('#d0Shoulders');
+    if (shoulders != null) {
+      state.shoulders = (state.shoulders || []).filter(x => x.date !== today());
+      state.shoulders.push({ date: today(), cm: shoulders });
+    }
     if (waist != null) {
       state.waists = (state.waists || []).filter(x => x.date !== today());
       state.waists.push({ date: today(), cm: waist });
     }
     state.baseline = { ...(state.baseline || {}), waist: waist ?? state.baseline?.waist ?? null, hip: hip ?? state.baseline?.hip ?? null, kneeL: kL, kneeR: kR };
-    state.baselineDay0 = { date: today(), waist, hip, kneeL: kL, kneeR: kR, photos: sheet.dataset.photos || null };
+    state.baselineDay0 = { date: today(), waist, hip, shoulders, kneeL: kL, kneeR: kR, photos: sheet.dataset.photos || null };
     save();
     closeSheet();
     renderToday();
@@ -2002,6 +2017,7 @@ const CI_SCREENS = {
   ]
 };
 const CI_RETESTS = [
+  { k: 'shoulders', label: 'Shoulders, widest point (cm)' },
   { k: 'hip', label: 'Hips, widest point (cm)' },
   { k: 'kneeL', label: 'Knee-to-wall LEFT (cm)' }, { k: 'kneeR', label: 'Knee-to-wall RIGHT (cm)' },
   { k: 'hang', label: 'Dead hang (s)' }, { k: 'pushups', label: 'Max push-ups (one set)' }, { k: 'swimMin', label: 'Longest no-touch swim (min)' }
@@ -2110,6 +2126,10 @@ function finishCheckin(id) {
       state.waists.push({ date: today(), cm: a.waist });
     }
     st.auto = computeCheckinAuto();
+    if (Number.isFinite(a.shoulders)) {
+      state.shoulders = (state.shoulders || []).filter(x => x.date !== today());
+      state.shoulders.push({ date: today(), cm: a.shoulders });
+    }
     if (Number.isFinite(a.kneeL) || Number.isFinite(a.kneeR)) {
       state.baseline = { ...(state.baseline || {}), kneeL: a.kneeL ?? state.baseline?.kneeL ?? null, kneeR: a.kneeR ?? state.baseline?.kneeR ?? null };
     }
@@ -2151,7 +2171,7 @@ function buildCheckinBrief() {
     if (au.swaps && Object.keys(au.swaps).length) L.push('  Swaps: ' + Object.entries(au.swaps).map(([k, v]) => `${k} ×${v}`).join(' · '));
     if (au.painFlags && Object.keys(au.painFlags).length) L.push('  Pain flags: ' + Object.entries(au.painFlags).map(([k, v]) => `${k} ×${v}`).join(' · '));
     if (au.variants?.length) L.push(`  Alternates chosen: ${au.variants.length}`);
-    if (au.day0) L.push(`  Day 0: waist ${au.day0.waist ?? '—'} · hips ${au.day0.hip ?? '—'} · knee-to-wall L ${au.day0.kneeL ?? '—'} R ${au.day0.kneeR ?? '—'} · height ${DATA.heightCm} cm`);
+    if (au.day0) L.push(`  Day 0: waist ${au.day0.waist ?? '—'} · shoulders ${au.day0.shoulders ?? '—'} · hips ${au.day0.hip ?? '—'} · knee-to-wall L ${au.day0.kneeL ?? '—'} R ${au.day0.kneeR ?? '—'} · height ${DATA.heightCm} cm`);
     L.push(`  Prefill: ${a.prefill || '—'}${a.fixes ? ' · fixes: ' + a.fixes : ''}`);
     L.push(`  Body: belly ${a.belly || '—'} · photos ${a.photos || '—'}`);
     if (a.lifts) L.push('  Exercise verdicts: ' + Object.entries(a.lifts).filter(([, v]) => v !== 'Keep').map(([k, v]) => `${k} = ${v}`).join(' · ') || '  Exercise verdicts: all Keep');
@@ -2303,7 +2323,7 @@ function renderPrayer() {
       <div class="pr-ramadan">
         <div class="pr-ram-row"><span>Suhoor ends · Fajr</span><strong>${fmtClock(t.fajr)}</strong></div>
         <div class="pr-ram-row"><span>Iftar · Maghrib</span><strong>${fmtClock(t.maghrib)}</strong></div>
-        <div class="pr-ram-note">Train <strong>60–90 min after iftar</strong> (never in a prayer slot) — first block only, 2× a week. Hold your loads, no PRs while fasting. <strong>Deficit paused:</strong> eat at maintenance. Protein in 2–3 hits of ~45 g (suhoor, iftar, before bed). Water spread from iftar to suhoor, ~2.5 L.</div>
+        <div class="pr-ram-note">Train <strong>60–90 min after iftar</strong> (never in a prayer slot) — 2 lifts a week, ~25 min each (laterals + arms stay). Hold your loads. <strong>Deficit paused:</strong> eat at maintenance. Iftar: 3 dates + water, then protein, then one carb. Protein in 2–3 hits of ~45 g (suhoor, iftar, before bed). Bandung one small glass, kuih 1–2. Water spread iftar → suhoor, ~2.5 L.</div>
       </div>`;
   }
 
@@ -2472,10 +2492,10 @@ function renderWeightStats() {
   if (hero && isReset()) {
     const goalKg = DATA.startKg - target;
     const wNow = lastWaist ? lastWaist.cm : null;
-    const waistTxt = wNow == null ? `waist → 90 → ${waistTarget} cm`
-      : wNow >= 90 ? `waist ${wNow.toFixed(1)} → <strong>90</strong> (out of the South Asian risk zone) → ${waistTarget} cm`
-      : `waist ${wNow.toFixed(1)} ✓ under 90 → ${waistTarget} cm`;
-    hero.innerHTML = `<strong>−${Math.max(0, DATA.startKg - avg).toFixed(1)} of ${goalKg} kg</strong> · ${waistTxt} · hit 70 kg or ${waistTarget} cm = health goal done`;
+    const next = wNow == null ? 90 : wNow >= 90 ? 90 : wNow >= 86 ? 86 : waistTarget;
+    const waistTxt = wNow == null ? `<strong>Waist</strong> → 90 → 86 → ${waistTarget} cm`
+      : `<strong>Waist ${wNow.toFixed(1)} cm</strong> → next <strong>${next}</strong>${next === 90 ? ' (out of the South Asian risk zone)' : ''} → ${waistTarget}`;
+    hero.innerHTML = `${waistTxt} · <strong>−${Math.max(0, DATA.startKg - avg).toFixed(1)} kg</strong> so far · the tape is the scoreboard, not the scale`;
   }
 
   el.innerHTML = `
@@ -2489,8 +2509,8 @@ function renderWeightStats() {
       <div class="progress-stat-value ${lost > 0 ? 'green' : ''}">${lost > 0 ? '−' : ''}${Math.abs(lost).toFixed(1)}</div>
     </div>
     <div class="progress-stat">
-      <div class="progress-stat-label">${atFloor ? (isReset() ? 'Goal' : 'At floor') : 'To target'}</div>
-      <div class="progress-stat-value">${atFloor ? '✓' : (toGo > 0 ? toGo.toFixed(1) : '✓')}</div>
+      <div class="progress-stat-label">${isReset() ? 'Waist next' : (atFloor ? 'At floor' : 'To target')}</div>
+      <div class="progress-stat-value">${isReset() ? (waistHit ? '✓' : (lastWaist ? (lastWaist.cm >= 90 ? '90' : lastWaist.cm >= 86 ? '86' : '83.5') : '90')) : (atFloor ? '✓' : (toGo > 0 ? toGo.toFixed(1) : '✓'))}</div>
     </div>
   `;
 
@@ -2949,7 +2969,7 @@ function renderHistory() {
   el.innerHTML = recent.map((s, i) => `
     <div class="history-row" data-i="${i}">
       <span class="history-date">${fmtDate(s.date)}</span>
-      <span class="history-name">${esc(s.name)}</span>
+      <span class="history-name">${esc(s.name)}${sessionDepthTag(s)}</span>
       <span class="history-toggle">›</span>
       <div class="history-detail">${buildHistoryDetail(s)}</div>
     </div>
@@ -2957,6 +2977,14 @@ function renderHistory() {
   el.querySelectorAll('.history-row').forEach(row => {
     row.addEventListener('click', () => row.classList.toggle('open'));
   });
+}
+
+function sessionDepthTag(s) {
+  if (!isReset() || !DAY_SEQUENCE_RESET.includes(s.workoutId)) return '';
+  const w = DATA.workouts.find(x => x.id === s.workoutId);
+  const wl = state.setLog?.[s.date]?.[s.workoutId] || {};
+  const beyond = w.blocks.slice(1).some(b => Object.keys(wl).some(k => k.startsWith(b.title + '::') && (wl[k] || []).some(x => x && x.done)));
+  return ` <span class="history-tag">${beyond ? 'Full' : 'Minimum'}</span>`;
 }
 
 function renderPhases() {
@@ -3210,11 +3238,30 @@ function renderWaist() {
       <div class="progress-stat-value ${change < 0 ? 'green' : ''}">${change > 0 ? '+' : ''}${change.toFixed(1)}</div>
     </div>
     <div class="progress-stat">
-      <div class="progress-stat-label">Long-term target</div>
-      <div class="progress-stat-value">&lt; 85</div>
+      <div class="progress-stat-label">${isReset() ? 'V-taper' : 'Long-term target'}</div>
+      <div class="progress-stat-value">${isReset() ? vTaperText(latest) : '&lt; 85'}</div>
+      ${isReset() ? '<div class="progress-stat-sub">shoulders ÷ waist · aim 1.45+</div>' : ''}
     </div>
   `;
 }
+
+// Shoulder girth (widest point of the delts) every 4 weeks → the RHN number.
+function vTaperText(waistCm) {
+  const sh = (state.shoulders || []).slice().sort((a, b) => a.date.localeCompare(b.date)).at(-1);
+  if (!sh || !waistCm) return '—';
+  return (sh.cm / waistCm).toFixed(2);
+}
+document.getElementById('logShoulderBtn')?.addEventListener('click', () => {
+  const input = document.getElementById('shoulderInput');
+  const cm = parseFloat(input.value);
+  if (!cm || cm < 80 || cm > 170) { showToast('Enter shoulders in cm (widest point)'); return; }
+  state.shoulders = (state.shoulders || []).filter(x => x.date !== today());
+  state.shoulders.push({ date: today(), cm });
+  save();
+  input.value = '';
+  showToast('Logged shoulders ' + cm.toFixed(1) + ' cm');
+  renderWaist();
+});
 
 document.getElementById('logWaistBtn')?.addEventListener('click', () => {
   const input = document.getElementById('waistInput');
