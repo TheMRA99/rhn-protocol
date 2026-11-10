@@ -1643,6 +1643,7 @@ function applyResetLayout() {
   }
   document.getElementById('plateTarget')?.closest('.card')?.toggleAttribute('hidden', r);
   renderTodayNudge();
+  renderDailyBar();
   renderVariantCard();
   renderCheckinPrompt('today');
   // Prayer card after the workout; program switcher lives on the Protocol tab.
@@ -1690,9 +1691,71 @@ function effortCue() {
     return `<strong>Welcome back — ${gap} days off.</strong> Today: just the first block, lighter than last time. No catching up.`;
   }
   if (isRamadanHold(wk)) return '<strong>Ramadan:</strong> ~25 min, 60–90 min after iftar · hold your weights · stop when 2–3 more reps were possible';
-  if (wk <= 1) return '<strong>Week 1:</strong> only the first block · stop when <strong>3–4 more reps</strong> were possible';
-  if (wk <= 3) return `<strong>Week ${wk}:</strong> first block + one more · stop when <strong>2–3 more reps</strong> were possible`;
+  const stage = rampStage(wk);
+  const n = resetLiftCount();
+  if (stage === 1) return `<strong>Lift ${n + 1} of the Reset:</strong> only the first block · stop when <strong>3–4 more reps</strong> were possible`;
+  if (stage === 2) return `<strong>Lift ${n + 1}:</strong> first block + one more · stop when <strong>2–3 more reps</strong> were possible`;
   return 'All blocks if you have time · last set of each lift: stop when <strong>1–2 more reps</strong> were possible · first block alone still counts';
+}
+
+// Ramp follows the lifts actually done (a late start still gets the easy sessions), capped by the calendar.
+function resetLiftCount() {
+  const t = today(), s0 = state.startDate || '';
+  return (state.sessions || []).filter(s => s.date >= s0 && s.date < t && DAY_SEQUENCE_RESET.includes(s.workoutId)).length;
+}
+function rampStage(wk) {
+  const cal = wk <= 1 ? 1 : wk <= 3 ? 2 : 3;
+  const n = resetLiftCount();
+  const cnt = n < 2 ? 1 : n < 6 ? 2 : 3;
+  return Math.min(cal, cnt);
+}
+
+// Daily bar + back (~7 min): his own pull-up habit, plus spine/rhomboid/shin armour.
+function renderDailyBar() {
+  let card = document.getElementById('dailyBarCard');
+  const anchor = document.getElementById('ritualList')?.closest('.card');
+  if (!isReset()) { if (card) card.hidden = true; return; }
+  if (!card && anchor) {
+    card = document.createElement('section');
+    card.id = 'dailyBarCard';
+    card.className = 'card card-collapsible collapsed daily-bar-card';
+    anchor.before(card);
+    card.addEventListener('click', e => {
+      if (e.target.closest('.card-header')) card.classList.toggle('collapsed');
+    });
+  }
+  if (!card) return;
+  card.hidden = false;
+  const t = today();
+  const log = state.dailyBar || {};
+  const todayLog = log[t];
+  const last = Object.keys(log).filter(d => d < t).sort().at(-1);
+  const prev = todayLog || (last ? log[last] : null) || { pu: 5, cu: 5 };
+  const ws = weekWindow(weekNumber()).start;
+  const daysThisWeek = Object.keys(log).filter(d => d >= ws && d <= t).length;
+  const best = Object.values(log).reduce((m, x) => Math.max(m, (+x.pu || 0) + (+x.cu || 0)), 0);
+  const row = it => `<div class="info-row"><div class="info-body"><div class="info-name">${it.name}</div><div class="info-note">${it.note}</div></div><div class="info-spec">${it.spec}</div></div>`;
+  card.innerHTML = `
+    <header class="card-header">
+      <h2><span class="num">00</span>Daily bar + back</h2>
+      <span class="card-meta">${todayLog ? '✓ done today' : '~7 min · most days · optional'}</span>
+      <span class="card-toggle" aria-hidden="true"></span>
+    </header>
+    <div class="info-list">${DATA.dailyBar.map(row).join('')}</div>
+    <div class="db-note">Sciatica flaring? Just bird dog, side plank and curl-up, then a 15-min walk.</div>
+    <div class="db-log">
+      <label>Pull-ups<input type="number" inputmode="numeric" id="dbPu" value="${prev.pu ?? ''}"></label>
+      <label>Chin-ups<input type="number" inputmode="numeric" id="dbCu" value="${prev.cu ?? ''}"></label>
+      <button type="button" class="btn-primary" id="dbDone">${todayLog ? 'Update' : 'Done today'}</button>
+    </div>
+    <div class="db-stats">This week <strong>${daysThisWeek}</strong> day${daysThisWeek === 1 ? '' : 's'}${best ? ` · best ${best} reps in a day` : ''} · doesn't replace a lift</div>`;
+  card.querySelector('#dbDone').addEventListener('click', () => {
+    const num = id => { const v = parseInt(card.querySelector(id).value, 10); return Number.isFinite(v) && v >= 0 && v < 100 ? v : null; };
+    state.dailyBar = { ...(state.dailyBar || {}), [t]: { pu: num('#dbPu'), cu: num('#dbCu') } };
+    save();
+    showToast('Daily bar + back logged');
+    renderDailyBar();
+  });
 }
 
 // One small, dated line on Today: Day 0, waist Saturdays, monthly shoulders + photos.
@@ -1710,7 +1773,7 @@ function renderTodayNudge() {
   if (isReset() && state.startDate) {
     const daysIn = Math.round((d - parseIso(state.startDate)) / 86400000);
     const hasWaistSince = since => (state.waists || []).some(x => x.date >= since);
-    if (daysIn >= 0 && daysIn <= 6 && !(state.baselineDay0 && state.baselineDay0.date)) {
+    if (daysIn >= 0 && daysIn <= 20 && !(state.baselineDay0 && state.baselineDay0.date)) {
       msgs.push('<strong>Day 0 · 5 min:</strong> weigh in, waist at the navel, knee-to-wall L/R, and 3 photos (front, side, back) to your camera roll. <button type="button" class="nudge-btn" id="day0Btn">Log Day 0</button>');
     } else if (d.getDay() === 6 && daysIn > 0) {
       const wk = weekNumber();
@@ -2226,7 +2289,13 @@ function buildCheckinBrief() {
   L.push('RHN 2.0 BRIEF — from the Reset check-ins');
   L.push(`generated ${today()} · week ${weekNumber()}/${DATA.totalWeeks} · RHN 2.0 starts Sat 20 Mar 2027 (week 20)`);
   L.push('Body: South Asian (Indian), 167 cm, start 83 kg / waist 94 / hips 105 — prioritise muscle (lifting 3×/wk), waist < 90 then ≤ 83.5, carb order + meal walks, protein 140 g.');
-  L.push('Constraints: no sled / trap bar / leg curl / leg press / calf machine · DBs over Smith for chest · protect shoulders (no overhead pressing, no dips) · stiff LEFT ankle · offline app · no doctor push · physique (V-taper) + functional (via ferrata, swims, hikes).');
+  L.push('Constraints: no sled / trap bar / leg curl / leg press / calf machine · DBs over Smith for chest · protect shoulders (no overhead pressing, no dips) · stiff LEFT ankle · sciatica when running long (no running) · shin splints · tight RIGHT rhomboid · family history of diabetes + high BP · no tuna · offline app · no doctor push · physique (V-taper) + functional (via ferrata, swims, hikes).');
+  const bar = state.dailyBar || {};
+  const barDays = Object.keys(bar).sort();
+  if (barDays.length) {
+    const tot = d => (+bar[d].pu || 0) + (+bar[d].cu || 0);
+    L.push(`Daily bar + back: ${barDays.length} days logged since ${barDays[0]} · pull-ups+chin-ups ${tot(barDays[0])} → ${tot(barDays.at(-1))} a day (best ${Math.max(...barDays.map(tot))})`);
+  }
   const w10 = ci.w10;
   if (w10?.doneAt) {
     const a = w10.answers || {}, au = w10.auto || {};

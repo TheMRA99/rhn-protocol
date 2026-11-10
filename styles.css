@@ -2410,3 +2410,14 @@ body.sheet-open { overflow: hidden; }
 }
 @media (max-width: 380px) { .day-picker.reset-picker .day-pill-name { font-size: 14px; } }
 .day-picker.reset-picker .day-pill.next .day-pill-num::after { content: none; }
+
+/* ===== Daily bar + back ===== */
+.daily-bar-card .db-note { font-size: 13px; color: var(--text-dim); margin: 10px 0; line-height: 1.45; }
+.db-log { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-top: 12px; }
+.db-log label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-dim); }
+.db-log input {
+  width: 76px; min-height: 44px; padding: 8px 10px; border-radius: 10px;
+  background: var(--bg-1); border: 1px solid var(--line); color: var(--text); font-size: 16px;
+}
+.db-log .btn-primary { flex: 1; min-width: 120px; min-height: 44px; margin: 0; }
+.db-stats { margin-top: 10px; font-size: 12px; color: var(--text-faint); }
