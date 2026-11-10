@@ -1644,6 +1644,7 @@ function applyResetLayout() {
   document.getElementById('plateTarget')?.closest('.card')?.toggleAttribute('hidden', r);
   renderTodayNudge();
   renderDailyBar();
+  renderClearHead();
   renderVariantCard();
   renderCheckinPrompt('today');
   // Prayer card after the workout; program switcher lives on the Protocol tab.
@@ -1756,6 +1757,34 @@ function renderDailyBar() {
     showToast('Daily bar + back logged');
     renderDailyBar();
   });
+}
+
+// Clear head + eyes: optional, collapsed, after the daily habits.
+function renderClearHead() {
+  let card = document.getElementById('clearHeadCard');
+  const anchor = document.getElementById('dailyList')?.closest('.card');
+  if (!isReset()) { if (card) card.hidden = true; return; }
+  if (!card && anchor) {
+    card = document.createElement('section');
+    card.id = 'clearHeadCard';
+    card.className = 'card card-collapsible collapsed';
+    anchor.after(card);
+    card.addEventListener('click', e => { if (e.target.closest('.card-header')) card.classList.toggle('collapsed'); });
+  }
+  if (!card || card.dataset.built) { if (card) card.hidden = false; return; }
+  const c = DATA.clearHead;
+  const row = it => `<div class="info-row"><div class="info-body"><div class="info-name">${it.name}</div><div class="info-note">${it.note}</div></div><div class="info-spec">${it.spec}</div></div>`;
+  card.innerHTML = `
+    <header class="card-header">
+      <h2><span class="num">05</span>Clear head + eyes</h2>
+      <span class="card-meta">Optional · start with the desk reset</span>
+      <span class="card-toggle" aria-hidden="true"></span>
+    </header>
+    <div class="info-list">${c.top.map(row).join('')}</div>
+    <details class="finetune"><summary>Eyes · ${c.eyes.length} more (screen strain — they ease tired eyes, they don't change a prescription)</summary>${c.eyes.map(row).join('')}</details>
+    <details class="finetune"><summary>Focus · ${c.focus.length} more</summary>${c.focus.map(row).join('')}</details>`;
+  card.dataset.built = '1';
+  card.hidden = false;
 }
 
 // One small, dated line on Today: Day 0, waist Saturdays, monthly shoulders + photos.

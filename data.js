@@ -14,6 +14,31 @@ const DATA = {
   ],
 
   // Reset: the daily pull-up habit, upgraded with back, rhomboid and shin armour (~7 min).
+  // Reset: brain fog + screen eyes. Top 3 shown, the rest folded.
+  clearHead: {
+    top: [
+      { name: "Desk reset", spec: "every 45–60 min · 2 min", note: "Stand, walk to refill your water. Look out a window for 20 s, 10 slow full blinks, 2 deep sighs (double inhale through the nose, long slow exhale). Resets focus, eyes and your back in one go." },
+      { name: "A lunch that doesn't fog you", spec: "protein + veg · half carb", note: "A full plate of rice or briyani is the 3pm fog. Protein and veg first, half the carb, then the 10-min walk — steady blood sugar = steady head." },
+      { name: "Water early", spec: "500 ml on waking · 1 L by lunch", note: "Mild dehydration hits focus before you feel thirsty, and SG heat gets you there fast." }
+    ],
+    eyes: [
+      { name: "20-20-20", spec: "every 20 min", note: "Look at something 6 m+ away for 20 seconds. The focusing muscle locks up staring at a screen — this lets it go." },
+      { name: "Full blinks", spec: "10 slow", note: "Close fully, gentle squeeze, open. Screens cut your blinking by about half — that's the dry, heavy-eye feeling." },
+      { name: "Near–far focus", spec: "10 switches", note: "Thumb 25 cm from your face, then something across the room. Switch, sharp each time." },
+      { name: "Palming", spec: "30 s", note: "Rub your palms warm, cup them over closed eyes, breathe slowly. Pure relaxation for tired eyes." },
+      { name: "Screen setup", spec: "once", note: "Screen at arm's length, top edge at eye level, brightness matched to the room, text one size bigger. Fixes more strain than any exercise." },
+      { name: "Daylight", spec: "20+ min a day", note: "Time outside is the best thing for your eyes long-term. The meal walks count." }
+    ],
+    focus: [
+      { name: "Morning daylight", spec: "10 min", note: "Outside within an hour of waking. Sharper by mid-morning, sleepier at night." },
+      { name: "Focus blocks", spec: "45 min · one task", note: "Phone in a drawer or another room, one tab, then a desk reset. Switching tasks is what makes the head feel cloudy." },
+      { name: "Move it", spec: "10 min", note: "A brisk walk or the daily bar + back = a clearer head for the next hour or two." },
+      { name: "Caffeine", spec: "after breakfast · before 2pm", note: "With food, not instead of it. Late caffeine steals deep sleep → foggy tomorrow." },
+      { name: "Sleep", spec: "7+ hrs", note: "The biggest lever there is. One short night = noticeably slower thinking." },
+      { name: "Give it 2–3 weeks", spec: "", note: "Coming back to training and eating less can feel foggy at first. Lifting, steady meals and walking clear it — most people feel sharper by week 3." }
+    ]
+  },
+
   dailyBar: [
     { name: "Pull-ups + chin-ups", spec: "5 + 5 → 8 + 8", note: "What you already do. Stop 2 reps before your max — practice, not a workout. Easy for a week → add 1 rep to each. Session A day: skip these, the chin-ups are in the session." },
     { name: "Dead hang", spec: "30 s → 45 s", note: "Hang relaxed, let the shoulders rise to the ears. Stretches the lats and the tight right rhomboid area, and unloads the spine." },
