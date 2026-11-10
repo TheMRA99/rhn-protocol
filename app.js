@@ -1776,13 +1776,13 @@ function renderClearHead() {
   const row = it => `<div class="info-row"><div class="info-body"><div class="info-name">${it.name}</div><div class="info-note">${it.note}</div></div><div class="info-spec">${it.spec}</div></div>`;
   card.innerHTML = `
     <header class="card-header">
-      <h2><span class="num">05</span>Clear head + eyes</h2>
-      <span class="card-meta">Optional · start with the desk reset</span>
+      <h2><span class="num">05</span>Clear head</h2>
+      <span class="card-meta">3 lines · no secret, just the basics done well</span>
       <span class="card-toggle" aria-hidden="true"></span>
     </header>
     <div class="info-list">${c.top.map(row).join('')}</div>
-    <details class="finetune"><summary>Eyes · ${c.eyes.length} more (screen strain — they ease tired eyes, they don't change a prescription)</summary>${c.eyes.map(row).join('')}</details>
-    <details class="finetune"><summary>Focus · ${c.focus.length} more</summary>${c.focus.map(row).join('')}</details>`;
+    <details class="finetune"><summary>Eyes · comfort for screen days (not a brain boost)</summary>${c.eyes.map(row).join('')}</details>
+    <details class="finetune"><summary>What works, what's hype</summary>${c.honest.map(row).join('')}</details>`;
   card.dataset.built = '1';
   card.hidden = false;
 }
@@ -1799,6 +1799,14 @@ function renderTodayNudge() {
   const t = today();
   const d = parseIso(t);
   const msgs = [];
+  if (isReset()) {
+    const wk = weekNumber();
+    const lifts = [...daysDoneInWeek(wk)].filter(id => DAY_SEQUENCE_RESET.includes(id)).length;
+    const nxt = nextDayThisWeek();
+    const liftTxt = lifts >= fullWeekAt(wk) ? 'lifts done this week ✓'
+      : `gym day? Session ${RESET_BADGE[nxt] || 'A'}, first block (~17 min)`;
+    msgs.push(`<div class="nudge-line"><strong>Today's minimum:</strong> walk after lunch + dinner · ${liftTxt}</div>`);
+  }
   if (isReset() && state.startDate) {
     const daysIn = Math.round((d - parseIso(state.startDate)) / 86400000);
     const hasWaistSince = since => (state.waists || []).some(x => x.date >= since);
@@ -1832,6 +1840,8 @@ function openDay0() {
     <label class="ci-field"><span>Hips at the widest point (cm) · optional</span><input type="number" step="0.1" inputmode="decimal" id="d0Hip" value="${b.hip ?? ''}" placeholder="e.g. 105"></label>
     <label class="ci-field"><span>Knee-to-wall LEFT (cm)</span><input type="number" step="0.5" inputmode="decimal" id="d0KneeL" value="${b.kneeL ?? ''}" placeholder="toe-to-wall distance"></label>
     <label class="ci-field"><span>Knee-to-wall RIGHT (cm)</span><input type="number" step="0.5" inputmode="decimal" id="d0KneeR" value="${b.kneeR ?? ''}" placeholder="toe-to-wall distance"></label>
+    <div class="ci-q">Head lately (1 = foggy, 5 = sharp)</div>
+    <div class="ci-chips" data-k="head">${chipsHTML(['1', '2', '3', '4', '5'], state.baselineDay0?.head)}</div>
     <div class="ci-q">Photos (front · side · back) in the camera roll?</div>
     <div class="ci-chips" data-k="photos">${chipsHTML(['Done', 'Later'], state.baselineDay0?.photos)}</div>
     <button type="button" class="btn-primary" id="d0Save">Save Day 0</button>`;
@@ -1848,7 +1858,7 @@ function openDay0() {
       state.waists.push({ date: today(), cm: waist });
     }
     state.baseline = { ...(state.baseline || {}), waist: waist ?? state.baseline?.waist ?? null, hip: hip ?? state.baseline?.hip ?? null, kneeL: kL, kneeR: kR };
-    state.baselineDay0 = { date: today(), waist, hip, shoulders, kneeL: kL, kneeR: kR, photos: sheet.dataset.photos || null };
+    state.baselineDay0 = { date: today(), waist, hip, shoulders, kneeL: kL, kneeR: kR, photos: sheet.dataset.photos || null, head: sheet.dataset.head || null };
     save();
     closeSheet();
     renderToday();
@@ -2166,6 +2176,7 @@ const CI_SCREENS = {
       { k: 'mealWalks', q: 'Walk after meals', opts: ['Most days', 'Some days', 'Rarely'] },
       { k: 'hunger', q: 'Hunger', opts: ['Fine', 'Hungry', 'Starving'] },
       { k: 'energy', q: 'Energy', opts: ['Good', 'Flat', 'Wrecked'] },
+      { k: 'head', q: 'Head lately (1 = foggy, 5 = sharp)', opts: ['1', '2', '3', '4', '5'] },
       { k: 'hardMeal', q: 'Hardest meal to get right', opts: ['Breakfast', 'Lunch', 'Late dinner', 'Weekends'] }] },
     { t: 'Quick re-tests · optional', retest: true }
   ],
@@ -2345,7 +2356,7 @@ function buildCheckinBrief() {
     L.push(`  Joints: L ankle ${a.ankle || '—'} · shoulders ${a.shoulders || '—'} · other ${(a.other || []).join(', ') || '—'}`);
     L.push(`  Real life: ${a.perWeek || '—'}×/wk · ${a.minutes || '—'} min · best ${(a.slot || []).join('/') || '—'} · work ${a.work || '—'} · dread ${a.dread || '—'}/5`);
     L.push(`  Adventure: ${(a.adventure || []).join(' + ') || '—'} · ${a.when || '—'}${a.where ? ' · ' + a.where : ''}`);
-    L.push(`  Look/fuel: priority ${(a.priority || []).join(' + ') || '—'} · protein hits ${a.protein || '—'} · meal walks ${a.mealWalks || '—'} · hunger ${a.hunger || '—'} · energy ${a.energy || '—'} · hardest meal ${a.hardMeal || '—'}`);
+    L.push(`  Look/fuel: priority ${(a.priority || []).join(' + ') || '—'} · protein hits ${a.protein || '—'} · meal walks ${a.mealWalks || '—'} · hunger ${a.hunger || '—'} · energy ${a.energy || '—'} · head ${a.head || '—'}/5 (Day 0: ${state.baselineDay0?.head || '—'}/5) · hardest meal ${a.hardMeal || '—'}`);
     const rt = CI_RETESTS.filter(r => Number.isFinite(a[r.k])).map(r => `${r.label.replace(/ \(.*\)/, '')} ${a[r.k]}`);
     if (rt.length) L.push('  Re-tests: ' + rt.join(' · '));
     const guard = (+a.dread >= 4) || a.work === 'Crushing';
@@ -2490,7 +2501,7 @@ function renderPrayer() {
       <div class="pr-ramadan">
         <div class="pr-ram-row"><span>Suhoor ends · Fajr</span><strong>${fmtClock(t.fajr)}</strong></div>
         <div class="pr-ram-row"><span>Iftar · Maghrib</span><strong>${fmtClock(t.maghrib)}</strong></div>
-        <div class="pr-ram-note">Train <strong>60–90 min after iftar</strong> (never in a prayer slot) — 2 lifts a week, ~25 min each (laterals + arms stay). Hold your loads. <strong>Deficit paused:</strong> eat at maintenance. Iftar: 3 dates + water, then protein, then one carb. Protein in 2–3 hits of ~45 g (suhoor, iftar, before bed). Bandung one small glass, kuih 1–2. Water spread iftar → suhoor, ~2.5 L.</div>
+        <div class="pr-ram-note">Train <strong>60–90 min after iftar</strong> — 2 lifts a week, ~25 min each (laterals + arms stay). Hold your loads. <strong>Deficit paused:</strong> eat at maintenance. Iftar: 3 dates + water, then protein, then one carb. Protein in 2–3 hits of ~45 g (suhoor, iftar, before bed). Bandung one small glass, kuih 1–2. Water spread iftar → suhoor, ~2.5 L.</div>
       </div>`;
   }
 

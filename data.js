@@ -14,28 +14,24 @@ const DATA = {
   ],
 
   // Reset: the daily pull-up habit, upgraded with back, rhomboid and shin armour (~7 min).
-  // Reset: brain fog + screen eyes. Top 3 shown, the rest folded.
+  // Reset: brain fog. Council round 3 — 3 lines, eyes as comfort, an honest hype list.
   clearHead: {
     top: [
-      { name: "Desk reset", spec: "every 45–60 min · 2 min", note: "Stand, walk to refill your water. Look out a window for 20 s, 10 slow full blinks, 2 deep sighs (double inhale through the nose, long slow exhale). Resets focus, eyes and your back in one go." },
-      { name: "A lunch that doesn't fog you", spec: "protein + veg · half carb", note: "A full plate of rice or briyani is the 3pm fog. Protein and veg first, half the carb, then the 10-min walk — steady blood sugar = steady head." },
-      { name: "Water early", spec: "500 ml on waking · 1 L by lunch", note: "Mild dehydration hits focus before you feel thirsty, and SG heat gets you there fast." }
+      { name: "Fog check", spec: "sleep + food first", note: "Fog is usually a short night or under-eating, not a missing supplement. Same wake time every day, weekends within an hour. Late meeting → earlier dinner, not a later bed. Foggy + sleeping badly 3 days running → eat at maintenance for a week (add a fist of rice or 2 chapati at lunch). Fat loss pauses, it doesn't reverse." },
+      { name: "Move = focus", spec: "10 min", note: "A brisk 10-minute walk sharpens attention for an hour or two. Your meal walks and lifts already ARE the focus tool." },
+      { name: "After each meeting", spec: "stand · water · look far", note: "Stand up, refill your water, look out a window for 20 seconds. One minute: eyes, back, head." }
     ],
     eyes: [
-      { name: "20-20-20", spec: "every 20 min", note: "Look at something 6 m+ away for 20 seconds. The focusing muscle locks up staring at a screen — this lets it go." },
-      { name: "Full blinks", spec: "10 slow", note: "Close fully, gentle squeeze, open. Screens cut your blinking by about half — that's the dry, heavy-eye feeling." },
-      { name: "Near–far focus", spec: "10 switches", note: "Thumb 25 cm from your face, then something across the room. Switch, sharp each time." },
-      { name: "Palming", spec: "30 s", note: "Rub your palms warm, cup them over closed eyes, breathe slowly. Pure relaxation for tired eyes." },
-      { name: "Screen setup", spec: "once", note: "Screen at arm's length, top edge at eye level, brightness matched to the room, text one size bigger. Fixes more strain than any exercise." },
-      { name: "Daylight", spec: "20+ min a day", note: "Time outside is the best thing for your eyes long-term. The meal walks count." }
+      { name: "20-20-20", spec: "every 20 min", note: "Look 6 m+ away for 20 seconds. Eases screen strain." },
+      { name: "Full blinks", spec: "10 slow", note: "Screens cut your blinking — that's the dry, heavy-eye feeling." },
+      { name: "Screen setup", spec: "once", note: "Arm's length, top edge at eye level, brightness matched to the room, text one size bigger. Fixes more strain than any exercise." },
+      { name: "Daylight", spec: "20+ min a day", note: "Time outside is the best long-term thing for your eyes. The meal walks count." }
     ],
-    focus: [
-      { name: "Morning daylight", spec: "10 min", note: "Outside within an hour of waking. Sharper by mid-morning, sleepier at night." },
-      { name: "Focus blocks", spec: "45 min · one task", note: "Phone in a drawer or another room, one tab, then a desk reset. Switching tasks is what makes the head feel cloudy." },
-      { name: "Move it", spec: "10 min", note: "A brisk walk or the daily bar + back = a clearer head for the next hour or two." },
-      { name: "Caffeine", spec: "after breakfast · before 2pm", note: "With food, not instead of it. Late caffeine steals deep sleep → foggy tomorrow." },
-      { name: "Sleep", spec: "7+ hrs", note: "The biggest lever there is. One short night = noticeably slower thinking." },
-      { name: "Give it 2–3 weeks", spec: "", note: "Coming back to training and eating less can feel foggy at first. Lifting, steady meals and walking clear it — most people feel sharper by week 3." }
+    honest: [
+      { name: "Works", spec: "evidence", note: "Lifting, walking, sleep, steady meals. Caffeine 1–3 cups, before 2pm, after food. Creatine 3–5 g — a small boost, mostly on short-sleep days." },
+      { name: "Hype", spec: "skip", note: "Nootropic stacks (lion's mane, alpha-GPC, racetams), extra supplements 'for focus', dopamine fasting. Cold plunges: a short mood lift, and right after lifting they blunt muscle growth — the opposite of the RHN goal." },
+      { name: "Self-check", spec: "", note: "Loud snoring or waking unrefreshed after 7+ hours = a sleep-breathing issue, not willpower; losing the waist helps it a lot. Still foggy at week 4 with sleep and food sorted → it isn't the training plan." },
+      { name: "Ramadan", spec: "weeks 14–19", note: "Fasting days feel slower. That's expected, not failing — hard thinking in the morning after suhoor, lift after iftar." }
     ]
   },
 
@@ -66,7 +62,7 @@ const DATA = {
     { core: true, name: "Protein", spec: "140 g · fixed base", note: "Every day, no thinking: 1 whey scoop + 3 eggs + 1 chicken pouch/portion (~70 g). Hawker meat counts as only 20–25 g a plate. Short day → a 2nd scoop. Dal is fibre, not protein (~9 g a bowl)." },
     { core: true, name: "Plate rule", spec: "½ veg · ¼ protein · ¼ carbs", note: "Carbs = 1 fist of rice OR 2 small chapati — never both. Training day: put that carb in the meal before or after the lift. Dinner: half. Gravy on the side." },
     { name: "Oil + ghee", spec: "1 tbsp a meal", note: "Indian cooking hides 300–500 kcal in oil. At home, measure it. Eating out: dry dishes (tandoori, tikka, grilled) over curries (butter chicken, korma)." },
-    { name: "Salt", spec: "Gravy on the side", note: "Family BP history: hawker kuah, soy/chilli sauce, achar, papadam and instant noodles carry most of your salt. Gravy on the side, skip the soup broth, no extra sauce. Potassium helps undo it: veg, dal, a banana, coconut water." },
+    { name: "Salt", spec: "Gravy on the side", note: "Family BP history: hawker kuah, soy/chilli sauce, achar, papadam and instant noodles carry most of your salt. Gravy on the side, skip the soup broth, no extra sauce. Potassium helps undo it: veg, dal, a banana, coconut water. Sweaty training day: salt your food normally — cut the sauces, not all salt." },
     { name: "Fibre", spec: "30 g", note: "Dal, chana, rajma, veg at every meal, a fruit a day. Keeps you full and flattens the sugar spike." },
     { name: "Late dinner", spec: "After 8:30pm?", note: "Protein snack at 4–5pm. Dinner = protein + veg, half a fist of carbs (none after 9:30). Kitchen closes after." },
     { name: "Drinks", spec: "Kosong / siew dai", note: "Teh tarik / masala chai kosong or siew dai. Lassi → plain chaas. No Milo/bubble tea/Rose syrup daily. No caffeine after 2pm." },
@@ -82,7 +78,7 @@ const DATA = {
     { name: "Breakfast", spec: "2 h before", note: "80–100 g carbs + some protein (oats, dates, bread, eggs) · 500 ml fluid." },
     { name: "Drink", spec: "500–750 ml / hour", note: "Sip every 15–20 min. Dry heat hides sweat — drink to the clock, not to thirst." },
     { name: "Electrolytes", spec: "300–600 mg sodium / L", note: "At least 1 bottle in 2. Headache, nausea or cramps = you need salt, not just water." },
-    { name: "Eat", spec: "30–60 g carbs / hour", note: "3–4 dates, half a bar, trail mix or a banana every 45 min — before you're hungry. Prayer stops are natural refuel points." },
+    { name: "Eat", spec: "30–60 g carbs / hour", note: "3–4 dates, half a bar, trail mix or a banana every 45 min — before you're hungry." },
     { name: "Carry", spec: "3 L minimum", note: "No refills on the Jebel Shams rim. Plus spare electrolyte sachets." },
     { name: "Check", spec: "Pale-straw pee", note: "Dark, or nothing in 3 h = drink 500 ml with electrolytes now. Weigh before/after training hikes: lost >1.5 kg = drink more." },
     { name: "Heat", spec: "Hat · sleeves · shade 12–3", note: "Start early. Dizzy, chills in the heat, stopped sweating or confused = stop, shade, sip electrolytes, cool neck and wrists." },
@@ -96,7 +92,7 @@ const DATA = {
     { name: "PM · Box Breathing", spec: "4×4×4×4 × 2 rounds", note: "In · hold · out · hold · ~2 min. Add rounds on rough days" },
     { name: "PM · Happy Baby", spec: "45–60 sec", note: "Hold the outside of the feet, knees toward the armpits, rock gently · lets the low back flatten (posterior tilt) and downshifts you for sleep. Stop if you feel a pinch or pain ≥3." },
     { name: "Physiological sigh", spec: "3 reps · anytime", note: "Double inhale nose, long exhale mouth · fastest downshift — works mid-meeting, at the rack" },
-    { name: "Eyes · 20-20-20", spec: "Every 20 min", note: "Look 6m+ away for 20 sec · stack it on prayer + water breaks" }
+    { name: "Eyes · 20-20-20", spec: "Every 20 min", note: "Look 6m+ away for 20 sec · stack it on water breaks" }
   ],
 
   officeStations: [
@@ -912,7 +908,7 @@ const DATA = {
     "Go in order A → B → C → A, whatever the weekday. Missed one? Just do the next one — no make-ups, no doubling up.",
     "Effort: first 2 sessions = only the first block, stop when 3–4 more reps were possible. Next 4 sessions = add one more block, 2–3 left. Then everything; the LAST set of each lift goes to 1–2 reps left, earlier sets 2–3.",
     "Progress: when every set hits the top of the rep range, add the smallest jump next time (DB +2 kg, Smith +2.5 kg, cable +1 pin). Want a change? Week 5 and week 10 each offer one alternate per main lift — keep or try, then it's locked.",
-    "Fit it around work: weekday sessions after Zuhr at lunch or straight after work (never go home first); one on the weekend morning. Crushed week → Home 20.",
+    "Fit it around work: weekday sessions at lunch or straight after work (never go home first); one on the weekend morning. Crushed week → Home 20.",
     "Weeks 7–9 (year-end holidays): ONE session = a full week — and here a hill walk or Home 20 counts too.",
     "Back after 10+ days off? Just the first block, lighter than last time. No catching up.",
     "Gym packed? Take the TAKEN? swap under the lift and keep moving.",
@@ -967,7 +963,7 @@ const DATA = {
   phases: [
     { weeks: "1–4", title: "RHN · COME BACK", body: "Phase 1 of the RHN road. Easy on purpose. Scale drops 2–3 kg — mostly water, expected. Stamina and sleep improve first. ~80–81 kg." },
     { weeks: "5–13", title: "RHN · STEADY LOSS", body: "0.4–0.5 kg a week, 3 lifts a week + intervals start. Waist under 90 cm (out of the South Asian risk zone) around here. Belly shrinks, chin-up assist drops, hikes get easier. Week 5: optional lift swaps. Week 10: the app asks for your check-in (3 min) to build RHN 2.0. ~78 kg and a waist near 90 cm by Ramadan." },
-    { weeks: "14–19", title: "RAMADAN · HOLD", body: "~8 Feb → Raya ~10 Mar + open-house week. Maintenance calories. 2 lifts a week, still A → B → C, 60–90 min after iftar (never in a prayer slot): the app trims each to ~25 min but KEEPS the laterals and arms. Hold your weights, 2–3 reps left. Walks only, no intervals. Iftar: 3 dates + water, then protein, then one carb. Bandung: one small glass. Kuih 1–2. Open house: one plate, protein + veg first. Finish at the same weight = a win." },
+    { weeks: "14–19", title: "RAMADAN · HOLD", body: "~8 Feb → Raya ~10 Mar + open-house week. Maintenance calories. 2 lifts a week, still A → B → C, 60–90 min after iftar: the app trims each to ~25 min but KEEPS the laterals and arms. Hold your weights, 2–3 reps left. Walks only, no intervals. Iftar: 3 dates + water, then protein, then one carb. Bandung: one small glass. Kuih 1–2. Open house: one plate, protein + veg first. Finish at the same weight = a win." },
     { weeks: "20–34", title: "RHN 2.0 · FINISH", body: "From Sat 20 Mar 2027: RHN 2.0 — physique + functional, built from your week-10 check-in. Opens easy like week 1. ~0.4 kg a week. Waist 86 → 83.5 cm (≈ 70 kg, ~14% body fat — the RHN look) around week 30, mid-2027." }
   ]
 };

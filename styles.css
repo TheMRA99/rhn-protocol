@@ -2421,3 +2421,5 @@ body.sheet-open { overflow: hidden; }
 }
 .db-log .btn-primary { flex: 1; min-width: 120px; min-height: 44px; margin: 0; }
 .db-stats { margin-top: 10px; font-size: 12px; color: var(--text-faint); }
+.nudge-line{margin-bottom:8px}
+.nudge-line:last-child{margin-bottom:0}
