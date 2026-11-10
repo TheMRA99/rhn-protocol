@@ -9,7 +9,7 @@ const DATA = {
     { name: "Bike, easy", spec: "2 min", note: "Just get warm and breathing." },
     { name: "Ankle rocks + calf raise + tib raise", spec: "12 L · 8 R · 12/leg · 15", note: "Knee to wall, heel down — left is the stiff side, so it gets more. Then single-leg calf raises off a step, 3-sec lower, last 6 with the knee bent (that's the shin-protecting muscle). Then back to the wall, lift your toes 15× — shin-splint armour." },
     { name: "Cable external rotation", spec: "1 × 15 / side", note: "Elbow pinned to your side, light. Shoulder armour before any pressing." },
-    { name: "Half-kneeling hip-flexor stretch", spec: "20 s / side", note: "Squeeze the back glute. Undoes the desk." },
+    { name: "Hip-flexor stretch + 90/90 switches", spec: "20 s / side · 6 switches", note: "Half-kneeling, squeeze the back glute, tuck the hips — the stretch is at the front of the back hip. Then sit with both knees bent at 90° and rock the knees side to side, slow. Undoes the desk." },
     { name: "Warm-up set", spec: "1 light set", note: "Of each first-block lift: light, 8 easy reps. Then start." }
   ],
 
@@ -939,6 +939,7 @@ const DATA = {
     { title: "Shin splints", body: "Fix: calf raises with the knee bent (warm-up) + tib raises — stronger calves absorb the pounding. Bike is your cardio, no running or jumping, steps up ~1K a week, decent shoes. Sore next morning → bike only for a week. Usually settles in 4–8 weeks." },
     { title: "Tight right rhomboid (between the shoulder blades)", body: "It's usually overworked and stretched, not short — so strengthen it. Chest-supported row with a full reach forward, rear-delt fly, open book on your left side. Desk: screen at eye level, elbows supported. Relief: a ball against the wall on the spot for 60 s." },
     { title: "Stiff left ankle", body: "Fix: knee-to-wall rocks (12 left, 8 right) every warm-up, heels raised on squats, slow calf raises. Measured at Day 0 and week 10 — expect a few cm of gain." },
+    { title: "Tight hips", body: "Sitting shortens the front of the hip and switches the glutes off. Fix: the hip-flexor stretch + 90/90 switches in the warm-up, then load the range — reverse lunges and RDLs ARE hip mobility with strength on top. Desk: stand every 45 min. Toes naturally point out and inward rotation feels blocked? That can be bone shape — let the feet turn out, don't force it. Deep glute/figure-4 stretches: gentle only, they can irritate the sciatic nerve." },
     { title: "Shoulders", body: "Fix: cable external rotation every warm-up, lateral raises just below shoulder height, no overhead pressing. Dips: assisted and shallow, 2 sets max. Pinch at the front = stop that exercise, take the swap; two sessions running → drop back a set." }
   ],
 
