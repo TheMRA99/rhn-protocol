@@ -29,7 +29,7 @@ const DATA = {
     ],
     honest: [
       { name: "Works", spec: "evidence", note: "Lifting, walking, sleep, steady meals. Caffeine 1–3 cups, before 2pm, after food. Creatine 3–5 g — a small boost, mostly on short-sleep days." },
-      { name: "Hype", spec: "skip", note: "Nootropic stacks (lion's mane, alpha-GPC, racetams), D3/magnesium/omega-3 'for focus' (they're for health), blue-light glasses, delaying caffeine 90 min, mouth taping, dopamine fasting. Cold plunges: a short mood lift, and right after lifting they blunt muscle growth — the opposite of the RHN goal." },
+      { name: "Hype", spec: "skip", note: "Nootropic stacks (lion's mane, alpha-GPC, racetams), D3/magnesium/omega-3 'for focus' (they're for health), blue-light glasses, delaying caffeine 90 min, mouth taping, dopamine fasting, 'cortisol detox' / adrenal supplements. Cold plunges: a short mood lift, and right after lifting they blunt muscle growth — the opposite of the RHN goal." },
       { name: "Self-check", spec: "", note: "Loud snoring or waking unrefreshed after 7+ hours = a sleep-breathing issue, not willpower; losing the waist helps it a lot. Still foggy at week 4 with sleep and food sorted → it isn't the training plan." },
       { name: "Ramadan", spec: "weeks 14–19", note: "Fasting days feel slower. That's expected, not failing. Split sleep is normal — a 20-min nap before 3pm counts. Hard thinking in the morning, lift after iftar. Last 10 nights: 1 lift = full week." }
     ]
@@ -172,7 +172,7 @@ const DATA = {
           title: "Sleeves + grip",
           exercises: [
             { name: "Cable Bar Curl", sets: 3, reps: "10–12", rest: 15, note: "One stack for this, the other for the pushdown. Elbows pinned, full squeeze.", cable: true, sub: "DB hammer curl." },
-            { name: "Straight-Bar Pushdown", sets: 3, reps: "10–12", rest: 45, note: "Elbows pinned to your sides, lock out hard.", cable: true, sub: "Rope pushdown, or single-arm cable pushdown." },
+            { name: "Straight-Bar Pushdown", sets: 3, reps: "10–12", rest: 45, note: "Elbows pinned to your sides, lock out hard.", cable: true, sub: "Assisted dips on the machine, 2 × 6–8, shallow — stop when your upper arms are level with the floor. Pinch at the front of the shoulder → back to pushdowns." },
             { name: "Farmer Carry", sets: 1, reps: "40 m", rest: 60, note: "Optional — skip it if you're short on time. Heavy. Tall posture, slow steps. Forearms under a rolled sleeve + a braced core.", inputMode: "carry", sub: "KBs, or one DB at a time (suitcase carry).", alt: { name: "Heavy Suitcase Carry", reps: "30 m / side", note: "One heavy DB, don't lean. Obliques + grip. Log the DB and metres per side." } }
           ]
         }
@@ -848,8 +848,8 @@ const DATA = {
   targets: [
     { label: "Calories", value: "1,900–2,000", note: "Defaults, not counting" },
     { label: "Protein", value: "140 g", note: "Fixed base: whey + 3 eggs + chicken, then meals" },
-    { label: "Weight", value: "−13 kg", note: "83 → 70 kg · 7-day avg · −0.4–0.5 kg/wk · ≈ 72–73 kg by July, 70 by ~Sep 2027 · the waist is the real finish line" },
-    { label: "Waist", value: "94 → 90 → 83.5", note: "< 90 cm = out of the South Asian risk zone · ≤ 83.5 = half your height, the finish line. Navel, every 2nd Saturday" },
+    { label: "Weight", value: "−13 kg", note: "83 → ~68–70 kg · 7-day avg · −0.4–0.5 kg/wk · ≈ 72–73 kg by July · the waist (82) is the real finish line" },
+    { label: "Waist", value: "94 → 90 → 86 → 82", note: "< 90 cm = out of the South Asian risk zone · 82 = the RHN finish line (lean, visible abs territory). Navel, every 2nd Saturday" },
     { label: "Meal walks", value: "10–15 min", note: "After lunch + dinner · the South Asian superpower" },
     { label: "Steps", value: "8–10K", note: "Daily · meal walks do most of it" },
     { label: "Sleep", value: "7+ hrs", note: "#1 lever" },
@@ -914,7 +914,7 @@ const DATA = {
     "Back after 10+ days off? Just the first block, lighter than last time. No catching up.",
     "Gym packed? Take the TAKEN? swap under the lift and keep moving.",
     "Slept under 6 hrs? First block only, easy — or a 30-min walk instead.",
-    "Shoulder pinch rule: sharp or pinching pain at the front of the shoulder = stop that exercise today, use the swap. A dull muscle burn is fine. Pinched two sessions running → drop back to last week's set count.",
+    "Dips: fine in small doses — assisted, shallow (upper arms level with the floor), 2 sets max, never to failure. Shoulder pinch rule: sharp or pinching pain at the front of the shoulder = stop that exercise today, use the swap. A dull muscle burn is fine. Pinched two sessions running → drop back to last week's set count.",
     "No running in this plan — your sciatica and shins don't need it. Bike, walk, swim and stairs build the same engine.",
     "Sciatica rule: pain, tingling or numbness down a leg during a lift → stop that lift, take the alt or skip it, go lighter next time. Flaring day → daily back moves + a 15-min walk instead of the gym. Walking calms it; long sitting and running feed it. Get up from the desk every 45 min.",
     "Shins: bike is the default cardio. Shins sore the next morning → bike only for a week. Hills: short steps on the way down. Good shoes for the step count.",
@@ -925,6 +925,7 @@ const DATA = {
   ],
 
   lookThePart: [
+    "Puffy face is mostly water + face fat, rarely cortisol. Salty late dinner + short night = puffy morning. Gravy on the side at dinner, water through the day, a walk after meals — it drains by mid-morning and shrinks with the waist.",
     "Face: gel wash morning and night + SPF 30+ in the morning — oil and dark spots are the main SG problems on brown skin.",
     "Haircut every 3–4 weeks, book the next as you leave. Beard short with a clean neckline two fingers above the Adam's apple — sharpens the jaw while face fat comes off.",
     "Clothes that fit NOW beat waiting for the goal size: 2–3 plain dark tops + 1 trouser. Shoulder seam on the shoulder, sleeve mid-bicep, nothing tight over the belly. Same-ish colour top and bottom looks taller. Rebuy at waist 90."
@@ -932,8 +933,17 @@ const DATA = {
 
   disclaimer: "General information, not medical advice. Sharp or lingering pain: stop and swap the exercise.",
 
+  // Reset: one place for every pain — what fixes it, what to do on a bad day.
+  painFixes: [
+    { title: "Sciatica (low back → down the leg)", body: "Fix: bird dog, side plank and curl-up most days (daily card) — spine endurance is what calms it, usually 6–12 weeks. Walk every day; stand up every 45 min at the desk. Hinges (RDL, swing) with a flat back; no running. Bad day: just those 3 moves + a 15-min walk, skip the gym hinges. Losing the belly takes load off the spine too." },
+    { title: "Shin splints", body: "Fix: calf raises with the knee bent (warm-up) + tib raises — stronger calves absorb the pounding. Bike is your cardio, no running or jumping, steps up ~1K a week, decent shoes. Sore next morning → bike only for a week. Usually settles in 4–8 weeks." },
+    { title: "Tight right rhomboid (between the shoulder blades)", body: "It's usually overworked and stretched, not short — so strengthen it. Chest-supported row with a full reach forward, rear-delt fly, open book on your left side. Desk: screen at eye level, elbows supported. Relief: a ball against the wall on the spot for 60 s." },
+    { title: "Stiff left ankle", body: "Fix: knee-to-wall rocks (12 left, 8 right) every warm-up, heels raised on squats, slow calf raises. Measured at Day 0 and week 10 — expect a few cm of gain." },
+    { title: "Shoulders", body: "Fix: cable external rotation every warm-up, lateral raises just below shoulder height, no overhead pressing. Dips: assisted and shallow, 2 sets max. Pinch at the front = stop that exercise, take the swap; two sessions running → drop back a set." }
+  ],
+
   genetics: [
-    { title: "Fat goes to the belly first — and leaves it last", body: "Same weight, more belly (visceral) fat than other groups. The waist is your scoreboard: under 90 cm = out of the South Asian men's risk zone, 83.5 cm = the finish line." },
+    { title: "Fat goes to the belly first — and leaves it last", body: "Same weight, more belly (visceral) fat than other groups. The waist is your scoreboard: under 90 cm = out of the South Asian men's risk zone, 82 cm = the finish line." },
     { title: "Less muscle at the same weight", body: "Muscle is where blood sugar goes to be burned. Food drives the fat loss; lifting decides where it comes off and keeps the muscle. 2 lifts a week = full week, 3 = bonus." },
     { title: "Carbs hit harder", body: "Rice, roti and sugar spike higher. Fix it without giving them up: veg first, carbs last, one carb per meal, and walk 10 min after eating." },
     { title: "Belly fat loves movement", body: "Belly fat responds to daily movement — meal walks and steps do most of it. Easy cardio and intervals are a bonus, not a must." },
@@ -965,6 +975,6 @@ const DATA = {
     { weeks: "1–4", title: "RHN · COME BACK", body: "Phase 1 of the RHN road. Easy on purpose. Scale drops 2–3 kg — mostly water, expected. Stamina and sleep improve first. ~80–81 kg." },
     { weeks: "5–13", title: "RHN · STEADY LOSS", body: "0.4–0.5 kg a week, 2 lifts = full week (3 = bonus), intervals optional from week 5. Waist under 90 cm (out of the South Asian risk zone) around here. Belly shrinks, chin-up reps climb, hikes get easier. Week 5: optional lift swaps. Week 10: the app asks for your check-in (3 min) to build RHN 2.0. ~78 kg and a waist near 90 cm by Ramadan." },
     { weeks: "14–19", title: "RAMADAN · HOLD", body: "~8 Feb → Raya ~10 Mar + open-house week. Maintenance ≈ 2,200–2,300 kcal. Week 13: drop to 1 coffee/tea a day so day 1 isn't a withdrawal headache; in Ramadan 1 cup at suhoor, none after iftar. A 20-min nap before 3pm makes up for the split night. Protein: suhoor ~45 g (3 eggs + whey), iftar ~50 g (chicken/fish), late shake ~25 g. 2 lifts a week, still A → B → C, 60–90 min after iftar: the app trims each to ~25 min but KEEPS the laterals and arms. Hold your weights, 2–3 reps left. Walks only, no intervals. Iftar: 3 dates + water, then protein, then one carb. Bandung: one small glass. Kuih 1–2. Open house: one plate, protein + veg first. Finish at the same weight = a win." },
-    { weeks: "20–34", title: "RHN 2.0 · FINISH", body: "From Sat 20 Mar 2027: RHN 2.0 — physique + functional, built from your week-10 check-in. Week 19 (after Raya) is already back to full sessions; RHN 2.0 opens at 2–3 lifts with no restart ramp — 6 weeks of holding isn't detraining. ~0.4 kg a week. Honest maths: week 34 (early July) ≈ 72–73 kg, waist ~85–86 — the RHN look is showing. The finish line, waist 83.5 (~70 kg), lands around Sep 2027." }
+    { weeks: "20–34", title: "RHN 2.0 · FINISH", body: "From Sat 20 Mar 2027: RHN 2.0 — physique + functional, built from your week-10 check-in. Week 19 (after Raya) is already back to full sessions; RHN 2.0 opens at 2–3 lifts with no restart ramp — 6 weeks of holding isn't detraining. ~0.4 kg a week. Honest maths: week 34 (early July) ≈ 72–73 kg, waist ~85–86 — the RHN look is showing. Waist 83.5 (half your height) ≈ Sep 2027; the finish line, waist 82 (~68–69 kg), ≈ Oct–Nov 2027." }
   ]
 };

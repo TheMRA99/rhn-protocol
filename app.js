@@ -2349,8 +2349,8 @@ function buildCheckinBrief() {
   if (!ci.w10?.doneAt && !ci.w18?.doneAt) return '';
   L.push('RHN 2.0 BRIEF — from the Reset check-ins');
   L.push(`generated ${today()} · week ${weekNumber()}/${DATA.totalWeeks} · RHN 2.0 starts Sat 20 Mar 2027 (week 20)`);
-  L.push('Body: South Asian (Indian), 167 cm, start 83 kg / waist 94 / hips 105 — prioritise muscle (lifting 3×/wk), waist < 90 then ≤ 83.5, carb order + meal walks, protein 140 g.');
-  L.push('Constraints: no sled / trap bar / leg curl / leg press / calf machine · DBs over Smith for chest · protect shoulders (no overhead pressing, no dips) · stiff LEFT ankle · sciatica when running long (no running) · shin splints · tight RIGHT rhomboid · family history of diabetes + high BP · no tuna · offline app · no doctor push · physique (V-taper) + functional (via ferrata, swims, hikes).');
+  L.push('Body: South Asian (Indian), 167 cm, start 83 kg / waist 94 / hips 105 — prioritise muscle (lifting 3×/wk), waist < 90 then ≤ 82, carb order + meal walks, protein 140 g.');
+  L.push('Constraints: no sled / trap bar / leg curl / leg press / calf machine · DBs over Smith for chest · protect shoulders (no overhead pressing; dips only assisted + shallow, low volume) · stiff LEFT ankle · sciatica when running long (no running) · shin splints · tight RIGHT rhomboid · family history of diabetes + high BP · no tuna · offline app · no doctor push · physique (V-taper) + functional (via ferrata, swims, hikes).');
   const bar = state.dailyBar || {};
   const barDays = Object.keys(bar).sort();
   if (barDays.length) {
@@ -2362,7 +2362,7 @@ function buildCheckinBrief() {
     const a = w10.answers || {}, au = w10.auto || {};
     L.push('', `WEEK-10 CHECK-IN (${w10.doneAt})`);
     if (au.weight) L.push(`  Weight 7-day avg: ${au.weight.startKg} → ${au.weight.avgNow ?? '—'} kg${au.weight.kgPerWeek != null ? ` (${au.weight.kgPerWeek} kg/wk)` : ''}`);
-    if (au.waist) L.push(`  Waist: ${au.waist.first} → ${au.waist.latest} cm${Number.isFinite(a.waist) ? ` · today ${a.waist}` : ''} (target ≤ 83.5)`);
+    if (au.waist) L.push(`  Waist: ${au.waist.first} → ${au.waist.latest} cm${Number.isFinite(a.waist) ? ` · today ${a.waist}` : ''} (target ≤ 82)`);
     if (au.sessionsPerWeek) L.push('  Sessions/wk: ' + Object.entries(au.sessionsPerWeek).filter(([, v]) => v != null).map(([k, v]) => `${k} ${v}`).join(' · '));
     if (au.totals) L.push('  Totals: ' + Object.entries(au.totals).map(([k, v]) => `${k} ${v}`).join(' · ') + ` · first-block-only ${au.minimumOnly} · fuller ${au.fullerSessions}`);
     (au.lifts || []).forEach(l => L.push(`  ${l.session} ${l.name}: ${l.first} → ${l.last} (${l.sessions} sessions${l.usedAlt ? ', alt used' : ''})`));
@@ -2681,7 +2681,7 @@ function renderWeightStats() {
   const lost = start - avg;
   const target = DATA.targetKg;
   const toGo = avg - target;
-  const waistTarget = 83.5;
+  const waistTarget = 82;
   const lastWaist = (state.waists || []).slice().sort((a, b) => a.date.localeCompare(b.date)).at(-1);
   const waistHit = isReset() && lastWaist && lastWaist.cm <= waistTarget;
   const atFloor = isReset() ? (avg <= target || waistHit) : avg <= 68;
@@ -2707,7 +2707,7 @@ function renderWeightStats() {
     </div>
     <div class="progress-stat">
       <div class="progress-stat-label">${isReset() ? 'Waist next' : (atFloor ? 'At floor' : 'To target')}</div>
-      <div class="progress-stat-value">${isReset() ? (waistHit ? '✓' : (lastWaist ? (lastWaist.cm >= 90 ? '90' : lastWaist.cm >= 86 ? '86' : '83.5') : '90')) : (atFloor ? '✓' : (toGo > 0 ? toGo.toFixed(1) : '✓'))}</div>
+      <div class="progress-stat-value">${isReset() ? (waistHit ? '✓' : (lastWaist ? (lastWaist.cm >= 90 ? '90' : lastWaist.cm >= 86 ? '86' : '82') : '90')) : (atFloor ? '✓' : (toGo > 0 ? toGo.toFixed(1) : '✓'))}</div>
     </div>
   `;
 
@@ -3901,6 +3901,11 @@ function renderProtocol() {
       <div class="rule-body">${r}</div>
     </div>
   `).join('');
+  const painEl = document.getElementById('painList');
+  if (painEl) {
+    painEl.closest('.card').hidden = !isReset();
+    painEl.innerHTML = DATA.painFixes.map((r, i) => `<div class="rule"><div class="rule-num">${String(i + 1).padStart(2, '0')}</div><div class="rule-body"><div class="rule-title">${r.title}</div><div class="rule-sub">${r.body}</div></div></div>`).join('');
+  }
   document.getElementById('geneticsList').innerHTML = DATA.genetics.map((r, i) => `
     <div class="rule">
       <div class="rule-num">${String(i + 1).padStart(2, '0')}</div>
