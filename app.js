@@ -491,7 +491,7 @@ function suggestedKgFor(workoutId, exKey, ex, stageIdx) {
   const allHitTop = repsList.length && repsList.every(r => r >= maxRep);
   const someBelowMin = minRep && repsList.some(r => r < minRep);
   const isVolume = maxRep >= 12;
-  const inc = isVolume ? 1.25 : 2.5;
+  const inc = isReset() ? (ex.cable || /Smith/.test(ex.name) ? 2.5 : 2) : (isVolume ? 1.25 : 2.5);
 
   let suggested = lastKg;
   if (allHitTop) suggested = lastKg + inc;
@@ -1049,7 +1049,7 @@ function renderDayPicker() {
         const more = lifts >= 3 || isRamadanHold(wk) || isHolidayWeek(wk) ? 'you\'re done — rest is part of the plan' : `Session ${RESET_BADGE[next] || 'C'} is a bonus, not a must`;
         statusEl.innerHTML = `<strong>Full week ✓</strong> (${lifts} lift${lifts === 1 ? '' : 's'}${extraTxt}) · ${more}`;
       } else {
-        statusEl.innerHTML = `This week <strong>${counted} of ${full}</strong>${isHolidayWeek(wk) ? ' (holidays: any session counts)' : ' lifts'}${extraTxt} · next <strong>Session ${RESET_BADGE[next] || 'A'}</strong> · ${full} = a full week`;
+        statusEl.innerHTML = `This week <strong>${counted} of ${full}</strong>${isHolidayWeek(wk) ? ' (holidays: any session counts)' : full === 1 ? ' lift (fresh-start week)' : ' lifts'}${extraTxt} · next <strong>Session ${RESET_BADGE[next] || 'A'}</strong> · ${full} = a full week`;
       }
     } else {
     const nextLabel = next ? (state.program === 'oman' ? 'Oman ' : 'Day ') + (activeSeq.indexOf(next) + 1) : null;
@@ -1614,7 +1614,7 @@ function renderToday() {
   const resetIdle = isReset() && !w;
   document.getElementById('todayTitle').textContent = w ? w.name : resetIdle ? 'Pick today\'s lift' : "Today's session";
   document.getElementById('todaySub').textContent = w ? w.blurb : resetIdle
-    ? 'The whole plan: 2 lifts a week (~35 min, or just the first block) + a short walk after meals. That\'s a full week. Everything else is optional.'
+    ? 'Pick today\'s lift. 2 a week is a full week. Everything below is optional.'
     : "Pick what fits your week. Don't stack delts back-to-back.";
   document.getElementById('todayTag').textContent = w ? w.tagline : resetIdle ? '2 a week = done' : 'Show up';
 }
@@ -1622,7 +1622,9 @@ function renderToday() {
 // Reset: workout first, everything else out of the way. RHN keeps its full layout.
 function applyResetLayout() {
   const r = isReset();
+  document.body.classList.toggle('is-reset', r);
   const cardOf = id => document.getElementById(id)?.closest('.card');
+  document.getElementById('trailCard')?.toggleAttribute('hidden', r);
   document.querySelector('.escape-links')?.toggleAttribute('hidden', r);
   [cardOf('resetList'), cardOf('staminaList'), cardOf('officeRotator')].forEach(c => c && (c.hidden = r));
   if (r) [cardOf('ritualList'), cardOf('dailyList')].forEach(c => c?.classList.add('collapsed'));
@@ -1655,20 +1657,24 @@ function applyResetLayout() {
   const proto = document.getElementById('view-protocol');
   if (sw && proto && sw.parentElement !== proto) proto.prepend(sw);
   document.querySelector('.logo-mark').textContent = r ? 'RHN' : 'RHN Protocol';
-  document.querySelector('.logo-sub').innerHTML = `${r ? (weekNumber() >= 20 ? 'RHN 2.0 · ' : weekNumber() >= 14 && weekNumber() <= 19 ? 'Ramadan · ' : 'Reset · ') : ''}Wk <span id="currentWeek">${weekNumber()}</span>/${r ? DATA.totalWeeks : 16}`;
+  document.querySelector('.logo-sub').innerHTML = `${r ? (weekNumber() >= 20 ? 'RHN 2.0 · ' : weekNumber() >= 14 && weekNumber() <= 18 ? 'Ramadan · ' : 'Reset · ') : ''}Wk <span id="currentWeek">${weekNumber()}</span>/${r ? DATA.totalWeeks : 16}`;
 }
 
 // ===== Reset helpers: labels, effort, holidays, comebacks =====
 function blockLabel(title) {
   if (!isReset()) return title;
-  if (/^Floor · superset/.test(title)) return 'Minimum — this alone = full session';
+  if (/^Floor · superset/.test(title)) return 'Minimum · 3 rounds: one set of each, then repeat · counts as a full session';
   if (/^Floor · /.test(title)) return title.replace(/^Floor · /, 'Minimum · ') + ' — this alone counts';
   return title;
 }
 function isHolidayWeek(wk) { return isReset() && wk >= 7 && wk <= 9; }
-function isRamadanHold(wk) { return isReset() && (state.ramadan || (wk >= 14 && wk <= 19)); }
-function weekTarget(wk) { return isHolidayWeek(wk) ? '1–2 (holidays: 1 = full week)' : isRamadanHold(wk) ? '2 (Ramadan)' : wk >= 4 ? '3 lifts (2 = full week)' : '2–3'; }
-function fullWeekAt(wk) { return isHolidayWeek(wk) ? 1 : 2; }
+function isRamadanHold(wk) { return isReset() && (state.ramadan || (wk >= 14 && wk <= 18)); }
+function weekTarget(wk) { return isHolidayWeek(wk) ? '1–2 (holidays: 1 = full week)' : fullWeekAt(wk) === 1 ? '1 (fresh start)' : '2 lifts (3 = bonus)'; }
+function fullWeekAt(wk) {
+  if (isHolidayWeek(wk)) return 1;
+  if (isReset() && wk > 1 && resetLiftCount() > 0 && ![...daysDoneInWeek(wk - 1)].some(id => DAY_SEQUENCE_RESET.includes(id))) return 1;
+  return 2;
+}
 function hasLoggedToday() {
   const day = state.setLog?.[today()];
   return !!day && Object.values(day).some(wl => Object.values(wl || {}).some(sets => Array.isArray(sets) && sets.some(x => x && x.done)));
@@ -1690,6 +1696,9 @@ function effortCue() {
   const gap = last ? Math.round((parseIso(today()) - parseIso(last)) / 86400000) : null;
   if (gap != null && gap >= 10 && !hasLoggedToday()) {
     return `<strong>Welcome back — ${gap} days off.</strong> Today: just the first block, lighter than last time. No catching up.`;
+  }
+  if (gap != null && gap >= 5 && !hasLoggedToday()) {
+    return `<strong>${gap} days since the last lift.</strong> Today: first block, same weights. Nothing to make up.`;
   }
   if (isRamadanHold(wk)) return '<strong>Ramadan:</strong> ~25 min, 60–90 min after iftar · hold your weights · stop when 2–3 more reps were possible';
   const stage = rampStage(wk);
@@ -1714,13 +1723,13 @@ function rampStage(wk) {
 // Daily bar + back (~7 min): his own pull-up habit, plus spine/rhomboid/shin armour.
 function renderDailyBar() {
   let card = document.getElementById('dailyBarCard');
-  const anchor = document.getElementById('ritualList')?.closest('.card');
+  const anchor = document.getElementById('dailyList')?.closest('.card');
   if (!isReset()) { if (card) card.hidden = true; return; }
   if (!card && anchor) {
     card = document.createElement('section');
     card.id = 'dailyBarCard';
     card.className = 'card card-collapsible collapsed daily-bar-card';
-    anchor.before(card);
+    anchor.after(card);
     card.addEventListener('click', e => {
       if (e.target.closest('.card-header')) card.classList.toggle('collapsed');
     });
@@ -1749,7 +1758,7 @@ function renderDailyBar() {
       <label>Chin-ups<input type="number" inputmode="numeric" id="dbCu" value="${prev.cu ?? ''}"></label>
       <button type="button" class="btn-primary" id="dbDone">${todayLog ? 'Update' : 'Done today'}</button>
     </div>
-    <div class="db-stats">This week <strong>${daysThisWeek}</strong> day${daysThisWeek === 1 ? '' : 's'}${best ? ` · best ${best} reps in a day` : ''} · doesn't replace a lift</div>`;
+    <div class="db-stats">This week <strong>${daysThisWeek}</strong> day${daysThisWeek === 1 ? '' : 's'} · doesn't replace a lift</div>`;
   card.querySelector('#dbDone').addEventListener('click', () => {
     const num = id => { const v = parseInt(card.querySelector(id).value, 10); return Number.isFinite(v) && v >= 0 && v < 100 ? v : null; };
     state.dailyBar = { ...(state.dailyBar || {}), [t]: { pu: num('#dbPu'), cu: num('#dbCu') } };
@@ -1762,7 +1771,7 @@ function renderDailyBar() {
 // Clear head + eyes: optional, collapsed, after the daily habits.
 function renderClearHead() {
   let card = document.getElementById('clearHeadCard');
-  const anchor = document.getElementById('dailyList')?.closest('.card');
+  const anchor = document.getElementById('dailyBarCard') || document.getElementById('dailyList')?.closest('.card');
   if (!isReset()) { if (card) card.hidden = true; return; }
   if (!card && anchor) {
     card = document.createElement('section');
@@ -1803,9 +1812,21 @@ function renderTodayNudge() {
     const wk = weekNumber();
     const lifts = [...daysDoneInWeek(wk)].filter(id => DAY_SEQUENCE_RESET.includes(id)).length;
     const nxt = nextDayThisWeek();
-    const liftTxt = lifts >= fullWeekAt(wk) ? 'lifts done this week ✓'
-      : `gym day? Session ${RESET_BADGE[nxt] || 'A'}, first block (~17 min)`;
-    msgs.push(`<div class="nudge-line"><strong>Today's minimum:</strong> walk after lunch + dinner · ${liftTxt}</div>`);
+    const ram = isRamadanHold(wk);
+    const dU = daysUntilRamadan();
+    if (resetLiftCount() === 0 && !hasLoggedToday()) {
+      msgs.push(`<div class="nudge-line"><strong>First lift:</strong> Session A, first block only (~17 min + 5-min warm-up). Light weights — you're learning the moves. Pick the day and time now.</div>`);
+    } else if (ram) {
+      const liftTxt = lifts >= fullWeekAt(wk) ? 'lifts done this week ✓' : `gym night? Session ${RESET_BADGE[nxt] || 'A'}, ~25 min, 60–90 min after iftar`;
+      msgs.push(`<div class="nudge-line"><strong>Today's minimum:</strong> 10-min walk after iftar · ${liftTxt}</div>`);
+    } else {
+      const liftTxt = lifts >= fullWeekAt(wk) ? 'lifts done this week ✓'
+        : `gym day? Session ${RESET_BADGE[nxt] || 'A'}, first block (~17 min)`;
+      msgs.push(`<div class="nudge-line"><strong>Today's minimum:</strong> walk after lunch + dinner · ${liftTxt}</div>`);
+    }
+    if (!ram && dU >= 1 && dU <= 7) {
+      msgs.push(`<div class="nudge-line"><strong>Ramadan in ~${dU} day${dU > 1 ? 's' : ''}:</strong> maintenance calories, 2 lifts a week ~25 min after iftar, laterals + arms stay. Cut to 1 coffee/tea a day now.</div>`);
+    }
   }
   if (isReset() && state.startDate) {
     const daysIn = Math.round((d - parseIso(state.startDate)) / 86400000);
@@ -1981,7 +2002,7 @@ function openVariantSheet() {
 // Reads logs only; answers live in state.checkins (never in setLog).
 const CHECKINS = {
   w10: { fromWeek: 10, toWeek: 19, title: 'Week-10 check-in', blurb: "10 weeks in. 3 minutes of taps so RHN 2.0 (from 20 Mar) is built around the real you. Nothing changes until you say so." },
-  w18: { fromWeek: 18, toWeek: 19, title: 'Before RHN 2.0', blurb: 'RHN 2.0 starts Sat 20 Mar. 30 seconds: has anything changed?' }
+  w18: { fromWeek: 16, toWeek: 19, title: 'Before RHN 2.0', blurb: 'RHN 2.0 starts Sat 20 Mar. 30 seconds: has anything changed?' }
 };
 function checkinState(id) {
   state.checkins = state.checkins || {};
@@ -2468,7 +2489,7 @@ function renderForecast() {
       <div class="fc-sub">projected ${DATA.targetKg} kg · ± ${f.bandDays} days</div>
     </div>
     <div class="fc-rate">Losing <strong>${rate} kg/week</strong> on the ${f.n}-point trend · ≈${f.curKg.toFixed(1)} kg now.</div>
-    <div class="fc-whatif">Slip to the slow edge — missed sessions, a looser week — and it drifts to <strong>${fmtForecastDate(f.slowDate)}</strong>. Seeing the date is the lever; protect the pace.</div>`;
+    ${isReset() ? '' : `<div class="fc-whatif">Slip to the slow edge — missed sessions, a looser week — and it drifts to <strong>${fmtForecastDate(f.slowDate)}</strong>. Seeing the date is the lever; protect the pace.</div>`}`;
 }
 
 function renderPrayer() {
@@ -2481,7 +2502,7 @@ function renderPrayer() {
   const ramadan = !!state.ramadan;
   const dUntil = daysUntilRamadan();
   const ramadanSoon = !ramadan && dUntil >= 1 && dUntil <= 3
-    ? `<div class="pr-ramadan"><strong>Ramadan starts in ~${dUntil} day${dUntil > 1 ? 's' : ''}.</strong> Hold phase: eat at maintenance, first block only after iftar, keep protein high. Ramadan mode switches on by itself.</div>` : '';
+    ? `<div class="pr-ramadan"><strong>Ramadan starts in ~${dUntil} day${dUntil > 1 ? 's' : ''}.</strong> Ramadan mode switches on by itself.</div>` : '';
 
   const cells = PRAYER_ORDER.map(([k, label]) => {
     const isNext = !np.tomorrow && k === np.key;
@@ -2493,7 +2514,6 @@ function renderPrayer() {
   let delta = np.tomorrow ? (24 - nowH) + t.fajr : np.at - nowH;
   const hrs = Math.floor(delta), mins = Math.round((delta - hrs) * 60);
   const cd = hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
-  const wd = windDownClock(t);
 
   let ramadanHTML = '';
   if (ramadan) {
@@ -2501,7 +2521,6 @@ function renderPrayer() {
       <div class="pr-ramadan">
         <div class="pr-ram-row"><span>Suhoor ends · Fajr</span><strong>${fmtClock(t.fajr)}</strong></div>
         <div class="pr-ram-row"><span>Iftar · Maghrib</span><strong>${fmtClock(t.maghrib)}</strong></div>
-        <div class="pr-ram-note">Train <strong>60–90 min after iftar</strong> — 2 lifts a week, ~25 min each (laterals + arms stay). Hold your loads. <strong>Deficit paused:</strong> eat at maintenance. Iftar: 3 dates + water, then protein, then one carb. Protein in 2–3 hits of ~45 g (suhoor, iftar, before bed). Bandung one small glass, kuih 1–2. Water spread iftar → suhoor, ~2.5 L.</div>
       </div>`;
   }
 
@@ -2511,7 +2530,6 @@ function renderPrayer() {
     <div class="pr-grid">${cells}</div>
     <button class="pr-toggle ${ramadan ? 'on' : ''}" id="ramadanToggle">${ramadan ? '✓ Ramadan mode on' : 'Ramadan mode'}</button>
     ${ramadanHTML}${ramadanSoon}
-    <div class="pr-windown">Wind-down for Fajr ${fmtClock(t.fajr)} — lights out by <strong>${fmtClock(wd)}</strong> to bank 7 hours.</div>
     <div class="pr-caveat">Calculated from MUIS angles (Fajr 20° · Isha 18° · Shafi'i Asr). For fasting, confirm suhoor &amp; iftar against the official MUIS table.</div>`;
 
   const tg = document.getElementById('ramadanToggle');
@@ -2568,7 +2586,7 @@ function renderAllWorkouts() {
         <div class="workout-block-blurb">${w.blurb}</div>
       </div>
       ${w.blocks.map(block => `
-        <div class="block-title">${block.title}</div>
+        <div class="block-title">${blockLabel(block.title)}</div>
         ${block.exercises.map(ex => `
           <div class="exercise">
             <div class="exercise-head">

@@ -2423,3 +2423,8 @@ body.sheet-open { overflow: hidden; }
 .db-stats { margin-top: 10px; font-size: 12px; color: var(--text-faint); }
 .nudge-line{margin-bottom:8px}
 .nudge-line:last-child{margin-bottom:0}
+
+/* Round 4: no checklist numbering in Reset; 44px targets */
+.is-reset #view-today .card-header .num { display: none; }
+.nudge-btn, .extra-chip { min-height: 44px; }
+.finetune > summary { min-height: 44px; display: flex; align-items: center; }
