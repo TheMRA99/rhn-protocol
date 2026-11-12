@@ -137,7 +137,7 @@ const DATA = {
         {
           title: "Sleeves + waist",
           exercises: [
-            { name: "Spider Curl", sets: 2, reps: "10–12", rest: 15, note: "Chest on a 45° incline bench, arms hanging straight down, curl and squeeze. Shoulder-safe — no stretch at the front of the shoulder. Log each hand's DB.", sub: "Bench taken → cable curl, elbows pinned." },
+            { name: "Spider Curl", sets: 2, reps: "10–12", rest: 15, byWeek: { 5: { sets: 3 } }, note: "Chest on a 45° incline bench, arms hanging straight down, curl and squeeze. Shoulder-safe — no stretch at the front of the shoulder. Log each hand's DB.", sub: "Bench taken → cable curl, elbows pinned." },
             { name: "Rope Pushdown", sets: 2, reps: "12–15", rest: 15, note: "Elbows pinned to your sides, split the rope at the bottom. Triceps are 2/3 of the arm.", cable: true, sub: "Straight-bar pushdown." },
             { name: "Cable Pallof Press", sets: 2, reps: "10 / side", rest: 45, note: "Stand side-on to the cable, press out and hold 2 s — resist the twist. Tight waist, flat belly.", cable: true, sub: "Band Pallof press, or a 20-s side plank per side." }
           ]
@@ -918,6 +918,7 @@ const DATA = {
     "Sciatica rule: pain, tingling or numbness down a leg during a lift → stop that lift, take the alt or skip it, go lighter next time. Flaring day → daily back moves + a 15-min walk instead of the gym. Walking calms it; long sitting and running feed it. Get up from the desk every 45 min.",
     "Shins: bike is the default cardio. Shins sore the next morning → bike only for a week. Hills: short steps on the way down. Good shoes for the step count.",
     "Pain: next-day soreness ≤3/10 is fine. Joint pain still there next morning → no load increase, go lighter or swap. Sharp pain → stop that exercise.",
+    "Scrawny-proofing: this is a recomp, not a starve — 140 g protein + 2–3 lifts + losing no faster than 0.5 kg/wk IS the muscle insurance. Curls or rows drop reps two sessions running → add a fist of rice on training days, don't push harder. The arms stay; the waist goes.",
     "Food does ~75% of the fat loss. Weigh daily, judge only the 7-day average. Don't add gym days to fix a stall — add meal walks and fix the carb portion first.",
     "Walk 10–15 min after lunch and dinner. For South Asian bodies this does more for belly fat than an extra gym session.",
     "Long days: keep 2 chicken pouches and whey sachets in the desk drawer — the 4–5pm protein hit stops the 10pm raid. Catered meeting: take the protein and fruit, skip the kueh."

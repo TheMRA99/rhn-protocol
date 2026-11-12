@@ -1838,7 +1838,7 @@ function renderTodayNudge() {
       msgs.push('<strong>Day 0 · 5 min:</strong> weigh in, waist at the navel, knee-to-wall L/R, and 3 photos (front, side, back) to your camera roll. <button type="button" class="nudge-btn" id="day0Btn">Log Day 0</button>');
     } else if (d.getDay() === 6 && daysIn > 0) {
       const wk = weekNumber();
-      if (d.getDate() <= 7) msgs.push('<strong>First Saturday:</strong> shoulders + waist (Progress) and 3 photos to the camera roll.');
+      if (d.getDate() <= 7) msgs.push('<strong>First Saturday:</strong> shoulders + flexed arm + waist (Progress) and 3 photos to the camera roll.');
       else if (wk % 2 === 1 && !hasWaistSince(t)) msgs.push('<strong>Waist day:</strong> tape at the navel, relaxed — Progress tab.');
     }
   }
@@ -1861,6 +1861,7 @@ function openDay0() {
     <p class="ci-sub">Two minutes. This is what week 10 compares against. Photos stay in your camera roll — the app never stores them.</p>
     <label class="ci-field"><span>Waist at the navel (cm)</span><input type="number" step="0.1" inputmode="decimal" id="d0Waist" value="${lastW && lastW.date >= weekWindow(0).start ? lastW.cm : ''}" placeholder="e.g. 94.0"></label>
     <label class="ci-field"><span>Shoulders at the widest point (cm) · optional, easier with help</span><input type="number" step="0.1" inputmode="decimal" id="d0Shoulders" value="" placeholder="tape round both delts"></label>
+    <label class="ci-field"><span>Upper arm, flexed (cm) · optional — the biceps proof</span><input type="number" step="0.1" inputmode="decimal" id="d0Arm" value="" placeholder="flex, tape the peak"></label>
     <label class="ci-field"><span>Hips at the widest point (cm) · optional</span><input type="number" step="0.1" inputmode="decimal" id="d0Hip" value="${b.hip ?? ''}" placeholder="e.g. 105"></label>
     <label class="ci-field"><span>Knee-to-wall LEFT (cm)</span><input type="number" step="0.5" inputmode="decimal" id="d0KneeL" value="${b.kneeL ?? ''}" placeholder="toe-to-wall distance"></label>
     <label class="ci-field"><span>Knee-to-wall RIGHT (cm)</span><input type="number" step="0.5" inputmode="decimal" id="d0KneeR" value="${b.kneeR ?? ''}" placeholder="toe-to-wall distance"></label>
@@ -1872,7 +1873,11 @@ function openDay0() {
   wireChips(sheet, (k, v) => { sheet.dataset[k] = v; });
   sheet.querySelector('#d0Save').addEventListener('click', () => {
     const num = id => { const v = parseFloat(sheet.querySelector(id).value); return Number.isFinite(v) ? v : null; };
-    const waist = num('#d0Waist'), kL = num('#d0KneeL'), kR = num('#d0KneeR'), hip = num('#d0Hip'), shoulders = num('#d0Shoulders');
+    const waist = num('#d0Waist'), kL = num('#d0KneeL'), kR = num('#d0KneeR'), hip = num('#d0Hip'), shoulders = num('#d0Shoulders'), arm = num('#d0Arm');
+    if (arm != null) {
+      state.arms = (state.arms || []).filter(x => x.date !== today());
+      state.arms.push({ date: today(), cm: arm });
+    }
     if (shoulders != null) {
       state.shoulders = (state.shoulders || []).filter(x => x.date !== today());
       state.shoulders.push({ date: today(), cm: shoulders });
@@ -1882,7 +1887,7 @@ function openDay0() {
       state.waists.push({ date: today(), cm: waist });
     }
     state.baseline = { ...(state.baseline || {}), waist: waist ?? state.baseline?.waist ?? null, hip: hip ?? state.baseline?.hip ?? null, kneeL: kL, kneeR: kR };
-    state.baselineDay0 = { date: today(), waist, hip, shoulders, kneeL: kL, kneeR: kR, photos: sheet.dataset.photos || null, head: sheet.dataset.head || null };
+    state.baselineDay0 = { date: today(), waist, hip, shoulders, kneeL: kL, kneeR: kR, photos: sheet.dataset.photos || null, head: sheet.dataset.head || null, arm };
     save();
     closeSheet();
     renderToday();
@@ -2354,6 +2359,8 @@ function buildCheckinBrief() {
   L.push(`generated ${today()} · week ${weekNumber()}/${DATA.totalWeeks} · RHN 2.0 starts Sat 20 Mar 2027 (week 20)`);
   L.push('Body: South Asian (Indian), 167 cm, start 83 kg / waist 94 / hips 105 — prioritise muscle (lifting 3×/wk), waist < 90 then ≤ 82, carb order + meal walks, protein 140 g.');
   L.push('Constraints: no sled / trap bar / leg curl / leg press / calf machine · DBs over Smith for chest · protect shoulders (no overhead pressing; dips only assisted + shallow, low volume) · stiff LEFT ankle · sciatica when running long (no running) · shin splints · tight RIGHT rhomboid · family history of diabetes + high BP · no tuna · offline app · no doctor push · physique (V-taper) + functional (via ferrata, swims, hikes).');
+  const armsL = (state.arms || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+  if (armsL.length) L.push(`Arm (flexed): ${armsL[0].cm} → ${armsL.at(-1).cm} cm — keep the biceps, lose the waist.`);
   const bar = state.dailyBar || {};
   const barDays = Object.keys(bar).sort();
   if (barDays.length) {
@@ -3448,14 +3455,24 @@ function vTaperText(waistCm) {
   return (sh.cm / waistCm).toFixed(2);
 }
 document.getElementById('logShoulderBtn')?.addEventListener('click', () => {
-  const input = document.getElementById('shoulderInput');
-  const cm = parseFloat(input.value);
-  if (!cm || cm < 80 || cm > 170) { showToast('Enter shoulders in cm (widest point)'); return; }
-  state.shoulders = (state.shoulders || []).filter(x => x.date !== today());
-  state.shoulders.push({ date: today(), cm });
+  const shIn = document.getElementById('shoulderInput');
+  const armIn = document.getElementById('armInput');
+  const sh = parseFloat(shIn.value);
+  const arm = parseFloat(armIn?.value);
+  const shOk = sh >= 80 && sh <= 170, armOk = arm >= 20 && arm <= 60;
+  if (!shOk && !armOk) { showToast('Shoulders 80–170 cm · arm (flexed) 20–60 cm'); return; }
+  if (shOk) {
+    state.shoulders = (state.shoulders || []).filter(x => x.date !== today());
+    state.shoulders.push({ date: today(), cm: sh });
+    shIn.value = '';
+  }
+  if (armOk) {
+    state.arms = (state.arms || []).filter(x => x.date !== today());
+    state.arms.push({ date: today(), cm: arm });
+    armIn.value = '';
+  }
   save();
-  input.value = '';
-  showToast('Logged shoulders ' + cm.toFixed(1) + ' cm');
+  showToast('Logged' + (shOk ? ' shoulders ' + sh.toFixed(1) : '') + (armOk ? ' · arm ' + arm.toFixed(1) : '') + ' cm');
   renderWaist();
 });
 
