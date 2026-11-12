@@ -490,8 +490,9 @@ function suggestedKgFor(workoutId, exKey, ex, stageIdx) {
 
   const allHitTop = repsList.length && repsList.every(r => r >= maxRep);
   const someBelowMin = minRep && repsList.some(r => r < minRep);
+  if (isReset() && ex.cable) return lastKg; // stacks move in pins: +reps, then the next pin
   const isVolume = maxRep >= 12;
-  const inc = isReset() ? (ex.cable || /Smith/.test(ex.name) ? 2.5 : 2) : (isVolume ? 1.25 : 2.5);
+  const inc = isReset() ? (/Smith/.test(ex.name) ? 2.5 : 2) : (isVolume ? 1.25 : 2.5);
 
   let suggested = lastKg;
   if (allHitTop) suggested = lastKg + inc;
@@ -1614,9 +1615,9 @@ function renderToday() {
   const resetIdle = isReset() && !w;
   document.getElementById('todayTitle').textContent = w ? w.name : resetIdle ? 'Pick today\'s lift' : "Today's session";
   document.getElementById('todaySub').textContent = w ? w.blurb : resetIdle
-    ? 'Pick today\'s lift. 2 a week is a full week. Everything below is optional.'
+    ? 'Pick today\'s lift. Everything below is optional.'
     : "Pick what fits your week. Don't stack delts back-to-back.";
-  document.getElementById('todayTag').textContent = w ? w.tagline : resetIdle ? '2 a week = done' : 'Show up';
+  document.getElementById('todayTag').textContent = w ? w.tagline : resetIdle ? 'A → B → C' : 'Show up';
 }
 
 // Reset: workout first, everything else out of the way. RHN keeps its full layout.
@@ -1808,14 +1809,16 @@ function renderTodayNudge() {
   const t = today();
   const d = parseIso(t);
   const msgs = [];
-  if (isReset()) {
+  const day0Pending = isReset() && state.startDate && !(state.baselineDay0 && state.baselineDay0.date)
+    && (() => { const di = Math.round((d - parseIso(state.startDate)) / 86400000); return di >= 0 && di <= 20; })();
+  if (isReset() && !day0Pending) {
     const wk = weekNumber();
     const lifts = [...daysDoneInWeek(wk)].filter(id => DAY_SEQUENCE_RESET.includes(id)).length;
     const nxt = nextDayThisWeek();
     const ram = isRamadanHold(wk);
     const dU = daysUntilRamadan();
     if (resetLiftCount() === 0 && !hasLoggedToday()) {
-      msgs.push(`<div class="nudge-line"><strong>First lift:</strong> Session A, first block only (~17 min + 5-min warm-up). Light weights — you're learning the moves. Pick the day and time now.</div>`);
+      msgs.push(`<div class="nudge-line"><strong>First lift:</strong> ${ram ? 'Session A, ~25 min, 60–90 min after iftar.' : 'Session A, first block only (~17 min + 5-min warm-up).'} Light weights — you're learning the moves. Pick the day and time now.</div>`);
     } else if (ram) {
       const liftTxt = lifts >= fullWeekAt(wk) ? 'lifts done this week ✓' : `gym night? Session ${RESET_BADGE[nxt] || 'A'}, ~25 min, 60–90 min after iftar`;
       msgs.push(`<div class="nudge-line"><strong>Today's minimum:</strong> 10-min walk after iftar · ${liftTxt}</div>`);
@@ -2500,9 +2503,6 @@ function renderPrayer() {
   const t = prayerTimes(now);
   const np = nextPrayer(t, nowH);
   const ramadan = !!state.ramadan;
-  const dUntil = daysUntilRamadan();
-  const ramadanSoon = !ramadan && dUntil >= 1 && dUntil <= 3
-    ? `<div class="pr-ramadan"><strong>Ramadan starts in ~${dUntil} day${dUntil > 1 ? 's' : ''}.</strong> Ramadan mode switches on by itself.</div>` : '';
 
   const cells = PRAYER_ORDER.map(([k, label]) => {
     const isNext = !np.tomorrow && k === np.key;
@@ -2529,7 +2529,7 @@ function renderPrayer() {
     <div class="pr-next-line">Next · <strong>${np.label}</strong> ${np.tomorrow ? 'tomorrow' : `in ${cd}`}</div>
     <div class="pr-grid">${cells}</div>
     <button class="pr-toggle ${ramadan ? 'on' : ''}" id="ramadanToggle">${ramadan ? '✓ Ramadan mode on' : 'Ramadan mode'}</button>
-    ${ramadanHTML}${ramadanSoon}
+    ${ramadanHTML}
     <div class="pr-caveat">Calculated from MUIS angles (Fajr 20° · Isha 18° · Shafi'i Asr). For fasting, confirm suhoor &amp; iftar against the official MUIS table.</div>`;
 
   const tg = document.getElementById('ramadanToggle');
@@ -3012,7 +3012,6 @@ function nextPrayer(times, nowH) {
 }
 
 // Fajr-anchored wind-down: to wake ~20 min before Fajr with 7h sleep, lights out by…
-function windDownClock(times) { return fixhour(times.fajr - 0.33 - 7); }
 
 // ----- #3 PATTERN DETECTION -------------------------------------------------
 // On-device correlation across the logs. Each pattern returns only when there's

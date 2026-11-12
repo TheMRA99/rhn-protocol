@@ -31,16 +31,16 @@ const DATA = {
       { name: "Works", spec: "evidence", note: "Lifting, walking, sleep, steady meals. Caffeine 1–3 cups, before 2pm, after food. Creatine 3–5 g — a small boost, mostly on short-sleep days." },
       { name: "Hype", spec: "skip", note: "Nootropic stacks (lion's mane, alpha-GPC, racetams), D3/magnesium/omega-3 'for focus' (they're for health), blue-light glasses, delaying caffeine 90 min, mouth taping, dopamine fasting, 'cortisol detox' / adrenal supplements. Cold plunges: a short mood lift, and right after lifting they blunt muscle growth — the opposite of the RHN goal." },
       { name: "Self-check", spec: "", note: "Loud snoring or waking unrefreshed after 7+ hours = a sleep-breathing issue, not willpower; losing the waist helps it a lot. Still foggy at week 4 with sleep and food sorted → it isn't the training plan." },
-      { name: "Ramadan", spec: "weeks 14–19", note: "Fasting days feel slower. That's expected, not failing. Split sleep is normal — a 20-min nap before 3pm counts. Hard thinking in the morning, lift after iftar. Last 10 nights: 1 lift = full week." }
+      { name: "Ramadan", spec: "weeks 14–18", note: "Fasting days feel slower. That's expected, not failing. Split sleep is normal — a 20-min nap before 3pm counts. Hard thinking in the morning, lift after iftar." }
     ]
   },
 
   dailyBar: [
-    { name: "Pull-ups + chin-ups", spec: "5 + 5 → 8 + 8", note: "What you already do. Stop 2 reps before your max — if 5 is your max, do 3 + 3. Practice, not a workout. Easy for a week → add 1 rep to each. Session A or C day: skip these, the session covers it. Ache on the inner elbow → no chin-ups for a week, pull-ups + hang only." },
+    { name: "Pull-ups + chin-ups", spec: "3+3 or 5+5 → 8+8", note: "Practice, not a workout — stop 2 reps before your max. Easy for a week → add 1 rep. Session A or C day: skip these, the session covers it. Inner-elbow ache → pull-ups + hang only for a week." },
     { name: "Dead hang", spec: "30 s → 45 s", note: "Hang relaxed, let the shoulders rise to the ears. Stretches the lats and upper back, eases the spine. Pinch at the front of the shoulder → keep your feet on the floor and take some weight." },
     { name: "Bird dog", spec: "6 / side · 8-s hold", note: "Back flat, reach long, hips don't rotate. Spine endurance — the core of every back-pain program." },
     { name: "Side plank", spec: "20 s / side", note: "From the knees if needed. The spine stays still while the waist works." },
-    { name: "Curl-up (not a sit-up)", spec: "5 × 8-s hold", note: "On your back, one knee bent, hands under the low back. Lift head and shoulders an inch and hold. No spine bending." },
+    { name: "Curl-up (not a sit-up)", spec: "5 × 8-s hold · not right after waking", note: "On your back, one knee bent, hands under the low back. Lift head and shoulders an inch and hold. No spine bending." },
     { name: "Open book", spec: "6 / side", note: "Side-lying, knees stacked, rotate the top arm open and follow it with your eyes. Lie on your LEFT side for the right arm and hold 3 s at the end. Eases the tight right upper back." },
     { name: "Tib raise", spec: "1 × 20", note: "Back against a wall, heels a foot out, lift your toes, lower slowly. Shin-splint armour." }
   ],
@@ -58,8 +58,8 @@ const DATA = {
   daily: [
     { core: true, name: "Walk after meals", spec: "10–15 min · lunch + dinner", note: "The single best habit for South Asian bodies — muscles soak up the rice/roti sugar instead of it turning into belly fat. Even 5 min counts. Office lunch → walk the block; dinner → walk downstairs." },
     { name: "Eat in order", spec: "Veg → protein → carbs", note: "Same meal, smaller blood-sugar spike. Start with the sabzi/salad, then the chicken/fish/dal, rice or roti last." },
-    { name: "Calories", spec: "1,900–2,000", note: "Weeks 1–2: log everything once to calibrate (half-rice briyani ≈ 750 kcal, chapati set ≈ 600 + ghee). Then order the defaults. Weeks 1–3: judge by the waist, not the scale (water + creatine move it). After that, one rule: 7-day average flat for 14 days → fix the carb portion first, then −150 kcal, only if the fog check is clear." },
-    { core: true, name: "Protein", spec: "140 g · fixed base", note: "Base every day (~70 g): 1 whey scoop + 3 eggs + 1 chicken pouch. Then lunch and dinner each with 'extra chicken/fish' (~35 g each). Hawker plate without extra = only 20–25 g. Missed an extra → a 2nd scoop. Dal is fibre, not protein (~9 g a bowl)." },
+    { name: "Calories", spec: "1,900–2,000", note: "Your first 2 weeks on plan: log everything once to calibrate (half-rice briyani ≈ 750 kcal, chapati set ≈ 600 + ghee). Then order the defaults. First 3 weeks: judge by the waist, not the scale (water + creatine move it). Then one rule: 7-day average flat for 14 days → fix the carb portion first, then −150 kcal, only if the fog check is clear." },
+    { core: true, name: "Protein", spec: "140 g · base + extras", note: "Base every day (~70 g): 1 whey scoop + 3 eggs + 1 chicken pouch. Then lunch and dinner each with 'extra chicken/fish' (~35 g each). Hawker plate without extra = only 20–25 g. Missed an extra → a 2nd scoop. Dal is fibre, not protein (~9 g a bowl)." },
     { core: true, name: "Plate rule", spec: "½ veg · ¼ protein · ¼ carbs", note: "Carbs = 1 fist of rice OR 2 small chapati — never both. Dinner: half — unless you lifted after work, then dinner gets the full fist and lunch the half. Gravy on the side." },
     { name: "Oil + ghee", spec: "1 tbsp a meal", note: "Indian cooking hides 300–500 kcal in oil. At home, measure it. Eating out: dry dishes (tandoori, tikka, grilled) over curries (butter chicken, korma)." },
     { name: "Salt", spec: "Gravy on the side", note: "Family BP history: hawker kuah, soy/chilli sauce, achar, papadam and instant noodles carry most of your salt. Aim under 2,000 mg sodium a day — one bowl of mee rebus, laksa or mee soto with the soup is most of it. Gravy on the side, skip the broth, no extra sauce. Potassium helps undo it: veg, dal, a banana, coconut water. Sweaty training day: salt your food normally — cut the sauces, not all salt." },
@@ -91,8 +91,7 @@ const DATA = {
     { name: "Kegels", spec: "2× / week only", note: "You already get plenty of pelvic-floor CONTRACTION from bracing, stomach vacuums and heavy lifting — extra daily squeezes tip you into tightness, which reduces control. Keep these light, twice a week at most." },
     { name: "PM · Box Breathing", spec: "4×4×4×4 × 2 rounds", note: "In · hold · out · hold · ~2 min. Add rounds on rough days" },
     { name: "PM · Happy Baby", spec: "45–60 sec", note: "Hold the outside of the feet, knees toward the armpits, rock gently · lets the low back flatten (posterior tilt) and downshifts you for sleep. Stop if you feel a pinch or pain ≥3." },
-    { name: "Physiological sigh", spec: "3 reps · anytime", note: "Double inhale nose, long exhale mouth · a quick way to settle — mid-meeting or at the rack" },
-    { name: "Eyes · 20-20-20", spec: "Every 20 min", note: "Look 6m+ away for 20 sec · stack it on water breaks" }
+    { name: "Physiological sigh", spec: "3 reps · anytime", note: "Double inhale nose, long exhale mouth · a quick way to settle — mid-meeting or at the rack" }
   ],
 
   officeStations: [
@@ -164,7 +163,7 @@ const DATA = {
         {
           title: "Engine · hips + chest",
           exercises: [
-            { name: "KB Swing", sets: 3, reps: "12", rest: 20, note: "Hinge, not squat — snap the hips, arms just hold on. Hips + engine. Light for the first few sessions. Log the KB. Back or leg nerve pain → do a DB RDL 3 × 10 instead today.", sub: "KB taken → DB swing, or a DB Romanian deadlift 3 × 10." },
+            { name: "KB Swing", sets: 3, reps: "12", rest: 20, note: "Hinge, not squat — snap the hips, arms just hold on. Hips + engine. Light for the first few sessions. Log the KB. Back grumbling or nerve pain → skip the swings today, keep the RDL light.", sub: "KB taken → DB swing, or a DB Romanian deadlift 3 × 10." },
             { name: "DB Floor Press", sets: 2, reps: "10", rest: 60, note: "Chest thickness, shoulder-friendly — elbows stop at the floor.", sub: "Smith floor press, or push-ups on the Smith bar at hip height." }
           ]
         },
@@ -172,7 +171,7 @@ const DATA = {
           title: "Sleeves + grip",
           exercises: [
             { name: "Cable Bar Curl", sets: 3, reps: "10–12", rest: 15, note: "One stack for this, the other for the pushdown. Elbows pinned, full squeeze.", cable: true, sub: "DB hammer curl." },
-            { name: "Straight-Bar Pushdown", sets: 3, reps: "10–12", rest: 45, note: "Elbows pinned to your sides, lock out hard.", cable: true, sub: "Assisted dips on the machine, 2 × 6–8, shallow — stop when your upper arms are level with the floor. Pinch at the front of the shoulder → back to pushdowns." },
+            { name: "Straight-Bar Pushdown", sets: 3, reps: "10–12", rest: 45, note: "Elbows pinned to your sides, lock out hard.", cable: true, sub: "Assisted dips, shallow — stop when your upper arms are level with the floor. 6–8 reps · 2 sets is the dose (fill 2 rows, leave the 3rd). Pinch at the front → back to pushdowns." },
             { name: "Farmer Carry", sets: 1, reps: "40 m", rest: 60, note: "Optional — skip it if you're short on time. Heavy. Tall posture, slow steps. Forearms under a rolled sleeve + a braced core.", inputMode: "carry", sub: "KBs, or one DB at a time (suitcase carry).", alt: { name: "Heavy Suitcase Carry", reps: "30 m / side", note: "One heavy DB, don't lean. Obliques + grip. Log the DB and metres per side." } }
           ]
         }
@@ -211,9 +210,9 @@ const DATA = {
     },
     {
       id: "reset_z2",
-      name: "Zone 2 · any machine",
-      tagline: "Easy engine work · 25–60 min",
-      blurb: "Burns belly fat without eating into recovery, and builds the engine. Talk test only — full sentences yes, singing no. 25–60 min, whatever you have. Optional.",
+      name: "Easy cardio · any machine",
+      tagline: "Optional · easy engine work (Zone 2) · 25–60 min",
+      blurb: "Builds the engine without eating into recovery. Talk test only — full sentences yes, singing no. 25–60 min, whatever you have.",
       warmup: "3 min very easy, then settle into pace",
       blocks: [
         {
@@ -298,7 +297,7 @@ const DATA = {
         {
           title: "Finisher · 6 min",
           exercises: [
-            { name: "Step-jacks / brisk march", sets: 1, reps: "6 × 30s on / 30s off", note: "Breathe hard, no jumping (shins). Log level (1–10 effort) + rounds.", inputMode: "interval", sub: "Brisk walk outside, 6 min." }
+            { name: "Step-out jacks / brisk march", sets: 1, reps: "6 × 30s on / 30s off", note: "One foot steps out at a time — no hop, no jumping (shins). Breathe hard. Log level (1–10 effort) + rounds.", inputMode: "interval", sub: "Brisk walk outside, 6 min." }
           ]
         }
       ]
@@ -848,7 +847,7 @@ const DATA = {
   targets: [
     { label: "Calories", value: "1,900–2,000", note: "Defaults, not counting" },
     { label: "Protein", value: "140 g", note: "Fixed base: whey + 3 eggs + chicken, then meals" },
-    { label: "Weight", value: "−13 kg", note: "83 → ~68–70 kg · 7-day avg · −0.4–0.5 kg/wk · ≈ 72–73 kg by July · the waist (82) is the real finish line" },
+    { label: "Weight", value: "−13–15 kg", note: "83 → ~68–70 kg · 7-day avg · −0.4–0.5 kg/wk · ≈ 72–73 kg by July · the waist (82) is the real finish line" },
     { label: "Waist", value: "94 → 90 → 86 → 82", note: "< 90 cm = out of the South Asian risk zone · 82 = the RHN finish line (lean, visible abs territory). Navel, every 2nd Saturday" },
     { label: "Meal walks", value: "10–15 min", note: "After lunch + dinner · the South Asian superpower" },
     { label: "Steps", value: "8–10K", note: "Daily · meal walks do most of it" },
@@ -935,7 +934,7 @@ const DATA = {
 
   // Reset: one place for every pain — what fixes it, what to do on a bad day.
   painFixes: [
-    { title: "Sciatica (low back → down the leg)", body: "Fix: bird dog, side plank and curl-up most days (daily card) — spine endurance is what calms it, usually 6–12 weeks. Walk every day; stand up every 45 min at the desk. Hinges (RDL, swing) with a flat back; no running. Bad day: just those 3 moves + a 15-min walk, skip the gym hinges. Losing the belly takes load off the spine too." },
+    { title: "Sciatica (low back → down the leg)", body: "Fix: bird dog, side plank and curl-up most days (daily card) — spine endurance is what calms it, usually 6–12 weeks. Walk every day; stand up every 45 min at the desk. Hinges (RDL, swing) with a flat back; no running. Bad day: just those 3 moves + a 15-min walk, skip the gym hinges. Losing the belly takes load off the spine too. One flat rule: numb saddle area, new bladder/bowel trouble, or a leg getting weaker = get seen today, don't train." },
     { title: "Shin splints", body: "Fix: calf raises with the knee bent (warm-up) + tib raises — stronger calves absorb the pounding. Bike is your cardio, no running or jumping, steps up ~1K a week, decent shoes. Sore next morning → bike only for a week. Usually settles in 4–8 weeks." },
     { title: "Tight right rhomboid (between the shoulder blades)", body: "It's usually overworked and stretched, not short — so strengthen it. Chest-supported row with a full reach forward, rear-delt fly, open book on your left side. Desk: screen at eye level, elbows supported. Relief: a ball against the wall on the spot for 60 s." },
     { title: "Stiff left ankle", body: "Fix: knee-to-wall rocks (12 left, 8 right) every warm-up, heels raised on squats, slow calf raises. Measured at Day 0 and week 10 — expect a few cm of gain." },
@@ -960,13 +959,13 @@ const DATA = {
     "Don't cut below 12% body fat. Tanks hormones.",
     "Heavy compounds (RDL, squat, rows). You're already doing these.",
     "Vitamin D3 — often low with brown skin + office life.",
-    "Zinc + magnesium — oysters, beef, pumpkin seeds, or supplement.",
+    "Zinc + magnesium from food — oysters, beef, pumpkin seeds. Supplements only fix a deficiency.",
     "Enough calories. Chronic under-eating kills libido fast.",
     "AVOID: tribulus, T-boosters, megadose ashwagandha long-term."
   ],
 
   progression: [
-    { title: "Main lifts · double progression", body: "Hit the top of the rep range on ALL sets → add the smallest jump next session (DB +2 kg, Smith +2.5 kg). Middle of the range → same weight. Below the range → too heavy, drop it." },
+    { title: "Main lifts · double progression", body: "Hit the top of the rep range on ALL sets → add the smallest jump next session (DB +2 kg, Smith +2.5 kg, cables: +reps, then the next pin). Middle of the range → same weight. Below the range on a weighted lift → too heavy, drop it." },
     { title: "Chin-up", body: "Bodyweight, 3 × 5–8. All sets at 8 → hold a light DB between the feet (log it as a note). Daily bar practice stays 2 reps short of max so it feeds the session instead of tiring it." },
     { title: "Engine work", body: "Swings and the step-up circuit: add a round or a heavier bell when it feels steady. Swim: add a minute of no-touch swimming. Zone 2: add minutes before speed." },
     { title: "Stalled? No rep added in 3 sessions", body: "Pick one: drop the load 10% and rebuild, take the listed swap, or fix sleep and food first. A stall is information, not failure." }
@@ -975,7 +974,7 @@ const DATA = {
   phases: [
     { weeks: "1–4", title: "RHN · COME BACK", body: "Phase 1 of the RHN road. Easy on purpose. Scale drops 2–3 kg — mostly water, expected. Stamina and sleep improve first. ~80–81 kg." },
     { weeks: "5–13", title: "RHN · STEADY LOSS", body: "0.4–0.5 kg a week, 2 lifts = full week (3 = bonus), intervals optional from week 5. Waist under 90 cm (out of the South Asian risk zone) around here. Belly shrinks, chin-up reps climb, hikes get easier. Week 5: optional lift swaps. Week 10: the app asks for your check-in (3 min) to build RHN 2.0. ~78 kg and a waist near 90 cm by Ramadan." },
-    { weeks: "14–19", title: "RAMADAN · HOLD", body: "~8 Feb → Raya ~10 Mar + open-house week. Maintenance ≈ 2,200–2,300 kcal. Week 13: drop to 1 coffee/tea a day so day 1 isn't a withdrawal headache; in Ramadan 1 cup at suhoor, none after iftar. A 20-min nap before 3pm makes up for the split night. Protein: suhoor ~45 g (3 eggs + whey), iftar ~50 g (chicken/fish), late shake ~25 g. 2 lifts a week, still A → B → C, 60–90 min after iftar: the app trims each to ~25 min but KEEPS the laterals and arms. Hold your weights, 2–3 reps left. Walks only, no intervals. Iftar: 3 dates + water, then protein, then one carb. Bandung: one small glass. Kuih 1–2. Open house: one plate, protein + veg first. Finish at the same weight = a win." },
+    { weeks: "14–18", title: "RAMADAN · HOLD", body: "~8 Feb → Raya ~10 Mar + open-house week. Maintenance ≈ 2,200–2,300 kcal. Week 13: drop to 1 coffee/tea a day so day 1 isn't a withdrawal headache; in Ramadan 1 cup at suhoor, none after iftar. A 20-min nap before 3pm makes up for the split night. Protein: suhoor ~45 g (3 eggs + whey), iftar ~50 g (chicken/fish), late shake ~25 g. 2 lifts a week, still A → B → C, 60–90 min after iftar: the app trims each to ~25 min and keeps the laterals every session (B keeps the arms). Hold your weights, 2–3 reps left. No intervals — walks and easy extras only if you feel fresh. Iftar: 3 dates + water, then protein, then one carb. Bandung: one small glass. Kuih 1–2. Open house: one plate, protein + veg first. Finish at the same weight = a win." },
     { weeks: "20–34", title: "RHN 2.0 · FINISH", body: "From Sat 20 Mar 2027: RHN 2.0 — physique + functional, built from your week-10 check-in. Week 19 (after Raya) is already back to full sessions; RHN 2.0 opens at 2–3 lifts with no restart ramp — 6 weeks of holding isn't detraining. ~0.4 kg a week. Honest maths: week 34 (early July) ≈ 72–73 kg, waist ~85–86 — the RHN look is showing. Waist 83.5 (half your height) ≈ Sep 2027; the finish line, waist 82 (~68–69 kg), ≈ Oct–Nov 2027." }
   ]
 };
