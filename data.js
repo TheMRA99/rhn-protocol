@@ -29,7 +29,7 @@ const DATA = {
     ],
     honest: [
       { name: "Works", spec: "evidence", note: "Lifting, walking, sleep, steady meals. Caffeine 1–3 cups, before 2pm, after food. Creatine 3–5 g — a small boost, mostly on short-sleep days." },
-      { name: "Hype", spec: "skip", note: "Nootropic stacks (lion's mane, alpha-GPC, racetams), D3/magnesium/omega-3 'for focus' (they're for health), blue-light glasses, delaying caffeine 90 min, mouth taping, dopamine fasting, 'cortisol detox' / adrenal supplements. Cold plunges: a short mood lift, and right after lifting they blunt muscle growth — the opposite of the RHN goal." },
+      { name: "Hype", spec: "skip", note: "Nootropic stacks (lion's mane, alpha-GPC, racetams), D3/magnesium/omega-3 'for focus' (they're for health), blue-light glasses, delaying caffeine 90 min, mouth taping, dopamine fasting, 'cortisol detox' / adrenal supplements, herbal sugar or fat-burner blends (some harm the liver). Cold plunges: a short mood lift, and right after lifting they blunt muscle growth — the opposite of the RHN goal." },
       { name: "Self-check", spec: "", note: "Loud snoring or waking unrefreshed after 7+ hours = a sleep-breathing issue, not willpower; losing the waist helps it a lot. Still foggy at week 4 with sleep and food sorted → it isn't the training plan." },
       { name: "Ramadan", spec: "weeks 14–18", note: "Fasting days feel slower. That's expected, not failing. Split sleep is normal — a 20-min nap before 3pm counts. Hard thinking in the morning, lift after iftar." }
     ]
@@ -43,7 +43,7 @@ const DATA = {
     { name: "Curl-up (not a sit-up)", spec: "5 × 8-s hold · not right after waking", note: "On your back, one knee bent, hands under the low back. Lift head and shoulders an inch and hold. No spine bending." },
     { name: "Open book", spec: "6 / side", note: "Side-lying, knees stacked, rotate the top arm open and follow it with your eyes. Lie on your LEFT side for the right arm and hold 3 s at the end. Eases the tight right upper back." },
     { name: "Tib raise", spec: "1 × 20", note: "Back against a wall, heels a foot out, lift your toes, lower slowly. Shin-splint armour." },
-    { name: "Wall sit", spec: "2 × 2 min · optional", note: "Non-lift days, right after the tib raise — same wall. Back flat, knees about 90°, the last 30 s should feel hard. Breathe the whole time, never hold it. The best-studied exercise for lowering blood pressure." }
+    { name: "Wall sit", spec: "2 × 2 → 4 × 2 min · 3 non-lift days · optional", note: "Right after the tib raise — same wall. Back flat, knees about 90°, the last 30 s should feel hard. Breathe the whole time, never hold it. Build to 4 sets by week 3, 2 min rest — do the bird dog and open book in the rests, so no extra time. Among the biggest blood-pressure drops per minute in trials. Cuff reading 160/100+ → skip it that day." }
   ],
 
   // Optional mobility — the old long ritual, kept for days with 5 spare minutes.
@@ -57,20 +57,20 @@ const DATA = {
   ],
 
   daily: [
-    { core: true, name: "After every meal", spec: "20 squats + 20 calf raises · then move 10 (lunch) / 20 (dinner)", note: "You already do the squats and calf raises — keep them: leg muscles, calves especially, pull sugar out of the blood within minutes of eating. Then the walk — the single best habit for South Asian bodies — muscles soak up the rice/roti sugar instead of it turning into belly fat, and the 20-min brisk dinner walk (a bit puffed, can still talk) is what lifts HDL and drops tomorrow's triglycerides. Start within 30 min of eating. Home and too hot? Indoors counts: pace the flat or march on the spot under the fan/aircon through a TV episode or a call, or do the squats + calf raises 2–3 times, 10 min apart. Out: walk the mall or office. Even 5 min counts on a bad day." },
-    { name: "Eat in order", spec: "Veg → protein → carbs", note: "Same meal, smaller blood-sugar spike. Start with the sabzi/salad, then the chicken/fish/dal, rice or roti last." },
+    { core: true, name: "After every meal", spec: "20 squats + 20 calf raises · then move 10 (lunch) / 20 (dinner)", note: "You already do the squats and calf raises — keep them: leg muscles, calves especially, pull sugar out of the blood within minutes of eating. Then the walk — the single best habit for South Asian bodies — muscles soak up the rice/roti sugar instead of it turning into belly fat, and the 20-min brisk dinner move (a bit puffed, can still talk) trims tomorrow's triglycerides tonight and lifts HDL over months. Start within 30 min of eating. Home and too hot? Indoors counts if it's brisk — a bit puffed: march with high knees and arm swing under the fan/aircon, or step-ups on the bottom stair, through a TV episode or a call. Slow pacing helps blood sugar but doesn't move HDL. Or repeat the squats + calf raises 2–3 times, 10 min apart. Out: walk the mall or office. Even 5 min counts on a bad day." },
+    { name: "Eat in order", spec: "Veg → protein → carbs", note: "Same meal, smaller blood-sugar spike. Start with the poriyal / kootu / keerai / salad, then the chicken, fish or dal, rice or idli last." },
     { name: "Calories", spec: "1,900–2,000", note: "Your first 2 weeks on plan: log everything once to calibrate (half-rice briyani ≈ 750 kcal, chapati set ≈ 600 + ghee). Then order the defaults. First 3 weeks: judge by the waist, not the scale (water + creatine move it). Then one rule: 7-day average flat for 14 days → fix the carb portion first, then −150 kcal, only if the fog check is clear." },
     { core: true, name: "Protein", spec: "140 g · base + extras", note: "Base every day (~70 g): 1 whey scoop + 3 eggs + 1 chicken pouch. Then lunch and dinner each with 'extra chicken/fish' (~35 g each). Hawker plate without extra = only 20–25 g. Missed an extra → a 2nd scoop. Dal is fibre, not protein (~9 g a bowl)." },
-    { core: true, name: "Plate rule", spec: "½ veg · ¼ protein · ¼ carbs", note: "Carbs = 1 fist of rice OR 2 small chapati — never both. Dinner: half — unless you lifted after work, then dinner gets the full fist and lunch the half. Gravy on the side." },
+    { core: true, name: "Plate rule", spec: "½ veg · ¼ protein · ¼ carbs", note: "1 carb = 1 fist of rice = 2–3 idli = 1 plain dosa = 1 appam = 1 parotta — never two. A rice meal is ONE fist across all the rounds: sambar → rasam → curd rice. Curd rice IS the rice. Seconds = more poriyal, kootu or sambar, not rice. Dinner: half — unless you lifted after work, then dinner gets the full fist and lunch the half. Gravy on the side." },
     { name: "Oil + ghee", spec: "1 tbsp a meal", note: "Indian cooking hides 300–500 kcal in oil. At home, measure it — canola, olive or rice-bran oil; ghee for flavour only. Eating out: dry dishes (tandoori, tikka, grilled) over curries (butter chicken, korma)." },
-    { name: "Salt", spec: "Gravy on the side", note: "Family BP history: hawker kuah, soy/chilli sauce, achar, papadam and instant noodles carry most of your salt. Aim under 2,000 mg sodium a day — one bowl of mee rebus, laksa or mee soto with the soup is most of it. Gravy on the side, skip the broth, no extra sauce. Potassium helps undo it: veg, dal, a banana, coconut water. Sweaty training day: salt your food normally — cut the sauces, not all salt." },
-    { name: "Fibre", spec: "dal or veg at both meals", note: "Plus 2 whole fruit a day. No counting. Keeps you full and flattens the sugar spike." },
+    { name: "Salt", spec: "Gravy on the side", note: "Your salt is on your own plate: pickle (oorugai), appalam/papadam, karuvadu, rasam and sambar by the bowl, biryani, salted batter. Pickle: a fingertip or none. One appalam, roasted not fried. Rasam: one cup, not a second round over rice. Don't salt curd rice, moru or fruit. At home: half-salt (low-sodium salt) in batter, rasam and sambar — skip it if you're ever on BP tablets. Hawker: mee rebus / laksa / soup broth is most of a day's salt. Aim under 2,000 mg sodium. Potassium helps undo it: veg, dal, a banana. Sweaty training day: salt your food normally — cut the sauces, not all salt." },
+    { name: "Fibre", spec: "dal or veg at both meals", note: "Plus 2 whole fruit a day — guava, apple, orange are the everyday picks; mango, jackfruit, chikoo or a big banana = both for the day. No counting. Keeps you full and flattens the sugar spike." },
     { name: "Late dinner", spec: "After 8:30pm?", note: "Protein snack at 4–5pm. Dinner = protein + veg, half a fist of carbs (none after 9:30). Kitchen closes after." },
-    { name: "Drinks", spec: "Kosong by default", note: "Teh / chai kosong; siew dai once a day max. Sugary drinks (juice, sugarcane, sweetened soya/barley, cans, Milo, bubble tea, Rose syrup): once a week — liquid sugar is the fastest route to high triglycerides. Coke Zero / diet drinks don't count; still mostly water. Lassi → plain chaas. No caffeine after 2pm." },
+    { name: "Drinks", spec: "Kosong by default", note: "Teh / chai kosong; siew dai once a day max. Sugary drinks (juice, sugarcane, sweetened soya/barley, cans, Milo, bubble tea, Rose syrup): once a week — liquid sugar is the fastest route to high triglycerides. Coke Zero / diet drinks don't count; still mostly water. Filter coffee / kopi: kosong or siew dai, same rule — condensed milk is sugar. Jaggery, honey and palm sugar are sugar too. Lassi → moru / chaas, unsalted or a pinch. No caffeine after 2pm." },
     { name: "Water", spec: "2.5–3 L", note: "More on gym days and in the SG heat" },
     { name: "Steps", spec: "a readout, not a target", note: "Walking days land near 8–10K; indoor days won't, and that's fine — the after-meal moves do the job. Shins: no sudden jumps in walking volume." },
     { name: "Sleep", spec: "7+ hrs", note: "Short sleep = bigger appetite tomorrow and less fat lost. Move bedtime, not wake time." },
-    { name: "Supplements", spec: "Creatine 3–5 g · D3 · Mg · omega-3 2 g", note: "Creatine monohydrate any time (start whenever — the scale jumps 1–2 kg of water for a week or two, ignore it) · D3 2,000 IU with a fatty meal (very common to be low with brown skin) · magnesium glycinate ~200 mg (elemental) any time, optional · omega-3 2 g EPA+DHA a day with a meal, for triglycerides — add the EPA + DHA numbers on the label (often 2–4 capsules; fewer if concentrated); fish 2×/week is a bonus · creatine nudges the creatinine number on blood tests up — that's normal" }
+    { name: "Supplements", spec: "Creatine 3–5 g · D3 · Mg · omega-3 2 g", note: "Creatine monohydrate any time (start whenever — the scale jumps 1–2 kg of water for a week or two, ignore it) · D3 2,000 IU with a fatty meal (very common to be low with brown skin) · magnesium glycinate ~200 mg (elemental) any time, optional · omega-3 2 g EPA+DHA a day with a meal, for triglycerides — add the EPA + DHA numbers on the label: a standard 1 g fish-oil capsule has only ~0.3 g, so get a concentrate (~3 capsules), halal / fish-gelatin; fish 2×/week is a bonus · creatine nudges the creatinine number on blood tests up — that's normal" }
   ],
 
   trailFuel: [
@@ -82,7 +82,7 @@ const DATA = {
     { name: "Eat", spec: "30–60 g carbs / hour", note: "3–4 dates, half a bar, trail mix or a banana every 45 min — before you're hungry." },
     { name: "Carry", spec: "3 L minimum", note: "No refills on the Jebel Shams rim. Plus spare electrolyte sachets." },
     { name: "Check", spec: "Pale-straw pee", note: "Dark, or nothing in 3 h = drink 500 ml with electrolytes now. Weigh before/after training hikes: lost >1.5 kg = drink more." },
-    { name: "Heat", spec: "Hat · sleeves · shade 12–3", note: "Start early. Dizzy, chills in the heat, stopped sweating or confused = stop, shade, sip electrolytes, cool neck and wrists." },
+    { name: "Heat", spec: "Hat · sleeves · shade 12–3", note: "Start early. Dizzy or chills = stop, shade, sip electrolytes, cool neck and wrists. Confused or stopped sweating = heat stroke: call 995, cool hard." },
     { name: "After", spec: "Within 1 h", note: "20–30 g protein + carbs, salty dinner, 500 ml electrolytes before bed. Check your feet every evening." }
   ],
 
@@ -277,7 +277,7 @@ const DATA = {
         {
           title: "Main",
           exercises: [
-            { name: "Trail / hill walk · Zone 2", sets: 1, reps: "30–45 min → +10 min an outing, up to 75", note: "Talk test on the climbs. Short steps on the way down (shins). A 5 kg pack only once 60 min feels easy. Heat: 500–750 ml water an hour; dizzy, chills or stopped sweating = stop and cool down. Log minutes; put the route number in 'level'.", inputMode: "cardio", machines: ["Outdoor", "Treadmill"], sub: "Rain → treadmill at 10% incline, same minutes." }
+            { name: "Trail / hill walk · Zone 2", sets: 1, reps: "30–45 min → +10 min an outing, up to 75", note: "Talk test on the climbs. Short steps on the way down (shins). A 5 kg pack only once 60 min feels easy. Heat: 500–750 ml water an hour; dizzy or chills = stop, shade, cool down. Confused or stopped sweating = heat stroke: call 995, cool hard, nothing by mouth. Log minutes; put the route number in 'level'.", inputMode: "cardio", machines: ["Outdoor", "Treadmill"], sub: "Rain → treadmill at 10% incline, same minutes." }
           ]
         }
       ]
@@ -849,9 +849,9 @@ const DATA = {
     { label: "Calories", value: "1,900–2,000", note: "Defaults, not counting" },
     { label: "Protein", value: "140 g", note: "Fixed base: whey + 3 eggs + chicken, then meals" },
     { label: "Weight", value: "−13–15 kg", note: "83 → ~68–70 kg · 7-day avg · −0.4–0.5 kg/wk · ≈ 72–73 kg by July · the waist (82) is the real finish line" },
-    { label: "Waist", value: "94 → 90 → 86 → 82", note: "< 90 cm = out of the South Asian risk zone · 82 = the RHN finish line (lean, visible abs territory). Navel, every 2nd Saturday" },
-    { label: "Meal walks", value: "10–15 min", note: "After lunch + dinner · the South Asian superpower" },
-    { label: "Steps", value: "8–10K", note: "Daily · meal walks do most of it" },
+    { label: "Waist", value: "94 → 90 → 86 → 82", note: "< 90 cm = below the South Asian cutoff, and risk keeps falling to 82 · 82 = the RHN finish line (lean, visible abs territory). Navel, every 2nd Saturday" },
+    { label: "After meals", value: "20 + 20 · 10 / 20", note: "20 squats + 20 calf raises, then move 10 min (lunch) / 20 min (dinner) · indoors counts if brisk" },
+    { label: "Steps", value: "readout", note: "Not a target · the after-meal moves do the work" },
     { label: "Sleep", value: "7+ hrs", note: "#1 lever" },
     { label: "Stall rule", value: "14 days flat", note: "Fix the carb portion first, then −150 kcal" }
   ],
@@ -860,7 +860,8 @@ const DATA = {
     { name: "3 eggs", grams: 20, when: "Breakfast · 7-Eleven on early days" },
     { name: "Halal whey sachet (isolate if it bloats)", grams: 25, when: "4–5pm, or with a banana on the way in" },
     { name: "Tandoori / grilled chicken (hawker plate)", grams: 25, when: "Lunch or dinner · ask for extra chicken = +15 g" },
-    { name: "Fish — batang soup, ikan bakar, saba, salmon", grams: 25, when: "Twice a week minimum" },
+    { name: "Fish — meen kuzhambu, fish fry, sardine, mackerel / ikan kembung, batang soup, saba, salmon", grams: 25, when: "Twice a week minimum · oily fish = free omega-3" },
+    { name: "Egg podimas (3 eggs)", grams: 20, when: "Breakfast or with the rice meal" },
     { name: "Chicken breast pouch / ready-cooked chicken", grams: 25, when: "Desk drawer or 7-Eleven · late-night insurance" },
     { name: "Greek yogurt / hung curd cup", grams: 15, when: "Desk snack, or as raita" },
     { name: "Chana / rajma (1 cup) — bonus, not a main", grams: 12, when: "Fibre + some protein" }
@@ -873,20 +874,24 @@ const DATA = {
     { name: "Whey shake + 1 fruit", how: "~25 g protein · ~200 kcal · before a late dinner" },
     { name: "Roasted chana (1 small cup)", how: "~10 g protein · ~180 kcal · crunchy, kills the murukku craving" },
     { name: "Edamame (1 cup)", how: "~17 g protein · ~190 kcal · FairPrice frozen section" },
-    { name: "Chaas / plain buttermilk", how: "~5 g protein · ~60 kcal · great after spicy food" },
+    { name: "Moru / chaas, unsalted or a pinch", how: "~5 g protein · ~60 kcal · great after spicy food" },
+    { name: "Chana or peanut sundal (1 small cup)", how: "~10 g protein · ~180 kcal · the South Indian roasted-chana" },
     { name: "Apple / guava / orange", how: "~80 kcal · fibre, fills you up" },
     { name: "Nuts — ONE palmful (~15 almonds)", how: "~100 kcal · never from the bag" },
     { name: "Careful: 'healthy' but dense", how: "Trail mix, dates (>3), granola, dried fruit, smoothies, protein bars, baked murukku — easy 400 kcal" }
   ],
 
   goTos: [
-    { name: "Chapati set", how: "2 chapati + chicken/mutton dry + dhal + veg — the best Indian hawker default" },
+    { name: "Home rice meal", how: "1 fist of rice across ALL rounds (sambar → rasam → curd), double poriyal / kootu / keerai, meen kuzhambu or chicken varuval / fish fry. Rasam is soup, curd is raita" },
+    { name: "Banana leaf", how: "One serve of rice, no refill — refills go to veg and rasam. Fish fry or chicken pepper dry. Skip the appalam" },
+    { name: "Idli / dosa breakfast", how: "2–3 idli or 1 plain dosa + double sambar + 2–3 eggs. Ragi, pesarattu or adai beat rava. Tomato or mint chutney over coconut" },
+    { name: "Curd rice", how: "Lunch, 1 fist, with a protein side — not a dinner or a finisher" },
+    { name: "Chapati set", how: "2 chapati + chicken dry + dhal + veg" },
     { name: "Tandoori set", how: "Tandoori chicken + 1 naan or 2 chapati (not both) + dal + mint" },
     { name: "Nasi briyani", how: "Half rice, chicken or fish, acar + raita, skip the extra ghee and the papadam" },
     { name: "Thosai", how: "Plain thosai + sambar + an egg or chicken on the side. Masala thosai = carbs on carbs" },
     { name: "Roti prata", how: "1 plain/kosong + egg, dip in dhal not fish curry. 3 pratas = a dinner's worth of oil" },
-    { name: "Home dal-sabzi-chicken", how: "1 tbsp oil per pan, chicken/fish palm-plus, 1–2 roti, salad first" },
-    { name: "Nasi padang", how: "Ayam bakar, kangkong + cabbage, half rice, gravy on the side" },
+        { name: "Nasi padang", how: "Ayam bakar, kangkong + cabbage, half rice, gravy on the side" },
     { name: "Chicken rice", how: "Skin off, double chicken, half rice" },
     { name: "Sliced fish soup / yong tau foo", how: "Clear soup, protein-heavy picks, extra tofu" },
     { name: "Early-meeting breakfast", how: "2 boiled eggs (7-Eleven) + a protein drink, or a shake + banana on the way" }
@@ -894,12 +899,12 @@ const DATA = {
 
   limits: [
     { name: "Sugary drinks", how: "Juice, sugarcane, sweetened soya/barley, cans, bubble tea — once a week. The #1 driver of high triglycerides. Coke Zero doesn't count" },
-    { name: "Santan / coconut-milk curries", how: "Nasi lemak, rendang, lemak gravies — once a week" },
+    { name: "Coconut", how: "Chutney: 1–2 tbsp a meal — tomato, mint or onion chutney or extra sambar beats a second scoop. Appam + stew, kurma, Kerala / coconut-milk curries, nasi lemak, rendang = your once-a-week coconut meal. Coconut oil counts like ghee — cook in gingelly, groundnut or rice-bran oil" },
     { name: "Teh tarik / masala chai with sugar", how: "Kosong or siew dai — 2 a day sweet = ~300 kcal" },
     { name: "Fried sides", how: "Samosa, pakora, vadai, curry puff, murukku — weekends, one portion" },
-    { name: "Rice AND roti in one meal", how: "Pick one. Rice drowned in kuah → gravy on the side, half rice" },
-    { name: "Murtabak, prata, mee goreng mamak, butter chicken", how: "Fried + white carb hits triglycerides and blood sugar together — pick one a week, share the murtabak" },
-    { name: "Mithai + kueh", how: "Gulab jamun, ladoo, jalebi, kueh — one piece at events, never at the desk" },
+    { name: "Two carbs in one meal", how: "Rice + roti, idli/dosa + rice, or a meal + a curd-rice finish — pick one. Banana leaf: one serve of rice, refills go to poriyal, kootu or rasam" },
+    { name: "Murtabak, prata / Kerala parotta, mee goreng, butter chicken", how: "Fried + white carb hits triglycerides and blood sugar together (Kerala parotta is layered with dalda — trans fat) — pick one a week, share the murtabak. Mutton: once a week, chicken or fish otherwise" },
+    { name: "Mithai + kueh", how: "Gulab jamun, ladoo, jalebi, payasam, kesari, kueh — one piece or small bowl at events, never at the desk" },
     { name: "Supper prata / Maggi after 10pm", how: "Protein snack at 4–5pm prevents it" },
     { name: "Mango lassi, Milo, Rose syrup", how: "Part of the once-a-week sugary drink. Chaas or kosong instead" }
   ],
@@ -920,11 +925,12 @@ const DATA = {
     "No running in this plan — your sciatica and shins don't need it. Bike, walk, swim and stairs build the same engine.",
     "Sciatica rule: pain, tingling or numbness down a leg during a lift → stop that lift, take the alt or skip it, go lighter next time. Flaring day → daily back moves + a 15-min walk instead of the gym. Walking calms it; long sitting and running feed it. Get up from the desk every 45 min.",
     "Shins: bike is the default cardio. Shins sore the next morning → bike only for a week. Hills: short steps on the way down. Good shoes for the step count.",
-    "Breathe out on every push, pull and stand — never hold your breath to grind out a rep. If the last rep needs a breath-hold, skip it. Pounding headache, chest pain, dizziness or blurred vision → stop the session. Got a cuff and it reads 160/100 or higher → no heavy sets today, walk instead.",
+    "Breathe out on every push, pull and stand — never hold your breath to grind out a rep. If the last rep needs a breath-hold, skip it. Pounding headache, dizziness or blurred vision → stop the session. Chest pressure or tightness, pain spreading to the jaw, arm or upper belly, or breathlessness far beyond the effort that doesn't settle within 5 min of rest — in the gym or on a walk → call 995. Got a cuff and it reads 160/100 or higher → no heavy sets today, walk instead.",
     "Pain: next-day soreness ≤3/10 is fine. Joint pain still there next morning → no load increase, go lighter or swap. Sharp pain → stop that exercise.",
+    "First block only two sessions running (after the first 6) → next session add block 2. Legs and arms are the muscle insurance.",
     "Scrawny-proofing: this is a recomp, not a starve — 140 g protein + 2–3 lifts + losing no faster than 0.5 kg/wk IS the muscle insurance. Curls or rows drop reps two sessions running → add a fist of rice on training days, don't push harder. The arms stay; the waist goes.",
     "Food does ~75% of the fat loss. Weigh daily, judge only the 7-day average. Don't add gym days to fix a stall — add meal walks and fix the carb portion first.",
-    "Walk 10–15 min after lunch and dinner. For South Asian bodies this does more for belly fat than an extra gym session.",
+    "After every meal: 20 squats + 20 calf raises, then move 10 min (lunch) / 20 min (dinner) — outdoors or brisk indoors. For South Asian bodies this does more for belly fat and blood sugar than an extra gym session.",
     "Long days: keep 2 chicken pouches and whey sachets in the desk drawer — the 4–5pm protein hit stops the 10pm raid. Catered meeting: take the protein and fruit, skip the kueh."
   ],
 
@@ -939,7 +945,7 @@ const DATA = {
 
   // Reset: one place for every pain — what fixes it, what to do on a bad day.
   painFixes: [
-    { title: "Sciatica (low back → down the leg)", body: "Fix: bird dog, side plank and curl-up most days (daily card) — spine endurance is what calms it, usually 6–12 weeks. Walk every day; stand up every 45 min at the desk. Hinges (RDL, swing) with a flat back; no running. Bad day: just those 3 moves + a 15-min walk, skip the gym hinges. Losing the belly takes load off the spine too. One flat rule: numb saddle area, new bladder/bowel trouble, or a leg getting weaker = get seen today, don't train." },
+    { title: "Sciatica (low back → down the leg)", body: "Fix: bird dog, side plank and curl-up most days (daily card) — spine endurance is what calms it, usually 6–12 weeks. Walk every day; stand up every 45 min at the desk. Hinges (RDL, swing) with a flat back; no running. Bad day: just those 3 moves + a 15-min walk, skip the gym hinges. Losing the belly takes load off the spine too. Painkillers: paracetamol first. Ibuprofen / naproxen / diclofenac raise blood pressure and load the kidneys — 3 days in a row at most, never on a hot, hike or fasting day, with water; gels are fine. One flat rule: numb saddle area, new bladder/bowel trouble, or a leg getting weaker = get seen today, don't train." },
     { title: "Shin splints", body: "Fix: calf raises with the knee bent (warm-up) + tib raises — stronger calves absorb the pounding. Bike is your cardio, no running or jumping, steps up ~1K a week, decent shoes. Sore next morning → bike only for a week. Usually settles in 4–8 weeks." },
     { title: "Tight right rhomboid (between the shoulder blades)", body: "It's usually overworked and stretched, not short — so strengthen it. Chest-supported row with a full reach forward, rear-delt fly, open book on your left side. Desk: screen at eye level, elbows supported. Relief: a ball against the wall on the spot for 60 s." },
     { title: "Stiff left ankle", body: "Fix: knee-to-wall rocks (12 left, 8 right) every warm-up, heels raised on squats, slow calf raises. Measured at Day 0 and week 10 — expect a few cm of gain." },
@@ -948,12 +954,13 @@ const DATA = {
   ],
 
   genetics: [
-    { title: "Fat goes to the belly first — and leaves it last", body: "Same weight, more belly (visceral) fat than other groups. The waist is your scoreboard: under 90 cm = out of the South Asian men's risk zone, 82 cm = the finish line." },
+    { title: "Fat goes to the belly first — and leaves it last", body: "Same weight, more belly (visceral) fat than other groups. The waist is your scoreboard: under 90 cm = below the South Asian men's cutoff, 82 cm = the finish line." },
     { title: "Less muscle at the same weight", body: "Muscle is where blood sugar goes to be burned. Food drives the fat loss; lifting decides where it comes off and keeps the muscle. 2 lifts a week = full week, 3 = bonus." },
-    { title: "Carbs hit harder", body: "Rice, roti and sugar spike higher. Fix it without giving them up: veg first, carbs last, one carb per meal, and walk 10 min after eating." },
+    { title: "Carbs hit harder", body: "Rice, roti and sugar spike higher. Fix it without giving them up: veg first, carbs last, one carb per meal, then squats, calf raises and a move after eating." },
     { title: "Belly fat loves movement", body: "Belly fat responds to daily movement — meal walks and steps do most of it. Easy cardio and intervals are a bonus, not a must." },
-    { title: "Vitamin D is almost always low", body: "Brown skin + office life. D3 2,000 IU daily with a meal." },
-    { title: "Triglycerides + HDL", body: "High triglycerides with low HDL is the classic South Asian belly-fat pattern. Liquid sugar, refined-carb dinners and belly fat drive it — and it's the fastest to move: 4–6 kg off usually cuts triglycerides by a quarter or more. Kosong drinks, the 20-min dinner walk and omega-3 2 g do most of it. HDL follows the waist." },
+    { title: "Vitamin D is very often low", body: "Brown skin + office life. D3 2,000 IU daily with a meal." },
+    { title: "Triglycerides + HDL", body: "High triglycerides with low HDL is the classic South Asian belly-fat pattern. Liquid sugar, refined-carb dinners and belly fat drive it — and it's the fastest to move: 4–6 kg off usually cuts triglycerides by a quarter or more. Cutting liquid sugar and refined-carb dinners, plus the weight coming off, do most of it; omega-3 helps a little. With high triglycerides, LDL alone undersells the risk — total cholesterol minus HDL is the number this plan moves. HDL follows the waist." },
+    { title: "Liver fat", body: "High triglycerides + a belly usually means fat stored in the liver — very common in South Asians, even at lower weights. Good news: ~4 kg off cuts it by about a third, 6–8 kg clears most of it. Same levers: kosong drinks, the after-meal moves, the lifts. Coffee without sugar is liver-friendly. Keep losing at 0.5 kg a week or less — crash diets inflame the liver." },
     { title: "Family history: diabetes + high blood pressure", body: "Genes load the gun; the waist pulls the trigger. Your levers: waist under 90, a walk after every big meal, 2–3 lifts a week (muscle soaks up blood sugar), salt down, fish twice a week. The same things that build the RHN look." },
     { title: "Lactose can bloat", body: "Whey ISOLATE if normal whey bloats you; chaas and Greek yogurt are usually fine." }
   ],
@@ -966,7 +973,7 @@ const DATA = {
     "Vitamin D3 — often low with brown skin + office life.",
     "Zinc + magnesium from food — oysters, beef, pumpkin seeds. Supplements only fix a deficiency.",
     "Enough calories. Chronic under-eating kills libido fast.",
-    "AVOID: tribulus, T-boosters, megadose ashwagandha long-term."
+    "AVOID: tribulus, T-boosters. Liver risk too: ashwagandha, green-tea-extract fat burners, garcinia, curcumin/turmeric pills, herbal 'sugar' or 'detox' blends, SARMs / oral steroids. Turmeric in cooking is fine."
   ],
 
   progression: [
@@ -978,8 +985,8 @@ const DATA = {
 
   phases: [
     { weeks: "1–4", title: "RHN · COME BACK", body: "Phase 1 of the RHN road. Easy on purpose. Scale drops 2–3 kg — mostly water, expected. Stamina and sleep improve first. ~80–81 kg." },
-    { weeks: "5–13", title: "RHN · STEADY LOSS", body: "0.4–0.5 kg a week, 2 lifts = full week (3 = bonus), intervals optional from week 5. Waist under 90 cm (out of the South Asian risk zone) around here. Belly shrinks, chin-up reps climb, hikes get easier. Week 5: optional lift swaps. Week 10: the app asks for your check-in (3 min) to build RHN 2.0. ~78 kg and a waist near 90 cm by Ramadan." },
-    { weeks: "14–18", title: "RAMADAN · HOLD", body: "~8 Feb → Raya ~10 Mar + open-house week. Maintenance ≈ 2,200–2,300 kcal. Week 13: drop to 1 coffee/tea a day so day 1 isn't a withdrawal headache; in Ramadan 1 cup at suhoor, none after iftar. A 20-min nap before 3pm makes up for the split night. Protein: suhoor ~45 g (3 eggs + whey), iftar ~50 g (chicken/fish), late shake ~25 g. 2 lifts a week, still A → B → C, 60–90 min after iftar: the app trims each to ~25 min and keeps the laterals every session (B keeps the arms). Hold your weights, 2–3 reps left. No intervals — walks and easy extras only if you feel fresh. Iftar: 3 dates + water, then protein, then one carb. Bandung: a small glass 2 nights a week. Kuih on open-house days, 1–2. Open house: one plate, protein + veg first. Finish at the same weight = a win." },
+    { weeks: "5–13", title: "RHN · STEADY LOSS", body: "0.4–0.5 kg a week, 2 lifts = full week (3 = bonus), intervals optional from week 5. Waist under 90 cm (below the South Asian cutoff) around here. Belly shrinks, chin-up reps climb, hikes get easier. Week 5: optional lift swaps. Week 10: the app asks for your check-in (3 min) to build RHN 2.0. ~78 kg and a waist near 90 cm by Ramadan." },
+    { weeks: "14–18", title: "RAMADAN · HOLD", body: "~8 Feb → Raya ~10 Mar + open-house week. Maintenance ≈ 2,200–2,300 kcal. Week 13: drop to 1 coffee/tea a day so day 1 isn't a withdrawal headache; in Ramadan 1 cup at suhoor, none after iftar. A 20-min nap before 3pm makes up for the split night. Protein: suhoor ~45 g (3 eggs + whey), iftar ~50 g (chicken/fish), late shake ~25 g. 2 lifts a week, still A → B → C, 60–90 min after iftar: the app trims each to ~25 min and keeps the laterals every session (B keeps the arms). Hold your weights, 2–3 reps left. No intervals — walks and easy extras only if you feel fresh. Iftar: 3 dates + water, then protein, then one carb. Bandung: a small glass 2 nights a week. Kuih on open-house days, 1–2. Open house: one plate, protein + veg first. Nombu kanji is rice — one small bowl is the carb. Samosa / vadai at iftar = the week's fried pick. Don't skip suhoor: eggs + whey + a slow carb. Water 2–2.5 L between iftar and suhoor, most before lifting. No hill day while fasting. Finish at the same weight = a win." },
     { weeks: "20–34", title: "RHN 2.0 · FINISH", body: "From Sat 20 Mar 2027: RHN 2.0 — physique + functional, built from your week-10 check-in. Week 19 (after Raya) is already back to full sessions; RHN 2.0 opens at 2–3 lifts with no restart ramp — 6 weeks of holding isn't detraining. ~0.4 kg a week. Honest maths: week 34 (early July) ≈ 72–73 kg, waist ~85–86 — the RHN look is showing. The finish line, waist 82 (half your height is 81.5; ~68–69 kg), ≈ Oct–Nov 2027." }
   ]
 };

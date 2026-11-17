@@ -2701,7 +2701,7 @@ function renderWeightStats() {
     const wNow = lastWaist ? lastWaist.cm : null;
     const next = wNow == null ? 90 : wNow >= 90 ? 90 : wNow >= 86 ? 86 : waistTarget;
     const waistTxt = wNow == null ? `<strong>Waist</strong> → 90 → 86 → ${waistTarget} cm`
-      : `<strong>Waist ${wNow.toFixed(1)} cm</strong> → next <strong>${next}</strong>${next === 90 ? ' (out of the South Asian risk zone)' : ''} → ${waistTarget}`;
+      : `<strong>Waist ${wNow.toFixed(1)} cm</strong> → next <strong>${next}</strong>${next === 90 ? ' (below the South Asian cutoff)' : ''} → ${waistTarget}`;
     hero.innerHTML = `${waistTxt} · <strong>−${Math.max(0, DATA.startKg - avg).toFixed(1)} kg</strong> so far · the tape is the scoreboard, not the scale`;
   }
 
