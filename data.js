@@ -19,7 +19,7 @@ const DATA = {
     top: [
       { name: "Fog check", spec: "sleep + food first", note: "Fog is usually a short night or under-eating, not a missing supplement. Same wake time every day, weekends within an hour, and outside light in the first hour after waking (the commute counts). Late meeting → earlier dinner, not a later bed. Foggy + sleeping badly 3 days running → eat at maintenance for a week (add a fist of rice or 2 chapati at lunch). Fat loss pauses, it doesn't reverse." },
       { name: "Move = focus", spec: "10 min", note: "A brisk 10-minute walk gives a small lift in attention for up to about an hour. Your meal walks and lifts already ARE the focus tool." },
-      { name: "After each meeting", spec: "stand · water · look far", note: "Stand up, refill your water, look out a window for 20 seconds. One minute: eyes, back, head." }
+      { name: "After each meeting", spec: "stand · water · look far · unclench", note: "Stand up, refill your water, look out a window for 20 seconds, drop your shoulders and unclench your jaw (teeth apart, tongue up). One minute: eyes, back, head, jaw." }
     ],
     eyes: [
       { name: "20-20-20", spec: "every 20 min", note: "Look 6 m+ away for 20 seconds. Eases screen strain." },
@@ -70,7 +70,7 @@ const DATA = {
     { name: "Water", spec: "2.5–3 L", note: "More on gym days and in the SG heat" },
     { name: "Steps", spec: "a readout, not a target", note: "Walking days land near 8–10K; indoor days won't, and that's fine — the after-meal moves do the job. Shins: no sudden jumps in walking volume." },
     { name: "Sleep", spec: "7+ hrs", note: "Short sleep = bigger appetite tomorrow and less fat lost. Move bedtime, not wake time." },
-    { name: "Supplements", spec: "Creatine 3–5 g · D3 · Mg · omega-3 2 g", note: "Creatine monohydrate any time (start whenever — the scale jumps 1–2 kg of water for a week or two, ignore it) · D3 2,000 IU with a fatty meal (very common to be low with brown skin) · magnesium glycinate ~200 mg (elemental) any time, optional · omega-3 2 g EPA+DHA a day with a meal, for triglycerides — add the EPA + DHA numbers on the label: a standard 1 g fish-oil capsule has only ~0.3 g, so get a concentrate (~3 capsules), halal / fish-gelatin; fish 2×/week is a bonus · creatine nudges the creatinine number on blood tests up — that's normal" }
+    { name: "Supplements", spec: "Creatine 3–5 g · D3 · Mg · omega-3 2 g", note: "Full timing on Fuel → Supplements. Creatine monohydrate any time (start whenever — the scale jumps 1–2 kg of water for a week or two, ignore it) · D3 2,000 IU with a fatty meal (very common to be low with brown skin) · magnesium glycinate ~200 mg (elemental) any time, optional · omega-3 2 g EPA+DHA a day with a meal, for triglycerides — add the EPA + DHA numbers on the label: a standard 1 g fish-oil capsule has only ~0.3 g, so get a concentrate (~3 capsules), halal / fish-gelatin; fish 2×/week is a bonus · creatine nudges the creatinine number on blood tests up — that's normal" }
   ],
 
   trailFuel: [
@@ -856,6 +856,24 @@ const DATA = {
     { label: "Stall rule", value: "14 days flat", note: "Fix the carb portion first, then −150 kcal" }
   ],
 
+  // Supplements: what, how much, when, with what. Anchored to meals he already eats.
+  supplementPlan: {
+    stack: [
+      { when: "Lunch", what: "D3 + half the omega-3", why: "Both need fat in the meal to absorb — lunch is your biggest daytime meal." },
+      { when: "Shake (4–5pm or after a lift)", what: "Whey + creatine", why: "One scoop + 3–5 g creatine in the same shaker. No shake today? Creatine in water, any time." },
+      { when: "Dinner", what: "Other half of the omega-3 + magnesium", why: "Splitting the omega-3 stops fishy burps; magnesium sits better in the evening." }
+    ],
+    items: [
+      { name: "Creatine monohydrate", dose: "3–5 g", when: "Any time, every day — consistency beats timing. Easiest in the whey shake.", why: "More strength and muscle per session; a small boost for the head on short-sleep days.", note: "Scale jumps 1–2 kg of water at the start — ignore it. Nudges the creatinine number on blood tests up — normal. Drink your water." },
+      { name: "Omega-3 (EPA + DHA)", dose: "2 g EPA+DHA a day", when: "With lunch and dinner, split in two.", why: "Lowers triglycerides (helps, doesn't replace the food changes).", note: "Add the EPA + DHA numbers on the label — a standard 1 g capsule has only ~0.3 g, so buy a concentrate (~3 a day), halal / fish-gelatin. Keep it in the fridge. Burps → take it at the start of the meal." },
+      { name: "Vitamin D3", dose: "2,000 IU", when: "With lunch (needs fat to absorb).", why: "Very often low with brown skin + office life.", note: "Don't go above 2,000 IU without a reason." },
+      { name: "Magnesium glycinate", dose: "~200 mg elemental", when: "With dinner or in the evening.", why: "Optional — may help muscle cramps and twitching if you're low; gentle on the gut.", note: "Read 'elemental magnesium' on the label, not the compound weight. Loose stools → halve it." },
+      { name: "Whey (isolate if it bloats)", dose: "1 scoop, 2 on short days", when: "4–5pm, or after a lift, or before a late dinner.", why: "Protein base — it's food, not a supplement.", note: "Halal-certified." }
+    ],
+    ramadan: "Ramadan: suhoor = D3 + half the omega-3 + creatine (in water or the whey); after iftar = the other half + magnesium.",
+    skip: "Skip: T-boosters, fat burners, ashwagandha, green-tea extract, garcinia, turmeric / curcumin pills, herbal sugar or detox blends, SARMs — the liver pays for them. Coffee and turmeric in cooking are fine."
+  },
+
   proteinSources: [
     { name: "3 eggs", grams: 20, when: "Breakfast · 7-Eleven on early days" },
     { name: "Halal whey sachet (isolate if it bloats)", grams: 25, when: "4–5pm, or with a banana on the way in" },
@@ -947,7 +965,8 @@ const DATA = {
   painFixes: [
     { title: "Sciatica (low back → down the leg)", body: "Fix: bird dog, side plank and curl-up most days (daily card) — spine endurance is what calms it, usually 6–12 weeks. Walk every day; stand up every 45 min at the desk. Hinges (RDL, swing) with a flat back; no running. Bad day: just those 3 moves + a 15-min walk, skip the gym hinges. Losing the belly takes load off the spine too. Painkillers: paracetamol first. Ibuprofen / naproxen / diclofenac raise blood pressure and load the kidneys — 3 days in a row at most, never on a hot, hike or fasting day, with water; gels are fine. One flat rule: numb saddle area, new bladder/bowel trouble, or a leg getting weaker = get seen today, don't train." },
     { title: "Shin splints", body: "Fix: calf raises with the knee bent (warm-up) + tib raises — stronger calves absorb the pounding. Bike is your cardio, no running or jumping, steps up ~1K a week, decent shoes. Sore next morning → bike only for a week. Usually settles in 4–8 weeks." },
-    { title: "Tight right rhomboid (between the shoulder blades)", body: "It's usually overworked and stretched, not short — so strengthen it. Chest-supported row with a full reach forward, rear-delt fly, open book on your left side. Desk: screen at eye level, elbows supported. Relief: a ball against the wall on the spot for 60 s." },
+    { title: "Tight right rhomboid (between the shoulder blades)", body: "It's usually overworked and stretched, not short — so strengthen it. Chest-supported row with a full reach forward, rear-delt fly, open book on your left side. Desk: screen at eye level, elbows supported, mouse close to the body. Spasm right now: heat 15 min, then slow shoulder rolls and the open book — don't yank it into a hard stretch. A ball against the wall on the spot, 60–90 s, eases the knot. Spasms come more with a hunched day, dehydration and clenching your jaw — the next card." },
+    { title: "Jaw pain + face twitching", body: "Usually jaw clenching — stress, focus, heavy lifts, often at night too — and it ties into the upper-back and neck tension. Rest position all day: lips together, teeth apart, tongue on the roof of the mouth. Warm cloth on the jaw 10 min, then rub the cheek muscle in small circles 1–2 min. Skip gum and very chewy food for a while; small bites. Lifting: breathe out, don't grit your teeth. Face / eyelid twitches are almost always harmless — they flare with caffeine, stress, short sleep and screen days, and fade as those settle. Wake with a sore jaw = night clenching." },
     { title: "Stiff left ankle", body: "Fix: knee-to-wall rocks (12 left, 8 right) every warm-up, heels raised on squats, slow calf raises. Measured at Day 0 and week 10 — expect a few cm of gain." },
     { title: "Tight hips", body: "Sitting shortens the front of the hip and switches the glutes off. Fix: the hip-flexor stretch + 90/90 switches in the warm-up, then load the range — reverse lunges and RDLs ARE hip mobility with strength on top. Desk: stand every 45 min. Toes naturally point out and inward rotation feels blocked? That can be bone shape — let the feet turn out, don't force it. Deep glute/figure-4 stretches: gentle only, they can irritate the sciatic nerve." },
     { title: "Shoulders", body: "Fix: cable external rotation every warm-up, lateral raises just below shoulder height, no overhead pressing. Dips: assisted and shallow, 2 sets max. Pinch at the front = stop that exercise, take the swap; two sessions running → drop back a set." }

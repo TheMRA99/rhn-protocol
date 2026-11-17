@@ -3921,6 +3921,13 @@ function renderNutrition() {
       <div class="target-note">${t.note}</div>
     </div>
   `).join('');
+  const supEl = document.getElementById('supplementList');
+  if (supEl && DATA.supplementPlan) {
+    const sp = DATA.supplementPlan;
+    supEl.innerHTML = `<div class="sup-stack">${sp.stack.map(x => `<div class="sup-slot"><div class="sup-when">${x.when}</div><div class="sup-what">${x.what}</div><div class="sup-why">${x.why}</div></div>`).join('')}</div>`
+      + sp.items.map(it => `<div class="info-row"><div class="info-body"><div class="info-name">${it.name}</div><div class="info-note"><strong>When:</strong> ${it.when} ${it.why}<br>${it.note}</div></div><div class="info-spec">${it.dose}</div></div>`).join('')
+      + `<div class="sup-foot">${sp.ramadan}</div><div class="sup-foot">${sp.skip}</div>`;
+  }
   document.getElementById('proteinList').innerHTML = DATA.proteinSources.map(s => `
     <div class="row">
       <div>
