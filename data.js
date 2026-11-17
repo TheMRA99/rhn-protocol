@@ -860,20 +860,20 @@ const DATA = {
   supplementPlan: {
     stack: [
       { when: "On waking", what: "Iron (if you take it)", why: "Empty stomach with water + an orange or guava. Then wait an hour before coffee, tea, eggs, curd or whey — they block it." },
-      { when: "Lunch", what: "D3 + half the omega-3", why: "Both need fat in the meal to absorb — lunch is your biggest daytime meal." },
+      { when: "Lunch", what: "D3 + 2 omega-3 softgels", why: "Both need fat in the meal to absorb — lunch is your biggest daytime meal." },
       { when: "Shake (4–5pm or after a lift)", what: "Whey + creatine", why: "One scoop + 3–5 g creatine in the same shaker. No shake today? Creatine in water, any time." },
-      { when: "Dinner", what: "Other half of the omega-3 + magnesium + zinc", why: "Splitting the omega-3 stops fishy burps; magnesium sits better in the evening; zinc with food avoids nausea and stays far from the iron." }
+      { when: "Dinner", what: "1 omega-3 softgel + magnesium + zinc", why: "Splitting the omega-3 stops fishy burps; magnesium sits better in the evening; zinc with food avoids nausea and stays far from the iron." }
     ],
     items: [
       { name: "Creatine monohydrate", dose: "3–5 g", when: "Any time, every day — consistency beats timing. Easiest in the whey shake.", why: "More strength and muscle per session; a small boost for the head on short-sleep days.", note: "Scale jumps 1–2 kg of water at the start — ignore it. Nudges the creatinine number on blood tests up — normal. Drink your water." },
-      { name: "Omega-3 (EPA + DHA)", dose: "2 g EPA+DHA a day", when: "With lunch and dinner, split in two.", why: "Lowers triglycerides (helps, doesn't replace the food changes).", note: "Add the EPA + DHA numbers on the label — a standard 1 g capsule has only ~0.3 g, so buy a concentrate (~3 a day), halal / fish-gelatin. Keep it in the fridge. Burps → take it at the start of the meal." },
+      { name: "Omega-3 (EPA + DHA)", dose: "3 softgels = 2.05 g", when: "2 with lunch, 1 with dinner.", why: "Lowers triglycerides (helps, doesn't replace the food changes).", note: "Your bottle: 3 softgels = 1,200 EPA + 850 DHA = 2.05 g — exactly the dose. Don't go above 6 a day. New bottle? Add the EPA + DHA numbers on the label (the big fish-oil number isn't it). Check the gelatin is fish or halal. Keep it in the fridge. Burps → take it at the start of the meal." },
       { name: "Vitamin D3", dose: "2,000 IU", when: "With lunch (needs fat to absorb).", why: "Very often low with brown skin + office life.", note: "Don't go above 2,000 IU without a reason." },
       { name: "Magnesium glycinate", dose: "~200 mg elemental", when: "With dinner or in the evening.", why: "Optional — may help muscle cramps and twitching if you're low; gentle on the gut.", note: "Read 'elemental magnesium' on the label, not the compound weight. Loose stools → halve it." },
       { name: "Iron", dose: "only if a test showed it low", when: "On waking, empty stomach, with vitamin C (orange, guava). Never with zinc, coffee, tea or dairy — keep 2 h apart.", why: "Fixes a proven deficiency — that's the only reason a man needs it.", note: "Men rarely need iron: no monthly blood loss, so extra builds up, and a fatty liver handles it badly. Took it because a blood test said low → keep going, get it rechecked in ~3 months. No test behind it → worth stopping. Dark stools are normal; constipation → take it every other day." },
       { name: "Zinc", dose: "≤ 15 mg", when: "With dinner. At least 2 h from the iron.", why: "Only helps (testosterone, immunity) if you're low — beef, mutton, seeds and eggs cover most men.", note: "Above 25 mg a day for months drains copper. Check the label — many tablets are 50 mg; cut to 15 or every third day." },
       { name: "Whey (isolate if it bloats)", dose: "1 scoop, 2 on short days", when: "4–5pm, or after a lift, or before a late dinner.", why: "Protein base — it's food, not a supplement.", note: "Halal-certified." }
     ],
-    ramadan: "Ramadan: iron at iftar with water and a date, before the meal; suhoor = D3 + half the omega-3 + creatine; after the iftar meal = the other half + magnesium + zinc.",
+    ramadan: "Ramadan: iron at iftar with water and a date, before the meal; suhoor = D3 + 2 omega-3 softgels + creatine; after the iftar meal = 1 omega-3 softgel + magnesium + zinc.",
     skip: "Skip: T-boosters, fat burners, ashwagandha, green-tea extract, garcinia, turmeric / curcumin pills, herbal sugar or detox blends, SARMs — the liver pays for them. Coffee and turmeric in cooking are fine."
   },
 
