@@ -57,7 +57,7 @@ const DATA = {
   ],
 
   daily: [
-    { core: true, name: "After every meal", spec: "20 squats + 20 calf raises · then walk 10 (lunch) / 20 (dinner)", note: "You already do the squats and calf raises — keep them: leg muscles, calves especially, pull sugar out of the blood within minutes of eating. Then the walk — the single best habit for South Asian bodies — muscles soak up the rice/roti sugar instead of it turning into belly fat, and the 20-min brisk dinner walk (a bit puffed, can still talk) is what lifts HDL and drops tomorrow's triglycerides. Start within 30 min of eating. Even 5 min counts on a bad day." },
+    { core: true, name: "After every meal", spec: "20 squats + 20 calf raises · then move 10 (lunch) / 20 (dinner)", note: "You already do the squats and calf raises — keep them: leg muscles, calves especially, pull sugar out of the blood within minutes of eating. Then the walk — the single best habit for South Asian bodies — muscles soak up the rice/roti sugar instead of it turning into belly fat, and the 20-min brisk dinner walk (a bit puffed, can still talk) is what lifts HDL and drops tomorrow's triglycerides. Start within 30 min of eating. Home and too hot? Indoors counts: pace the flat or march on the spot under the fan/aircon through a TV episode or a call, or do the squats + calf raises 2–3 times, 10 min apart. Out: walk the mall or office. Even 5 min counts on a bad day." },
     { name: "Eat in order", spec: "Veg → protein → carbs", note: "Same meal, smaller blood-sugar spike. Start with the sabzi/salad, then the chicken/fish/dal, rice or roti last." },
     { name: "Calories", spec: "1,900–2,000", note: "Your first 2 weeks on plan: log everything once to calibrate (half-rice briyani ≈ 750 kcal, chapati set ≈ 600 + ghee). Then order the defaults. First 3 weeks: judge by the waist, not the scale (water + creatine move it). Then one rule: 7-day average flat for 14 days → fix the carb portion first, then −150 kcal, only if the fog check is clear." },
     { core: true, name: "Protein", spec: "140 g · base + extras", note: "Base every day (~70 g): 1 whey scoop + 3 eggs + 1 chicken pouch. Then lunch and dinner each with 'extra chicken/fish' (~35 g each). Hawker plate without extra = only 20–25 g. Missed an extra → a 2nd scoop. Dal is fibre, not protein (~9 g a bowl)." },
@@ -66,9 +66,9 @@ const DATA = {
     { name: "Salt", spec: "Gravy on the side", note: "Family BP history: hawker kuah, soy/chilli sauce, achar, papadam and instant noodles carry most of your salt. Aim under 2,000 mg sodium a day — one bowl of mee rebus, laksa or mee soto with the soup is most of it. Gravy on the side, skip the broth, no extra sauce. Potassium helps undo it: veg, dal, a banana, coconut water. Sweaty training day: salt your food normally — cut the sauces, not all salt." },
     { name: "Fibre", spec: "dal or veg at both meals", note: "Plus 2 whole fruit a day. No counting. Keeps you full and flattens the sugar spike." },
     { name: "Late dinner", spec: "After 8:30pm?", note: "Protein snack at 4–5pm. Dinner = protein + veg, half a fist of carbs (none after 9:30). Kitchen closes after." },
-    { name: "Drinks", spec: "Kosong by default", note: "Teh / chai kosong; siew dai once a day max. Liquid sugar is the fastest route to high triglycerides — juice, sugarcane, sweetened soya/barley, cans, Milo, bubble tea, Rose syrup are rare treats, not daily. Lassi → plain chaas. No caffeine after 2pm." },
+    { name: "Drinks", spec: "Kosong by default", note: "Teh / chai kosong; siew dai once a day max. Sugary drinks (juice, sugarcane, sweetened soya/barley, cans, Milo, bubble tea, Rose syrup): once a week — liquid sugar is the fastest route to high triglycerides. Coke Zero / diet drinks don't count; still mostly water. Lassi → plain chaas. No caffeine after 2pm." },
     { name: "Water", spec: "2.5–3 L", note: "More on gym days and in the SG heat" },
-    { name: "Steps", spec: "a readout, not a target", note: "The meal walks put you near 8–10K. Shins: no sudden jumps in walking volume." },
+    { name: "Steps", spec: "a readout, not a target", note: "Walking days land near 8–10K; indoor days won't, and that's fine — the after-meal moves do the job. Shins: no sudden jumps in walking volume." },
     { name: "Sleep", spec: "7+ hrs", note: "Short sleep = bigger appetite tomorrow and less fat lost. Move bedtime, not wake time." },
     { name: "Supplements", spec: "Creatine 3–5 g · D3 · Mg · omega-3 2 g", note: "Creatine monohydrate any time (start whenever — the scale jumps 1–2 kg of water for a week or two, ignore it) · D3 2,000 IU with a fatty meal (very common to be low with brown skin) · magnesium glycinate ~200 mg (elemental) any time, optional · omega-3 2 g EPA+DHA a day with a meal, for triglycerides — add the EPA + DHA numbers on the label (often 2–4 capsules; fewer if concentrated); fish 2×/week is a bonus · creatine nudges the creatinine number on blood tests up — that's normal" }
   ],
@@ -893,7 +893,7 @@ const DATA = {
   ],
 
   limits: [
-    { name: "Liquid sugar", how: "Juice, sugarcane, sweetened soya/barley, cans, bubble tea — rare treats. The #1 driver of high triglycerides" },
+    { name: "Sugary drinks", how: "Juice, sugarcane, sweetened soya/barley, cans, bubble tea — once a week. The #1 driver of high triglycerides. Coke Zero doesn't count" },
     { name: "Santan / coconut-milk curries", how: "Nasi lemak, rendang, lemak gravies — once a week" },
     { name: "Teh tarik / masala chai with sugar", how: "Kosong or siew dai — 2 a day sweet = ~300 kcal" },
     { name: "Fried sides", how: "Samosa, pakora, vadai, curry puff, murukku — weekends, one portion" },
@@ -901,7 +901,7 @@ const DATA = {
     { name: "Murtabak, prata, mee goreng mamak, butter chicken", how: "Fried + white carb hits triglycerides and blood sugar together — pick one a week, share the murtabak" },
     { name: "Mithai + kueh", how: "Gulab jamun, ladoo, jalebi, kueh — one piece at events, never at the desk" },
     { name: "Supper prata / Maggi after 10pm", how: "Protein snack at 4–5pm prevents it" },
-    { name: "Mango lassi, Milo, Rose syrup", how: "Rare treat, small. Chaas or kosong instead" }
+    { name: "Mango lassi, Milo, Rose syrup", how: "Part of the once-a-week sugary drink. Chaas or kosong instead" }
   ],
 
   executionRules: [

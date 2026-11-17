@@ -1825,7 +1825,7 @@ function renderTodayNudge() {
     } else {
       const liftTxt = lifts >= fullWeekAt(wk) ? 'lifts done this week ✓'
         : `gym day? Session ${RESET_BADGE[nxt] || 'A'}, first block (~17 min)`;
-      msgs.push(`<div class="nudge-line"><strong>Today's minimum:</strong> after meals 20 squats + 20 calf raises, walk 10 (lunch) / 20 (dinner) · ${liftTxt}</div>`);
+      msgs.push(`<div class="nudge-line"><strong>Today's minimum:</strong> after meals 20 squats + 20 calf raises, then move 10 / 20 min (indoors counts) · ${liftTxt}</div>`);
     }
     if (!ram && dU >= 1 && dU <= 7) {
       msgs.push(`<div class="nudge-line"><strong>Ramadan in ~${dU} day${dU > 1 ? 's' : ''}:</strong> maintenance calories, 2 lifts a week ~25 min after iftar, laterals + arms stay. Cut to 1 coffee/tea a day now.</div>`);
@@ -3800,8 +3800,8 @@ function renderMobility() {
 
 // "Under the hood": bloods + BP kept on-device only (state.markers); first entry = start line, never nagged.
 const MARKERS = [
-  { k: 'tg', label: 'Triglycerides', unit: 'mg/dL', aim: 'under 150', better: 'down', levers: 'kosong · dinner walk · omega-3' },
-  { k: 'hdl', label: 'HDL', unit: 'mg/dL', aim: '40+', better: 'up', levers: 'dinner walk · lifts · waist' },
+  { k: 'tg', label: 'Triglycerides', unit: 'mg/dL', aim: 'under 150', better: 'down', levers: 'sugary drinks 1×/wk · after-meal moves · omega-3' },
+  { k: 'hdl', label: 'HDL', unit: 'mg/dL', aim: '40+', better: 'up', levers: '20-min after-dinner move · lifts · waist' },
   { k: 'bp', label: 'Blood pressure', unit: '', aim: 'under 130/80', better: 'down', levers: 'salt cap · waist · wall sit' },
   { k: 'a1c', label: 'HbA1c', unit: '%', aim: 'under 5.7', better: 'down', levers: 'post-meal squats + walks · veg first · one carb' }
 ];
