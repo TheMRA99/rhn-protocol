@@ -2428,3 +2428,9 @@ body.sheet-open { overflow: hidden; }
 .is-reset #view-today .card-header .num { display: none; }
 .nudge-btn, .extra-chip { min-height: 44px; }
 .finetune > summary { min-height: 44px; display: flex; align-items: center; }
+
+/* Under the hood (screening markers) */
+.mk-msg { font-size: 13px; color: var(--text-dim); margin: 4px 0 8px; line-height: 1.45; }
+.mk-better { color: #3fa66b; font-weight: 600; }
+.mk-form input[type="date"] { width: 150px; }
+.mk-form label { min-width: 70px; }

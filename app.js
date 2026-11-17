@@ -1825,7 +1825,7 @@ function renderTodayNudge() {
     } else {
       const liftTxt = lifts >= fullWeekAt(wk) ? 'lifts done this week ✓'
         : `gym day? Session ${RESET_BADGE[nxt] || 'A'}, first block (~17 min)`;
-      msgs.push(`<div class="nudge-line"><strong>Today's minimum:</strong> walk after lunch + dinner · ${liftTxt}</div>`);
+      msgs.push(`<div class="nudge-line"><strong>Today's minimum:</strong> after meals 20 squats + 20 calf raises, walk 10 (lunch) / 20 (dinner) · ${liftTxt}</div>`);
     }
     if (!ram && dU >= 1 && dU <= 7) {
       msgs.push(`<div class="nudge-line"><strong>Ramadan in ~${dU} day${dU > 1 ? 's' : ''}:</strong> maintenance calories, 2 lifts a week ~25 min after iftar, laterals + arms stay. Cut to 1 coffee/tea a day now.</div>`);
@@ -2357,8 +2357,11 @@ function buildCheckinBrief() {
   if (!ci.w10?.doneAt && !ci.w18?.doneAt) return '';
   L.push('RHN 2.0 BRIEF — from the Reset check-ins');
   L.push(`generated ${today()} · week ${weekNumber()}/${DATA.totalWeeks} · RHN 2.0 starts Sat 20 Mar 2027 (week 20)`);
-  L.push('Body: South Asian (Indian), 167 cm, start 83 kg / waist 94 / hips 105 — prioritise muscle (lifting 3×/wk), waist < 90 then ≤ 82, carb order + meal walks, protein 140 g.');
+  L.push('Body: South Asian (Indian), 163 cm, start 83 kg / waist 94 / hips 105 — prioritise muscle (2–3 lifts/wk), waist < 90 then ≤ 82, carb order + meal walks, protein 140 g.');
   L.push('Constraints: no sled / trap bar / leg curl / leg press / calf machine · DBs over Smith for chest · protect shoulders (no overhead pressing; dips only assisted + shallow, low volume) · stiff LEFT ankle · sciatica when running long (no running) · shin splints · tight RIGHT rhomboid · family history of diabetes + high BP · no tuna · offline app · no doctor push · physique (V-taper) + functional (via ferrata, swims, hikes).');
+  const mks = (state.markers || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+  const fmtMk = m => `${m.date}: TG ${m.tg ?? '—'} · HDL ${m.hdl ?? '—'} · BP ${m.sys ?? '—'}/${m.dia ?? '—'} · HbA1c ${m.a1c ?? '—'}`;
+  if (mks.length) L.push(`Health markers — start ${fmtMk(mks[0])}` + (mks.length > 1 ? ` | latest ${fmtMk(mks.at(-1))}` : ''));
   const armsL = (state.arms || []).slice().sort((a, b) => a.date.localeCompare(b.date));
   if (armsL.length) L.push(`Arm (flexed): ${armsL[0].cm} → ${armsL.at(-1).cm} cm — keep the biceps, lose the waist.`);
   const bar = state.dailyBar || {};
@@ -3795,8 +3798,68 @@ function renderMobility() {
   });
 }
 
+// "Under the hood": bloods + BP kept on-device only (state.markers); first entry = start line, never nagged.
+const MARKERS = [
+  { k: 'tg', label: 'Triglycerides', unit: 'mg/dL', aim: 'under 150', better: 'down', levers: 'kosong · dinner walk · omega-3' },
+  { k: 'hdl', label: 'HDL', unit: 'mg/dL', aim: '40+', better: 'up', levers: 'dinner walk · lifts · waist' },
+  { k: 'bp', label: 'Blood pressure', unit: '', aim: 'under 130/80', better: 'down', levers: 'salt cap · waist · wall sit' },
+  { k: 'a1c', label: 'HbA1c', unit: '%', aim: 'under 5.7', better: 'down', levers: 'post-meal squats + walks · veg first · one carb' }
+];
+function renderMarkers() {
+  const el = document.getElementById('markersList');
+  if (!el) return;
+  const card = el.closest('.card');
+  if (!isReset()) { card.hidden = true; return; }
+  card.hidden = false;
+  const all = (state.markers || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+  const base = all[0] || null;
+  const later = all.slice(1);
+  const latestOf = k => { for (let i = later.length - 1; i >= 0; i--) { const v = k === 'bp' ? later[i].sys : later[i][k]; if (v != null) return { v, row: later[i] }; } return null; };
+  let anyBetter = false;
+  const rows = MARKERS.map(m => {
+    if (!base) return `<div class="info-row"><div class="info-body"><div class="info-name">${m.label}</div><div class="info-note">moves with: ${m.levers}</div></div><div class="info-spec">aim ${m.aim}</div></div>`;
+    const bRaw = m.k === 'bp' ? base.sys : base[m.k];
+    const b = bRaw == null ? '—' : (m.k === 'bp' ? `${base.sys}/${base.dia ?? '—'}` : bRaw);
+    const l = latestOf(m.k);
+    let now = '';
+    if (l && bRaw != null) {
+      const bv = bRaw;
+      const better = m.better === 'down' ? l.v < bv : l.v > bv;
+      if (better) anyBetter = true;
+      const shown = m.k === 'bp' ? `${l.row.sys}/${l.row.dia ?? '—'}` : l.v;
+      now = ` → <span class="${better ? 'mk-better' : ''}">${shown}</span>`;
+    }
+    return `<div class="info-row"><div class="info-body"><div class="info-name">${m.label}</div><div class="info-note">moves with: ${m.levers}</div></div><div class="info-spec">${b}${now} · aim ${m.aim}</div></div>`;
+  }).join('');
+  const msg = !base ? 'Add your screening numbers once — they stay on this phone only, never online. The first entry becomes your start line.'
+    : !later.length ? 'This is your start line, not a grade. The waist pulls triglycerides, HDL and HbA1c with it; blood pressure follows the waist plus salt.'
+    : anyBetter ? 'Down from baseline. Same plan, keep going.' : 'Bloods lag the tape by months. Waist first.';
+  el.innerHTML = `<div class="mk-msg">${msg}</div>${rows}
+    <details class="finetune"${base ? '' : ' open'}><summary>${base ? 'Got new numbers? Add them (any can be blank)' : 'Add your numbers (any can be blank)'}</summary>
+      <div class="db-log mk-form">
+        <label>Date<input type="date" id="mkDate" value="${base ? today() : '2026-10-27'}"></label>
+        <label>TG<input type="number" inputmode="numeric" id="mkTg"></label>
+        <label>HDL<input type="number" inputmode="numeric" id="mkHdl"></label>
+        <label>BP top<input type="number" inputmode="numeric" id="mkSys"></label>
+        <label>BP bottom<input type="number" inputmode="numeric" id="mkDia"></label>
+        <label>HbA1c<input type="number" step="0.1" inputmode="decimal" id="mkA1c"></label>
+        <button type="button" class="btn-primary" id="mkSave">Save</button>
+      </div>
+    </details>`;
+  el.querySelector('#mkSave').addEventListener('click', () => {
+    const n = id => { const v = parseFloat(el.querySelector(id).value); return Number.isFinite(v) ? v : null; };
+    const row = { date: el.querySelector('#mkDate').value || today(), tg: n('#mkTg'), hdl: n('#mkHdl'), sys: n('#mkSys'), dia: n('#mkDia'), a1c: n('#mkA1c') };
+    if ([row.tg, row.hdl, row.sys, row.a1c].every(v => v == null)) { showToast('Add at least one number'); return; }
+    state.markers = (state.markers || []).filter(x => x.date !== row.date).concat(row);
+    save();
+    showToast('Saved');
+    renderMarkers();
+  });
+}
+
 function renderProgress() {
   renderCheckinPrompt('progress');
+  renderMarkers();
   renderWeightChart();
   renderWeightStats();
   renderForecast();
