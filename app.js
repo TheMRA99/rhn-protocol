@@ -1800,7 +1800,7 @@ function renderDailyBar() {
   card.innerHTML = `
     <header class="card-header">
       <h2><span class="num">00</span>Daily bar + back</h2>
-      <span class="card-meta">${todayLog ? '✓ done today' : '~7 min · most days · optional'}</span>
+      <span class="card-meta">${todayLog ? '✓ done today' : '~5 min · most days · optional'}</span>
       <span class="card-toggle" aria-hidden="true"></span>
     </header>
     <div class="info-list">${DATA.dailyBar.map(row).join('')}</div>
@@ -1869,7 +1869,7 @@ function renderTodayNudge() {
     const ram = isRamadanHold(wk);
     const dU = daysUntilRamadan();
     if (resetLiftCount() === 0 && !hasLoggedToday()) {
-      msgs.push(`<div class="nudge-line"><strong>First lift:</strong> ${ram ? 'Session A, ~25 min, 60–90 min after iftar.' : 'Session A, first block only (~17 min + 5-min warm-up).'} Light weights — you're learning the moves. Pick the day and time now.</div>`);
+      msgs.push(`<div class="nudge-line"><strong>First lift:</strong> ${ram ? 'Session A, ~25 min, 60–90 min after iftar.' : 'Session A, first block only (~17 min + the warm-up).'} Light weights — you're learning the moves. Pick the day and time now.</div>`);
     } else if (ram) {
       const liftTxt = lifts >= fullWeekAt(wk) ? 'lifts done this week ✓' : `gym night? Session ${RESET_BADGE[nxt] || 'A'}, ~25 min, 60–90 min after iftar`;
       msgs.push(`<div class="nudge-line"><strong>Today's minimum:</strong> 10-min walk after iftar · ${liftTxt}</div>`);
