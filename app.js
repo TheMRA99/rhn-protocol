@@ -536,7 +536,7 @@ function inputFieldsForMode(mode, ex) {
     case 'cardio':
       return [
         { key: 'min', label: 'min', width: 50, inputmode: 'decimal' },
-        { key: 'level', label: 'level', width: 54, inputmode: 'numeric' }
+        { key: 'level', label: ex && (ex.machines || []).includes('Pool') ? 'laps' : 'level', width: 54, inputmode: 'numeric' }
       ];
     case 'amrap':
       return [{ key: 'rounds', label: 'rounds', width: 70, inputmode: 'numeric' }];
@@ -1339,7 +1339,8 @@ function renderWorkout() {
         } else {
           const fields = inputFieldsForMode(mode, exKey.endsWith('~sub') ? null : ex);
           setData[field] = input.value;
-          setData.done = fields.every(f => setData[f.key] !== undefined && setData[f.key] !== '');
+          const filled = f => setData[f.key] !== undefined && setData[f.key] !== '';
+          setData.done = mode === 'cardio' ? fields.some(filled) : fields.every(filled);
           // Live update of the bar total next to this kg input
           if (ex.barbell && field === 'kg') {
             const tot = row.querySelector('[data-bar-total]');
@@ -1539,9 +1540,28 @@ function renderWorkout() {
     }
     showToast('Session logged');
     renderWorkout();
+    renderDayPicker();
     renderHeader();
     renderProgress();
   };
+  const bfDate = document.getElementById('backfillDate');
+  const bfBtn = document.getElementById('backfillBtn');
+  if (bfDate && bfBtn) {
+    bfDate.max = today();
+    if (!bfDate.value) { const y = parseIso(today()); y.setDate(y.getDate() - 1); bfDate.value = localIso(y); }
+    bfBtn.onclick = () => {
+      const d = bfDate.value;
+      if (!d || d > today()) { showToast('Pick today or an earlier day'); return; }
+      if (state.sessions.some(s => s.date === d && s.workoutId === id)) { showToast(`${w.name} is already logged for ${d}`); return; }
+      state.sessions.push({ date: d, workoutId: id, name: w.name, backfilled: true });
+      save();
+      showToast(`Logged ${w.name} for ${d}`);
+      renderWorkout();
+      renderDayPicker();
+      renderHeader();
+      renderProgress();
+    };
+  }
 
   // Escape hatch: wipe today's entries for this workout and start it clean.
   const clearBtn = document.getElementById('clearTodayBtn');
@@ -1578,7 +1598,7 @@ function refreshFinishButtons() {
   const logged = isSessionLogged();
   const btn = document.getElementById('finishWorkoutBtn');
   if (btn) {
-    btn.textContent = logged ? 'Session logged' : 'Mark session complete';
+    btn.textContent = logged ? 'Logged today ✓' : 'Log today\'s session';
     btn.classList.toggle('done', logged);
   }
   const clearBtn = document.getElementById('clearTodayBtn');
@@ -4167,6 +4187,40 @@ save();
 // reloading — so it would still be showing the day it was opened. When it
 // comes back on a different date, reload so everything renders for today.
 const LOADED_ON = today();
+// Auto-log: any workout with anything entered on a day gets a session record —
+// at 23:59 while the app is open, otherwise the next time it opens. No more
+// sessions lost because the button never got pressed.
+function hasAnyEntry(wLog) {
+  return Object.values(wLog || {}).some(sets => Array.isArray(sets) && sets.some(s => s && (s.done
+    || Object.entries(s).some(([k, v]) => !['done', 'm', 'mac'].includes(k) && (typeof v === 'object' && v
+      ? Object.values(v).some(x => x !== '' && x != null)
+      : v !== '' && v != null)))));
+}
+function finalizeLoggedDays(includeToday) {
+  const t = today();
+  let added = 0;
+  for (const [d, day] of Object.entries(state.setLog || {})) {
+    if (d > t || (d === t && !includeToday)) continue;
+    for (const [wid, wLog] of Object.entries(day || {})) {
+      if (!getWorkout(wid) || !hasAnyEntry(wLog)) continue;
+      if (state.sessions.some(s => s.date === d && s.workoutId === wid)) continue;
+      state.sessions.push({ date: d, workoutId: wid, name: getWorkout(wid).name, auto: true });
+      added++;
+    }
+  }
+  if (added) save();
+  return added;
+}
+function scheduleAutoLog() {
+  const now = new Date();
+  const at = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 0);
+  if (at <= now) at.setDate(at.getDate() + 1);
+  setTimeout(() => {
+    if (finalizeLoggedDays(true)) { showToast('Today\'s session auto-logged'); renderAll(); }
+    scheduleAutoLog();
+  }, at - now);
+}
+
 function reloadIfNewDay() {
   if (today() !== LOADED_ON) location.reload();
 }
@@ -4216,4 +4270,6 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
 
+finalizeLoggedDays(false);
+scheduleAutoLog();
 renderAll();

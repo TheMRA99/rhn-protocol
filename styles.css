@@ -2442,3 +2442,6 @@ body.sheet-open { overflow: hidden; }
 .sup-what { font-weight: 600; margin-top: 4px; }
 .sup-why { font-size: 12px; color: var(--text-dim); margin-top: 4px; line-height: 1.4; }
 .sup-foot { font-size: 12px; color: var(--text-dim); margin-top: 10px; line-height: 1.45; }
+
+.autolog-note { font-size: 12px; color: var(--text-faint); margin: 8px 0 2px; text-align: center; }
+.backfill .db-log input[type="date"] { width: 160px; }

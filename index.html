@@ -17,7 +17,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="RHN" />
-<link rel="stylesheet" href="styles.css?v=60" />
+<link rel="stylesheet" href="styles.css?v=61" />
 </head>
 <body>
 <header class="topbar">
@@ -111,7 +111,14 @@
       <div class="workout-gated-note" id="workoutGatedNote" hidden></div>
       <div class="workout-cue">Working sets · stop <strong>1–2 reps shy of failure</strong> · slow 3-sec lower on isolation</div>
       <div id="exerciseList" class="exercises"></div>
-      <button class="btn-primary" id="finishWorkoutBtn">Mark session complete</button>
+      <button class="btn-primary" id="finishWorkoutBtn">Log today's session</button>
+      <div class="autolog-note">Anything you enter logs itself at 11:59pm, or the next time you open the app.</div>
+      <details class="finetune backfill"><summary>Forgot a day? Log it</summary>
+        <div class="db-log">
+          <label>Date<input type="date" id="backfillDate"></label>
+          <button type="button" class="btn-secondary" id="backfillBtn">Log this session for that day</button>
+        </div>
+      </details>
       <button class="btn-ghost" id="clearTodayBtn" hidden>Clear today's log for this workout</button>
     </section>
 
@@ -486,6 +493,6 @@
 <div class="toast" id="toast"></div>
 
 <script src="data.js?v=82"></script>
-<script src="app.js?v=80"></script>
+<script src="app.js?v=83"></script>
 </body>
 </html>
