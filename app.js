@@ -1,6 +1,9 @@
 // THE RED HOOD × NIGHTWING PROTOCOL — app logic
 
-const STORAGE_KEY = 'rhn-protocol-v1';
+const TEST_MODE = /[?&]today=\d{4}-\d{2}-\d{2}/.test(location.search);
+const STORAGE_KEY = TEST_MODE ? 'rhn-protocol-v1:test' : 'rhn-protocol-v1';
+// ?today= runs in a sandbox copy of the real data, so test dates never leak into real logs.
+if (TEST_MODE) { try { if (!localStorage.getItem(STORAGE_KEY) && localStorage.getItem('rhn-protocol-v1')) localStorage.setItem(STORAGE_KEY, localStorage.getItem('rhn-protocol-v1')); } catch (_) {} }
 const SHADOW_KEY = STORAGE_KEY + ':shadow';   // mirror of the last good save
 const SNAP_PREFIX = STORAGE_KEY + ':snap:';   // dated point-in-time snapshots
 
@@ -59,7 +62,9 @@ function load() {
     // Recover from the shadow mirror instead of starting empty.
     if (!raw) {
       const shadow = localStorage.getItem(SHADOW_KEY);
-      if (shadow) { safeSet(STORAGE_KEY, shadow); raw = shadow; }
+      const snaps = snapshotKeys();
+      const fallback = shadow || (snaps.length ? localStorage.getItem(snaps[snaps.length - 1]) : null);
+      if (fallback) { safeSet(STORAGE_KEY, fallback); raw = fallback; }
       else return seed();
     }
     const parsed = JSON.parse(raw);
@@ -122,7 +127,7 @@ function save() {
     || (state.waists && state.waists.length);
   if (hasData) {
     safeSet(SHADOW_KEY, json);
-    safeSet(SNAP_PREFIX + today(), json);
+    safeSet(SNAP_PREFIX + localIso(new Date()), json);
     pruneSnapshots(SNAPSHOT_KEEP);
   }
   return true;
@@ -280,10 +285,7 @@ function daysDoneInWeek(weekNum) {
       if (done.has(wId)) continue;
       const wLog = state.setLog[dateStr]?.[wId];
       if (!wLog) continue;
-      const hasDone = Object.values(wLog).some(sets =>
-        Array.isArray(sets) && sets.some(s => s && s.done)
-      );
-      if (hasDone) done.add(wId);
+      if (countsForDay(dateStr, wId, wLog)) done.add(wId);
     }
   }
   return done;
@@ -616,7 +618,7 @@ function formatPrevRaw(set, mode, ex) {
     case 'interval':
       return `lvl ${set.level || '–'} · ${set.rounds || '–'} rds${macTag}`;
     case 'cardio':
-      return `${set.min || '–'} min · lvl ${set.level || '–'}${macTag}`;
+      return `${set.min || '–'} min · ${ex && (ex.machines || []).includes('Pool') ? `${set.level || '–'} laps` : `lvl ${set.level || '–'}`}${macTag}`;
     case 'carry':
       return `${set.kg || '–'} kg/hand × ${set.m || '–'} m`;
     case 'multistage': {
@@ -779,6 +781,8 @@ function startRestTimer(seconds, label = 'Rest') {
   cancelRestTimer();
   _restTotal = seconds;
   _restRemaining = seconds;
+  _restEndAt = Date.now() + seconds * 1000;
+  try { _restAudio = _restAudio || new (window.AudioContext || window.webkitAudioContext)(); } catch (_) {}
   const bar = document.getElementById('restBar');
   if (!bar) return;
   bar.hidden = false;
@@ -789,10 +793,23 @@ function startRestTimer(seconds, label = 'Rest') {
   if (labelEl) labelEl.textContent = label;
   updateRestBar();
   _restHandle = setInterval(() => {
-    _restRemaining -= 1;
+    _restRemaining = Math.max(0, Math.ceil((_restEndAt - Date.now()) / 1000)); // real time: survives a locked phone
     updateRestBar();
     if (_restRemaining <= 0) finishRestTimer();
   }, 1000);
+}
+let _restEndAt = 0, _restAudio = null;
+function restBeep() {
+  try {
+    const ctx = _restAudio; if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    [0, 0.25].forEach(t => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.frequency.value = 880; g.gain.value = 0.15;
+      o.connect(g); g.connect(ctx.destination);
+      o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.15);
+    });
+  } catch (_) {}
 }
 
 function cancelRestTimer() {
@@ -809,6 +826,7 @@ function finishRestTimer() {
   _restHandle = null;
   releaseWakeLock();
   if (navigator.vibrate) try { navigator.vibrate([120, 60, 120]); } catch (e) {}
+  restBeep();
   const bar = document.getElementById('restBar');
   if (!bar) return;
   bar.classList.add('done');
@@ -1100,6 +1118,7 @@ function renderInfoList(elId, items) {
 }
 
 // ========== TODAY: WORKOUT ==========
+const openBlocks = new Set(); // blocks he opened stay open when a chip / swap re-renders the card
 function renderWorkout() {
   const card = document.getElementById('workoutCard');
   const id = state.selectedWorkout;
@@ -1108,7 +1127,7 @@ function renderWorkout() {
   if (!w) { card.hidden = true; return; }
   card.hidden = false;
   document.getElementById('workoutTitle').textContent = w.name;
-  const lastDone = [...(state.sessions || [])].reverse().find(s => s.workoutId === id && s.date !== today());
+  const lastDone = (state.sessions || []).filter(s => s.workoutId === id && s.date < today()).sort((a, b) => b.date.localeCompare(a.date))[0];
   const lastDoneTag = lastDone ? ' · Last done ' + fmtDate(lastDone.date) : '';
   document.getElementById('workoutSubtitle').textContent = w.tagline + (isReset() ? '' : ' · Phase ' + (w._phase || phaseNumber())) + lastDoneTag;
 
@@ -1140,7 +1159,7 @@ function renderWorkout() {
   const list = document.getElementById('exerciseList');
   let totalSets = 0, doneSets = 0;
   list.innerHTML = w.blocks.filter(block => !block.gated || gateActive(block.gated)).map((block, bIdx) => `
-    <section class="exercise-block${isReset() && bIdx === 0 && /^Floor/.test(block.title) ? ' floor-block' : ''}${isReset() && bIdx > 0 && !(log && Object.keys(log).some(k => k.startsWith(block.title + '::'))) ? ' collapsed' : ''}">
+    <section class="exercise-block${isReset() && bIdx === 0 && /^Floor/.test(block.title) ? ' floor-block' : ''}${isReset() && bIdx > 0 && !openBlocks.has(id + '::' + block.title) && !(log && Object.keys(log).some(k => k.startsWith(block.title + '::'))) ? ' collapsed' : ''}" data-block="${esc(block.title)}">
       <button type="button" class="block-title">
         <span class="block-title-text">${esc(blockLabel(block.title))}</span>
         <span class="block-toggle" aria-hidden="true"></span>
@@ -1154,7 +1173,7 @@ function renderWorkout() {
       const exKey = baseExKey + (swapped ? '~sub' : '');
       const exForLog = swapped ? { ...ex, barbell: false } : ex;
       const exLog = log[exKey] || [];
-      const mode = ex.inputMode || 'weight_reps';
+      const mode = (swapped && ex.subMode) || ex.inputMode || 'weight_reps';
       const prev = findPreviousBest(id, exKey);
       const beating = isCurrentBeating(exLog, prev, mode);
       const lastSets = findLastSessionSets(id, exKey);
@@ -1223,8 +1242,9 @@ function renderWorkout() {
           }).join('');
           // One-tap repeat: only offered when every empty field has a numeric
           // placeholder (last session's number / suggestion) to copy.
-          const hasPrev = fields.some(f => lastVal(s, f.key) != null) || (suggKg != null);
-          const repeatable = hasPrev && fields.some(f => setData[f.key] === undefined || setData[f.key] === '');
+          const phOf = f => f.key === 'kg' ? (suggKg != null ? String(suggKg) : lastVal(s, 'kg')) : lastVal(s, f.key);
+          const emptyF = fields.filter(f => setData[f.key] === undefined || setData[f.key] === '');
+          const repeatable = emptyF.length > 0 && emptyF.every(f => { const p = phOf(f); return p != null && Number.isFinite(Number(p)); });
           const repeatBtn = repeatable ? `<button type="button" class="repeat-btn" aria-label="Repeat last session's numbers for set ${s + 1}" title="Repeat last time">✓</button>` : '';
           const timedBtn = ex.timed ? `<button class="timed-go" type="button" data-secs="${ex.timed}">▶ ${ex.timed >= 60 ? Math.floor(ex.timed / 60) + ':' + String(ex.timed % 60).padStart(2, '0') : ex.timed + 's'}</button>` : '';
           setRows += `
@@ -1296,7 +1316,10 @@ function renderWorkout() {
   // Block collapse/expand toggle
   list.querySelectorAll('.exercise-block .block-title').forEach(btn => {
     btn.addEventListener('click', () => {
-      btn.closest('.exercise-block').classList.toggle('collapsed');
+      const blk = btn.closest('.exercise-block');
+      blk.classList.toggle('collapsed');
+      const k = id + '::' + blk.dataset.block;
+      if (blk.classList.contains('collapsed')) openBlocks.delete(k); else openBlocks.add(k);
     });
   });
 
@@ -1322,6 +1345,8 @@ function renderWorkout() {
     });
     row.querySelectorAll('input').forEach(input => {
       input.addEventListener('input', () => {
+        state.workoutByDate = state.workoutByDate || {};
+        state.workoutByDate[dKey] = id; // typing in it = it's today's session
         if (!state.setLog[dKey]) state.setLog[dKey] = {};
         if (!state.setLog[dKey][id]) state.setLog[dKey][id] = {};
         if (!state.setLog[dKey][id][exKey]) state.setLog[dKey][id][exKey] = [];
@@ -1340,7 +1365,8 @@ function renderWorkout() {
           const fields = inputFieldsForMode(mode, exKey.endsWith('~sub') ? null : ex);
           setData[field] = input.value;
           const filled = f => setData[f.key] !== undefined && setData[f.key] !== '';
-          setData.done = mode === 'cardio' ? fields.some(filled) : fields.every(filled);
+          const req = fields.filter(f => !['assist', 'level'].includes(f.key));
+          setData.done = mode === 'cardio' || !req.length ? fields.some(filled) : req.every(filled);
           // Live update of the bar total next to this kg input
           if (ex.barbell && field === 'kg') {
             const tot = row.querySelector('[data-bar-total]');
@@ -1359,13 +1385,18 @@ function renderWorkout() {
         refreshActiveExercise();
 
         // Set transitioned to done — start rest timer + check for PR
+        if (wasDone && !setData.done && !hasAnyEntry(state.setLog[dKey]?.[id])) {
+          const before = state.sessions.length;
+          state.sessions = state.sessions.filter(s => !(s.date === dKey && s.workoutId === id && !s.backfilled && !s.manual));
+          if (state.sessions.length !== before) { save(); renderDayPicker(); renderHeader(); }
+        }
         if (!wasDone && setData.done) {
-          startRestTimer(restDurationFor(ex));
+          if (mode !== 'cardio') startRestTimer(restDurationFor(ex));
           maybeFlashPR(row, exKey, ex, mode);
           // Auto-record the session so the day-pill shows ✓ even if you
           // never scroll down to press "Mark session complete".
           if (!state.sessions.some(s => s.date === dKey && s.workoutId === id)) {
-            state.sessions.push({ date: dKey, workoutId: id, name: w.name });
+            state.sessions.push({ date: dKey, workoutId: id, name: w.name, auto: 'set' });
             save();
             renderDayPicker();
             renderHeader();
@@ -1534,8 +1565,8 @@ function renderWorkout() {
 
   const btn = document.getElementById('finishWorkoutBtn');
   btn.onclick = () => {
-    if (!isSessionLogged()) {
-      state.sessions.push({ date: dKey, workoutId: id, name: w.name });
+    if (!state.sessions.some(s => s.date === dKey && s.workoutId === id)) {
+      state.sessions.push({ date: dKey, workoutId: id, name: w.name, manual: true });
       save();
     }
     showToast('Session logged');
@@ -1693,7 +1724,7 @@ function isRamadanHold(wk) { return isReset() && (state.ramadan || (wk >= 14 && 
 function weekTarget(wk) { return isHolidayWeek(wk) ? '1–2 (holidays: 1 = full week)' : fullWeekAt(wk) === 1 ? '1 (fresh start)' : '2 lifts (3 = bonus)'; }
 function fullWeekAt(wk) {
   if (isHolidayWeek(wk)) return 1;
-  if (isReset() && wk > 1 && resetLiftCount() > 0 && ![...daysDoneInWeek(wk - 1)].some(id => DAY_SEQUENCE_RESET.includes(id))) return 1;
+  if (isReset() && wk > 1 && ![...daysDoneInWeek(wk - 1)].some(id => DAY_SEQUENCE_RESET.includes(id))) return 1;
   return 2;
 }
 function hasLoggedToday() {
@@ -1732,7 +1763,7 @@ function effortCue() {
 // Ramp follows the lifts actually done (a late start still gets the easy sessions), capped by the calendar.
 function resetLiftCount() {
   const t = today(), s0 = state.startDate || '';
-  return (state.sessions || []).filter(s => s.date >= s0 && s.date < t && DAY_SEQUENCE_RESET.includes(s.workoutId)).length;
+  return new Set((state.sessions || []).filter(s => s.date >= s0 && s.date < t && DAY_SEQUENCE_RESET.includes(s.workoutId)).map(s => s.date + '::' + s.workoutId)).size;
 }
 function rampStage(wk) {
   const cal = wk <= 1 ? 1 : wk <= 3 ? 2 : 3;
@@ -1775,8 +1806,8 @@ function renderDailyBar() {
     <div class="info-list">${DATA.dailyBar.map(row).join('')}</div>
     <div class="db-note">Sciatica flaring? Just bird dog, side plank and curl-up, then a 15-min walk.</div>
     <div class="db-log">
-      <label>Pull-ups<input type="number" inputmode="numeric" id="dbPu" value="${prev.pu ?? ''}"></label>
-      <label>Chin-ups<input type="number" inputmode="numeric" id="dbCu" value="${prev.cu ?? ''}"></label>
+      <label>Pull-ups<input type="number" inputmode="numeric" id="dbPu" value="${todayLog?.pu ?? ''}" placeholder="${prev.pu ?? ''}"></label>
+      <label>Chin-ups<input type="number" inputmode="numeric" id="dbCu" value="${todayLog?.cu ?? ''}" placeholder="${prev.cu ?? ''}"></label>
       <button type="button" class="btn-primary" id="dbDone">${todayLog ? 'Update' : 'Done today'}</button>
     </div>
     <div class="db-stats">This week <strong>${daysThisWeek}</strong> day${daysThisWeek === 1 ? '' : 's'} · doesn't replace a lift</div>`;
@@ -3191,18 +3222,27 @@ function renderHistory() {
     el.innerHTML = '<div class="history-empty">No sessions logged yet. Show up.</div>';
     return;
   }
-  const recent = state.sessions.slice(-12).reverse();
+  const recent = state.sessions.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 12);
   el.innerHTML = recent.map((s, i) => `
     <div class="history-row" data-i="${i}">
       <span class="history-date">${fmtDate(s.date)}</span>
       <span class="history-name">${esc(s.name)}${sessionDepthTag(s)}</span>
       <span class="history-toggle">›</span>
-      <div class="history-detail">${buildHistoryDetail(s)}</div>
+      <div class="history-detail">${buildHistoryDetail(s)}<button type="button" class="btn-ghost history-remove" data-d="${esc(s.date)}" data-w="${esc(s.workoutId)}">Remove this log</button></div>
     </div>
   `).join('');
   el.querySelectorAll('.history-row').forEach(row => {
-    row.addEventListener('click', () => row.classList.toggle('open'));
+    row.addEventListener('click', e => { if (!e.target.closest('.history-remove')) row.classList.toggle('open'); });
   });
+  el.querySelectorAll('.history-remove').forEach(b => b.addEventListener('click', () => {
+    const d = b.dataset.d, wid = b.dataset.w;
+    if (!confirm(`Remove ${getWorkout(wid)?.name || wid} on ${fmtDate(d)} — the session and its sets?`)) return;
+    state.sessions = state.sessions.filter(s => !(s.date === d && s.workoutId === wid));
+    if (state.setLog?.[d]) { delete state.setLog[d][wid]; if (!Object.keys(state.setLog[d]).length) delete state.setLog[d]; }
+    save();
+    showToast('Removed');
+    renderAll();
+  }));
 }
 
 function sessionDepthTag(s) {
@@ -3735,15 +3775,20 @@ function renderBackupBanner() {
   const hasLogs = setLogSummary(state).count > 0;
   const last = state.lastExport ? new Date(state.lastExport).getTime() : NaN;
   const stale = !Number.isFinite(last) || (Date.now() - last) / 86400000 > EXPORT_NAG_DAYS;
-  el.hidden = !(hasLogs && stale);
+  const emptyStart = !hasLogs && !(state.sessions || []).length && !(state.weights || []).length;
+  el.hidden = !((hasLogs && stale) || emptyStart);
   const txt = document.getElementById('backupBannerText');
+  const bBtn = document.getElementById('backupBannerBtn');
+  if (bBtn) bBtn.textContent = emptyStart ? 'Import' : 'Export';
+  if (bBtn) bBtn.onclick = emptyStart ? () => document.getElementById('importBtn')?.click() : null;
+  if (txt && emptyStart) { txt.textContent = 'Starting empty? If you\'ve logged before, import your last backup.'; return; }
   if (txt) txt.textContent = Number.isFinite(last)
     ? `Last backup ${Math.floor((Date.now() - last) / 86400000)} days ago — export a fresh one.`
     : 'No backup yet — your logs live only on this phone.';
 }
 
 document.getElementById('exportBtn')?.addEventListener('click', exportBackup);
-document.getElementById('backupBannerBtn')?.addEventListener('click', exportBackup);
+document.getElementById('backupBannerBtn')?.addEventListener('click', e => { if (!e.currentTarget.onclick) exportBackup(); });
 
 document.getElementById('importBtn')?.addEventListener('click', () => {
   document.getElementById('importFile')?.click();
@@ -4120,7 +4165,7 @@ document.getElementById('restartBlockBtn')?.addEventListener('click', () => {
   state.startDate = today();
   state.dayCursor = null;        // sequence back to Day 1
   state.workoutByDate = {};      // clear the per-date schedule map
-  state.selectedWorkout = 'day1';
+  state.selectedWorkout = getActiveSequence()[0];
   state.pausedAt = null;
   save();
   showToast('Day 1 · Week 1 · history kept');
@@ -4129,6 +4174,8 @@ document.getElementById('restartBlockBtn')?.addEventListener('click', () => {
 
 document.getElementById('resetBtn').addEventListener('click', () => {
   if (!confirm('Wipe everything and restart Week 1?')) return;
+  if (!confirm('Last check: every log, weight and waist goes. Export a backup first if you might want it. Wipe now?')) return;
+  try { const cur = localStorage.getItem(STORAGE_KEY); if (cur) localStorage.setItem(STORAGE_KEY + ':prewipe', cur); } catch (_) {}
   // Wipe the primary AND every backup copy — otherwise load() would happily
   // resurrect the "reset" data from the shadow mirror on next launch.
   try {
@@ -4190,19 +4237,29 @@ const LOADED_ON = today();
 // Auto-log: any workout with anything entered on a day gets a session record —
 // at 23:59 while the app is open, otherwise the next time it opens. No more
 // sessions lost because the button never got pressed.
+// kg is ignored: the kg auto-fill copies weights into empty sets, which isn't a real entry.
+const ENTRY_IGNORE = ['done', 'm', 'mac', 'kg', 'note'];
 function hasAnyEntry(wLog) {
   return Object.values(wLog || {}).some(sets => Array.isArray(sets) && sets.some(s => s && (s.done
-    || Object.entries(s).some(([k, v]) => !['done', 'm', 'mac'].includes(k) && (typeof v === 'object' && v
-      ? Object.values(v).some(x => x !== '' && x != null)
+    || Object.entries(s).some(([k, v]) => !ENTRY_IGNORE.includes(k) && (typeof v === 'object' && v
+      ? Object.entries(v).some(([k2, x]) => !ENTRY_IGNORE.includes(k2) && x !== '' && x != null)
       : v !== '' && v != null)))));
+}
+function hasDoneSet(wLog) {
+  return Object.values(wLog || {}).some(sets => Array.isArray(sets) && sets.some(s => s && s.done));
+}
+// A workout counts on a day if a set is complete, or it was the session he picked that day and he entered anything.
+// Stray numbers typed into another session never count.
+function countsForDay(d, wid, wLog) {
+  return hasDoneSet(wLog) || (state.workoutByDate?.[d] === wid && hasAnyEntry(wLog));
 }
 function finalizeLoggedDays(includeToday) {
   const t = today();
   let added = 0;
   for (const [d, day] of Object.entries(state.setLog || {})) {
-    if (d > t || (d === t && !includeToday)) continue;
+    if (d > t || (d === t && !includeToday) || (state.startDate && d < state.startDate)) continue;
     for (const [wid, wLog] of Object.entries(day || {})) {
-      if (!getWorkout(wid) || !hasAnyEntry(wLog)) continue;
+      if (!getWorkout(wid) || !countsForDay(d, wid, wLog)) continue;
       if (state.sessions.some(s => s.date === d && s.workoutId === wid)) continue;
       state.sessions.push({ date: d, workoutId: wid, name: getWorkout(wid).name, auto: true });
       added++;
@@ -4271,5 +4328,5 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 }
 
 finalizeLoggedDays(false);
-scheduleAutoLog();
+if (!TEST_MODE) scheduleAutoLog();
 renderAll();

@@ -124,7 +124,7 @@ const DATA = {
         {
           title: "Floor · superset (counts as full session)",
           exercises: [
-            { name: "Neutral-Grip Chin-Up", sets: 3, reps: "5–8", rest: 20, note: "Bodyweight — you already own 5. Chest to handles, 3-sec lower. Log 0 in the assist box. Set 3 dies under 5 → finish it on the assist machine and log the kg. All 3 sets at 8 → hold a light DB between your feet.", inputMode: "bodyweight_reps", assist: true, sub: "Machine taken → lat pulldown, neutral grip, 8–10." },
+            { name: "Neutral-Grip Chin-Up", sets: 3, reps: "5–8", rest: 20, note: "Bodyweight — you already own 5. Chest to handles, 3-sec lower. Log 0 in the assist box. Set 3 dies under 5 → finish it on the assist machine and log the kg. All 3 sets at 8 → hold a light DB between your feet.", inputMode: "bodyweight_reps", assist: true, sub: "Machine taken → lat pulldown, neutral grip, 8–10.", subMode: "weight_reps" },
             { name: "Incline DB Press (30°)", sets: 3, reps: "8–10", rest: 20, note: "Upper chest — the shelf under the collarbone. DBs to upper chest, elbows ~45°. Log each hand's DB.", sub: "DBs or bench taken → Smith incline press.", alt: { name: "Neutral-Grip Incline DB Press (30°)", note: "Palms facing each other, elbows tucked ~30°. Easier on the shoulders, more triceps. Log each hand's DB." } },
             { name: "DB Lateral Raise", sets: 3, reps: "12–20", rest: 60, note: "Side delts = width. Thumbs slightly up, raise to just below shoulder height, 2-sec lower. Rest 60 s after this, then back to the chin-up. From week 5: a 4th set.", sub: "Cable lateral raise.", byWeek: { 5: { sets: 4 } } }
           ]

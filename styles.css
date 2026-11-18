@@ -2445,3 +2445,5 @@ body.sheet-open { overflow: hidden; }
 
 .autolog-note { font-size: 12px; color: var(--text-faint); margin: 8px 0 2px; text-align: center; }
 .backfill .db-log input[type="date"] { width: 160px; }
+
+.history-remove { margin-top: 10px; font-size: 13px; min-height: 44px; }
