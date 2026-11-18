@@ -114,7 +114,7 @@ const DATA = {
       id: "reset_a",
       name: "A · Wide",
       tagline: "≤35 min · lats, chest, side delts, arms",
-      blurb: "The V-taper day: wider lats and side delts make the waist look smaller. The first block (~17 min) is a full session on its own. First 2 sessions: only the first block. Next 4: add one more block. Then all of it.",
+      blurb: "The V-taper day: wider lats and side delts make the waist look smaller. The first block (~12–15 min) is a full session on its own. First 2 sessions: only the first block. Next 4: add one more block. Then all of it.",
       warmup: "Warm-up card (~8 min) · 1 light set of each first-block lift",
       ramadanBlocks: [0, 1],
       blocks: [
@@ -136,7 +136,7 @@ const DATA = {
           title: "Sleeves + waist",
           exercises: [
             { name: "Spider Curl", sets: 2, reps: "10–12", rest: 15, byWeek: { 5: { sets: 3 } }, note: "Chest on a 45° incline bench, arms hanging straight down, curl and squeeze. Shoulder-safe — no stretch at the front of the shoulder. Log each hand's DB.", sub: "Bench taken → cable curl, elbows pinned." },
-            { name: "Rope Pushdown", sets: 2, reps: "12–15", rest: 15, note: "Elbows pinned to your sides, split the rope at the bottom. Triceps are 2/3 of the arm.", cable: true, sub: "Straight-bar pushdown." },
+            { name: "Rope Pushdown", sets: 2, reps: "12–15", rest: 15, byWeek: { 5: { sets: 3 } }, note: "Elbows pinned to your sides, split the rope at the bottom. Triceps are 2/3 of the arm.", cable: true, sub: "Straight-bar pushdown." },
             { name: "Cable Pallof Press", sets: 2, reps: "10 / side", rest: 45, note: "Stand side-on to the cable, press out and hold 2 s — resist the twist. Tight waist, flat belly.", cable: true, sub: "Band Pallof press, or a 20-s side plank per side." }
           ]
         }
@@ -146,7 +146,7 @@ const DATA = {
       id: "reset_b",
       name: "B · Engine",
       tagline: "≤35 min · hinge, back, delts, arms",
-      blurb: "Thick back, strong hips, and the heart-rate work that strips fat. The first block (~17 min) is a full session on its own. First 2 sessions: only the first block. Next 4: add one more block. Then all of it.",
+      blurb: "Thick back, strong hips, and the heart-rate work that strips fat. The first block (~12–15 min) is a full session on its own. First 2 sessions: only the first block. Next 4: add one more block. Then all of it.",
       warmup: "Warm-up card (~8 min) · 1 light set of each first-block lift",
       ramadanBlocks: [0, 2],
       blocks: [
@@ -179,7 +179,7 @@ const DATA = {
       id: "reset_c",
       name: "C · Build",
       tagline: "≤35 min · legs, shoulders, lats",
-      blurb: "Legs and shoulders for an athletic frame, plus lat width. The first block (~19 min) is a full session on its own. First 2 sessions: only the first block. Next 4: add one more block. Then all of it.",
+      blurb: "Legs and shoulders for an athletic frame, plus lat width. The first block (~12–15 min) is a full session on its own. First 2 sessions: only the first block. Next 4: add one more block. Then all of it.",
       warmup: "Warm-up card (~8 min) · 1 light set of each first-block lift",
       ramadanBlocks: [0, 1],
       blocks: [

@@ -782,7 +782,6 @@ function startRestTimer(seconds, label = 'Rest') {
   _restTotal = seconds;
   _restRemaining = seconds;
   _restEndAt = Date.now() + seconds * 1000;
-  try { _restAudio = _restAudio || new (window.AudioContext || window.webkitAudioContext)(); } catch (_) {}
   const bar = document.getElementById('restBar');
   if (!bar) return;
   bar.hidden = false;
@@ -798,19 +797,7 @@ function startRestTimer(seconds, label = 'Rest') {
     if (_restRemaining <= 0) finishRestTimer();
   }, 1000);
 }
-let _restEndAt = 0, _restAudio = null;
-function restBeep() {
-  try {
-    const ctx = _restAudio; if (!ctx) return;
-    if (ctx.state === 'suspended') ctx.resume();
-    [0, 0.25].forEach(t => {
-      const o = ctx.createOscillator(), g = ctx.createGain();
-      o.frequency.value = 880; g.gain.value = 0.15;
-      o.connect(g); g.connect(ctx.destination);
-      o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.15);
-    });
-  } catch (_) {}
-}
+let _restEndAt = 0;
 
 function cancelRestTimer() {
   if (_restHandle) clearInterval(_restHandle);
@@ -826,7 +813,6 @@ function finishRestTimer() {
   _restHandle = null;
   releaseWakeLock();
   if (navigator.vibrate) try { navigator.vibrate([120, 60, 120]); } catch (e) {}
-  restBeep();
   const bar = document.getElementById('restBar');
   if (!bar) return;
   bar.classList.add('done');
@@ -840,8 +826,10 @@ function finishRestTimer() {
 function adjustRestTimer(delta) {
   if (!_restHandle) return;
   _restRemaining = Math.max(0, _restRemaining + delta);
+  _restEndAt = Date.now() + _restRemaining * 1000; // keep the real-time end in step with ±15
   _restTotal = Math.max(_restTotal, _restRemaining);
   updateRestBar();
+  if (_restRemaining <= 0) finishRestTimer();
 }
 
 function updateRestBar() {
@@ -1118,7 +1106,13 @@ function renderInfoList(elId, items) {
 }
 
 // ========== TODAY: WORKOUT ==========
-const openBlocks = new Set(); // blocks he opened stay open when a chip / swap re-renders the card
+// Everything on the day starts open; only what he minimises stays minimised (remembered).
+function uiCollapsed(key) { return !!(state.uiCollapsed && state.uiCollapsed[key]); }
+function setUiCollapsed(key, v) {
+  state.uiCollapsed = state.uiCollapsed || {};
+  if (v) state.uiCollapsed[key] = true; else delete state.uiCollapsed[key];
+  save();
+}
 function renderWorkout() {
   const card = document.getElementById('workoutCard');
   const id = state.selectedWorkout;
@@ -1159,7 +1153,7 @@ function renderWorkout() {
   const list = document.getElementById('exerciseList');
   let totalSets = 0, doneSets = 0;
   list.innerHTML = w.blocks.filter(block => !block.gated || gateActive(block.gated)).map((block, bIdx) => `
-    <section class="exercise-block${isReset() && bIdx === 0 && /^Floor/.test(block.title) ? ' floor-block' : ''}${isReset() && bIdx > 0 && !openBlocks.has(id + '::' + block.title) && !(log && Object.keys(log).some(k => k.startsWith(block.title + '::'))) ? ' collapsed' : ''}" data-block="${esc(block.title)}">
+    <section class="exercise-block${isReset() && bIdx === 0 && /^Floor/.test(block.title) ? ' floor-block' : ''}${uiCollapsed('blk::' + id + '::' + block.title) ? ' collapsed' : ''}" data-block="${esc(block.title)}">
       <button type="button" class="block-title">
         <span class="block-title-text">${esc(blockLabel(block.title))}</span>
         <span class="block-toggle" aria-hidden="true"></span>
@@ -1319,7 +1313,7 @@ function renderWorkout() {
       const blk = btn.closest('.exercise-block');
       blk.classList.toggle('collapsed');
       const k = id + '::' + blk.dataset.block;
-      if (blk.classList.contains('collapsed')) openBlocks.delete(k); else openBlocks.add(k);
+      setUiCollapsed('blk::' + k, blk.classList.contains('collapsed'));
     });
   });
 
@@ -1679,7 +1673,7 @@ function applyResetLayout() {
   document.getElementById('trailCard')?.toggleAttribute('hidden', r);
   document.querySelector('.escape-links')?.toggleAttribute('hidden', r);
   [cardOf('resetList'), cardOf('staminaList'), cardOf('officeRotator')].forEach(c => c && (c.hidden = r));
-  if (r) [cardOf('ritualList'), cardOf('dailyList')].forEach(c => c?.classList.add('collapsed'));
+  if (r) ['ritualList', 'dailyList'].forEach(k => cardOf(k)?.classList.toggle('collapsed', uiCollapsed('card::' + k)));
   const dailyHead = cardOf('dailyList')?.querySelector('.card-header');
   if (dailyHead) {
     dailyHead.querySelector('h2').innerHTML = `<span class="num">04</span>${r ? 'Daily habits' : 'Daily non-negotiables'}`;
@@ -1780,10 +1774,10 @@ function renderDailyBar() {
   if (!card && anchor) {
     card = document.createElement('section');
     card.id = 'dailyBarCard';
-    card.className = 'card card-collapsible collapsed daily-bar-card';
+    card.className = 'card card-collapsible daily-bar-card' + (uiCollapsed('card::dailyBarCard') ? ' collapsed' : '');
     anchor.after(card);
     card.addEventListener('click', e => {
-      if (e.target.closest('.card-header')) card.classList.toggle('collapsed');
+      if (e.target.closest('.card-header')) { card.classList.toggle('collapsed'); setUiCollapsed('card::dailyBarCard', card.classList.contains('collapsed')); }
     });
   }
   if (!card) return;
@@ -1828,9 +1822,9 @@ function renderClearHead() {
   if (!card && anchor) {
     card = document.createElement('section');
     card.id = 'clearHeadCard';
-    card.className = 'card card-collapsible collapsed';
+    card.className = 'card card-collapsible' + (uiCollapsed('card::clearHeadCard') ? ' collapsed' : '');
     anchor.after(card);
-    card.addEventListener('click', e => { if (e.target.closest('.card-header')) card.classList.toggle('collapsed'); });
+    card.addEventListener('click', e => { if (e.target.closest('.card-header')) { card.classList.toggle('collapsed'); setUiCollapsed('card::clearHeadCard', card.classList.contains('collapsed')); } });
   }
   if (!card || card.dataset.built) { if (card) card.hidden = false; return; }
   const c = DATA.clearHead;
@@ -1869,13 +1863,13 @@ function renderTodayNudge() {
     const ram = isRamadanHold(wk);
     const dU = daysUntilRamadan();
     if (resetLiftCount() === 0 && !hasLoggedToday()) {
-      msgs.push(`<div class="nudge-line"><strong>First lift:</strong> ${ram ? 'Session A, ~25 min, 60–90 min after iftar.' : 'Session A, first block only (~17 min + the warm-up).'} Light weights — you're learning the moves. Pick the day and time now.</div>`);
+      msgs.push(`<div class="nudge-line"><strong>First lift:</strong> ${ram ? 'Session A, ~25 min, 60–90 min after iftar.' : 'Session A, first block only (~12–15 min + the warm-up).'} Light weights — you're learning the moves. Pick the day and time now.</div>`);
     } else if (ram) {
       const liftTxt = lifts >= fullWeekAt(wk) ? 'lifts done this week ✓' : `gym night? Session ${RESET_BADGE[nxt] || 'A'}, ~25 min, 60–90 min after iftar`;
       msgs.push(`<div class="nudge-line"><strong>Today's minimum:</strong> 10-min walk after iftar · ${liftTxt}</div>`);
     } else {
       const liftTxt = lifts >= fullWeekAt(wk) ? 'lifts done this week ✓'
-        : `gym day? Session ${RESET_BADGE[nxt] || 'A'}, first block (~17 min)`;
+        : `gym day? Session ${RESET_BADGE[nxt] || 'A'}, first block (~12–15 min)`;
       msgs.push(`<div class="nudge-line"><strong>Today's minimum:</strong> after meals 20 squats + 20 calf raises, then move 10 / 20 min (indoors counts) · ${liftTxt}</div>`);
     }
     if (!ram && dU >= 1 && dU <= 7) {
@@ -4316,7 +4310,10 @@ document.getElementById('restMinus')?.addEventListener('click', () => adjustRest
 // Collapsible info cards (Morning ritual, Stamina, Daily)
 document.querySelectorAll('.card-collapsible .card-header').forEach(header => {
   header.addEventListener('click', () => {
-    header.closest('.card-collapsible').classList.toggle('collapsed');
+    const card = header.closest('.card-collapsible');
+    card.classList.toggle('collapsed');
+    const k = card.id || card.querySelector('[id]')?.id;
+    if (k) setUiCollapsed('card::' + k, card.classList.contains('collapsed'));
   });
 });
 
