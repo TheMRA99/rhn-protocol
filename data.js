@@ -67,7 +67,7 @@ const DATA = {
     { name: "Water", spec: "2.5–3 L", note: "More on gym days and in the SG heat" },
     { name: "Steps", spec: "a readout, not a target", note: "Walking days land near 8–10K; indoor days won't, and that's fine — the after-meal moves do the job. Shins: no sudden jumps in walking volume." },
     { name: "Sleep", spec: "7+ hrs", note: "Short sleep = bigger appetite tomorrow and less fat lost. Move bedtime, not wake time." },
-    { name: "Supplements", spec: "Creatine · D3 · omega-3 (+ Mg, zinc, iron if you take them)", note: "Doses and the exact times are on Fuel → Supplements — 3 moments tied to meals you already eat." },
+    { name: "Supplements", spec: "Creatine · D3 · omega-3 (+ Mg, zinc, iron, ACV, black seed if you take them)", note: "Doses and the exact times are on Fuel → Supplements — 3 moments tied to meals you already eat." },
   ],
 
   trailFuel: [
@@ -859,7 +859,7 @@ const DATA = {
       { when: "On waking", what: "Iron (if you take it)", why: "Empty stomach with water + an orange or guava. Then wait an hour before coffee, tea, eggs, curd or whey — they block it." },
       { when: "Lunch", what: "D3 + 2 omega-3 softgels", why: "Both need fat in the meal to absorb — lunch is your biggest daytime meal." },
       { when: "Shake (4–5pm or after a lift)", what: "Whey + creatine", why: "One scoop + 3–5 g creatine in the same shaker. No shake today? Creatine in water, any time." },
-      { when: "Dinner", what: "1 omega-3 softgel (+ magnesium, zinc if you take them)", why: "Splitting the omega-3 stops fishy burps; magnesium sits better in the evening; zinc with food avoids nausea and stays far from the iron." }
+      { when: "Dinner", what: "ACV just before · then 1 omega-3 softgel + black seed (+ magnesium, zinc if you take them)", why: "Splitting the omega-3 stops fishy burps; magnesium sits better in the evening; zinc with food avoids nausea and stays far from the iron." }
     ],
     items: [
       { name: "Creatine monohydrate", dose: "3–5 g", when: "Any time, every day — consistency beats timing. Easiest in the whey shake.", why: "More strength and muscle per session; a small boost for the head on short-sleep days.", note: "Scale jumps 1–2 kg of water at the start — ignore it. Nudges the creatinine number on blood tests up — normal. Drink your water." },
@@ -868,9 +868,11 @@ const DATA = {
       { name: "Magnesium glycinate", dose: "~200 mg elemental", when: "With dinner or in the evening.", why: "Optional — may help muscle cramps and twitching if you're low; gentle on the gut.", note: "Read 'elemental magnesium' on the label, not the compound weight. Loose stools → halve it." },
       { name: "Iron", dose: "only if a test showed it low", when: "On waking, empty stomach, with vitamin C (orange, guava). 1 h from food, coffee, tea or dairy; 2 h from zinc.", why: "Fixes a proven deficiency — that's the only reason a man needs it.", note: "Men rarely need iron: no monthly blood loss, so extra builds up, and a fatty liver handles it badly. Took it because a blood test said low → keep going, get it rechecked in ~3 months. No test behind it → worth stopping. Dark stools are normal; constipation → take it every other day." },
       { name: "Zinc", dose: "≤ 15 mg", when: "With dinner. At least 2 h from the iron.", why: "Only helps (testosterone, immunity) if you're low — beef, mutton, seeds and eggs cover most men.", note: "Above 25 mg a day for months drains copper. Check the label — many tablets are 50 mg; cut to 15 or every third day." },
+      { name: "Apple cider vinegar", dose: "1 tbsp liquid in a big glass of water, or the pill dose on the label", when: "Right before your biggest carb meal (usually dinner).", why: "Small drop in the blood-sugar spike after that meal. Weight effect in studies: tiny.", note: "Optional, weak — the after-meal squats + walk do more. Pills have the least evidence (acid content varies); take them with a full glass of water, never lying down. Liquid: through a straw, rinse after (teeth). Reflux or a burning throat → stop." },
+      { name: "Black seed oil (habbatus sauda)", dose: "1–2 g a day (2–4 × 500 mg capsules, or ½ tsp oil)", when: "With a meal — dinner or lunch.", why: "Small improvements in fasting sugar, triglycerides and BP in trials — modest, not a fix.", note: "Cold-pressed, from a brand that lists the dose. Stay at 1–2 g — the trials used this; more isn't better and high doses have rare kidney and liver reports. Burps or stomach upset → take it mid-meal." },
       { name: "Whey (isolate if it bloats)", dose: "1 scoop, 2 on short days", when: "4–5pm, or after a lift, or before a late dinner.", why: "Protein base — it's food, not a supplement.", note: "Halal-certified." }
     ],
-    ramadan: "Ramadan: iron at iftar with water and a date, before the meal; suhoor = D3 + 2 omega-3 softgels + creatine + zinc; after the iftar meal = 1 omega-3 softgel + magnesium.",
+    ramadan: "Ramadan: iron at iftar with water and a date, before the meal; suhoor = D3 + 2 omega-3 softgels + creatine + zinc; after the iftar meal = 1 omega-3 softgel + black seed + magnesium; ACV (if you use it) just before the iftar meal, after the dates.",
     skip: "Skip: T-boosters, fat burners, ashwagandha, green-tea extract, garcinia, turmeric / curcumin pills, herbal sugar or detox blends, SARMs — the liver pays for them. Coffee and turmeric in cooking are fine."
   },
 
