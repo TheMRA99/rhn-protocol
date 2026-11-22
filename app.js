@@ -4293,7 +4293,7 @@ function applyTheme(theme) {
   const btn = document.getElementById('themeToggle');
   if (btn) btn.textContent = isLight ? '☾' : '☀';
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', isLight ? '#ECEAE3' : '#18181F');
+  if (meta) meta.setAttribute('content', isLight ? '#ECECEF' : '#18181F');
 }
 applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
 document.getElementById('themeToggle')?.addEventListener('click', () => {

@@ -2518,3 +2518,53 @@ body.sheet-open { overflow: hidden; }
 
 /* Light mode sits on plain bone — no dark-mode vignette underneath */
 html.light, html.light body { background-image: none; background-color: var(--bg); }
+
+/* =====================================================================
+   PAIR AND POP (D:\Code\COLOR-RULES.md) · grey + off-white + ONE red
+   Red only where it earns it: primary buttons, the selected tab, the active
+   session, progress, the rest bar, focus. Everything decorative is neutral.
+   Whites and blacks are tinted (cool, to match the charcoal); text passes AA.
+   ===================================================================== */
+:root { --text: #F2F3F7; --on-accent: #FCFDFF; }
+:root.light {
+  --bg: #ECECEF;          /* porcelain — cool, so the red pops from the opposite side */
+  --bg-1: #FAFAF8;        /* no pure white */
+  --bg-2: #F2F2F4;
+  --bg-3: #E4E4E8;
+  --line: #D6D6DC;
+  --line-bright: #BDBDC5;
+  --text-dim: #55545B;
+  --text-faint: #68676D;  /* was 2.4:1 — now ≥ 4.7:1 */
+  --on-accent: #FCFDFF;
+}
+:root.light .topbar, :root.light .tabs { background: rgba(236,236,239,0.9); }
+
+/* progress = the pop */
+.session-progress-fill, .session-progress-fill.complete { background: var(--wine); }
+
+/* decorative reds -> neutral */
+.block-title { color: var(--text-dim); }
+.block-toggle, .card-toggle { color: var(--text-faint); }
+.exercise-block.floor-block { border-left-color: var(--line-bright); }
+.exercise-block.floor-block .block-title-text::after { color: var(--text-faint); }
+.workout-cue strong { color: var(--text); }
+.workout-warmup { background: var(--bg-2); }
+.workout-warmup::before { color: var(--text); }
+.set-input.done { border-color: var(--line-bright); background: var(--bg-2); }
+.set-input.done span, .set-input.done input, .set-input.done .set-bar-total { color: var(--text); }
+.ms-set.done { border-color: var(--line-bright); }
+.ms-set.done .ms-set-label { color: var(--text); }
+.day-pill.done:not(.active) { border-color: var(--line-bright); background: var(--bg-2); }
+.day-pill.next .day-pill-num::after { color: var(--text-dim); }
+.week-cell.done { border-color: var(--line-bright); }
+.phase-title { color: var(--text); }
+.rule-num { color: var(--text-faint); }
+.rest-bar-label { color: var(--text-dim); }
+.history-detail .det-note { color: var(--text-dim); }
+.target-cell:nth-child(3n+2) .target-value { color: var(--text); }
+.pr-next-line strong { color: var(--text); }
+.spidey-link { color: var(--text-dim); }
+.mob-last.fresh { color: var(--text); }
+.wl-count.full { color: var(--text); }
+.variant-card, .checkin-card, .sa-card { border-color: var(--line-bright); }
+.ci-badge { color: var(--text); }
