@@ -97,8 +97,8 @@
 html, body {
   background: var(--bg);
   background-image:
-    radial-gradient(125% 105% at 50% 35%, rgba(28,28,36,0.2), rgba(20,16,25,0.6) 65%, rgba(20,16,25,0.95) 100%),
-    linear-gradient(180deg, #1C1C24 0%, var(--bg) 38%, #141019 100%);
+    radial-gradient(125% 105% at 50% 35%, rgba(18,28,50,0.2), rgba(11,18,34,0.6) 65%, rgba(11,18,34,0.95) 100%),
+    linear-gradient(180deg, #15223D 0%, var(--bg) 38%, #0B1426 100%);
   background-attachment: fixed;
   color: var(--text);
   font-family: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
@@ -117,7 +117,7 @@ body::before {
   position: fixed;
   inset: 0;
   background-image:
-    radial-gradient(rgba(225,29,44,0.05) 1px, transparent 1.4px);
+    radial-gradient(rgba(120,145,205,0.05) 1px, transparent 1.4px);
   background-size: 26px 26px;
   pointer-events: none;
   z-index: 0;
@@ -129,21 +129,21 @@ body::after {
   position: fixed;
   inset: -10%;
   background:
-    radial-gradient(ellipse 95% 70% at 0% 0%, rgba(225,29,44,0.20), transparent 65%),
-    radial-gradient(ellipse 70% 60% at 100% 100%, rgba(160,69,90,0.10), transparent 70%);
+    radial-gradient(ellipse 95% 70% at 0% 0%, rgba(70,100,180,0.22), transparent 65%),
+    radial-gradient(ellipse 70% 60% at 100% 100%, rgba(70,100,180,0.10), transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
 /* Light theme: kill the dark moodlight, soften the dots to a faint warm tint */
-:root.light body::before { opacity: 0.5; background-image: radial-gradient(rgba(176,42,66,0.06) 1px, transparent 1.4px); }
+:root.light body::before { opacity: 0.5; background-image: radial-gradient(rgba(70,100,180,0.06) 1px, transparent 1.4px); }
 :root.light body::after {
   background:
-    radial-gradient(ellipse 90% 60% at 0% 0%, rgba(176,42,66,0.05), transparent 60%),
-    radial-gradient(ellipse 70% 55% at 100% 100%, rgba(160,69,90,0.04), transparent 65%);
+    radial-gradient(ellipse 90% 60% at 0% 0%, rgba(70,100,180,0.06), transparent 60%),
+    radial-gradient(ellipse 70% 55% at 100% 100%, rgba(70,100,180,0.04), transparent 65%);
 }
 /* Light theme: flip the hardcoded translucent dark surfaces */
-:root.light .topbar { background: rgba(236,234,227,0.88); }
-:root.light .tabs { background: rgba(236,234,227,0.88); }
+:root.light .topbar { background: rgba(239,233,220,0.88); }
+:root.light .tabs { background: rgba(239,233,220,0.88); }
 :root.light .rest-bar { background: rgba(255,255,255,0.94); }
 
 /* Theme toggle button in the topbar */
@@ -173,7 +173,7 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(11,11,12,0.85);
+  background: rgba(9,14,26,0.85);
   backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   border-bottom: 1px solid var(--line);
@@ -276,7 +276,7 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 14px;
-  background: rgba(11,11,12,0.85);
+  background: rgba(9,14,26,0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--line);
@@ -301,7 +301,7 @@ button { cursor: pointer; border: none; background: none; color: inherit; }
 .tab.active {
   color: var(--wine-bright);
   border-bottom-color: var(--wine);
-  text-shadow: 0 0 12px rgba(224,58,96,0.5);
+  text-shadow: 0 0 12px rgba(230,74,58,0.5);
 }
 
 /* ========== MAIN ========== */
@@ -344,10 +344,10 @@ main {
   background: var(--bg-3);
 }
 .prog-btn.active {
-  background: linear-gradient(160deg, rgba(200,51,75,0.2) 0%, var(--bg-2) 55%);
+  background: linear-gradient(160deg, rgba(211,53,42,0.2) 0%, var(--bg-2) 55%);
   border-color: var(--wine);
   color: var(--wine-bright);
-  box-shadow: 0 4px 12px -4px rgba(200,51,75,0.4);
+  box-shadow: 0 4px 12px -4px rgba(211,53,42,0.4);
 }
 
 /* ========== HERO ========== */
@@ -421,9 +421,9 @@ main {
   transform: translateY(-1px);
 }
 .day-pill.active {
-  background: linear-gradient(160deg, rgba(200,51,75,0.16) 0%, var(--bg-2) 55%);
+  background: linear-gradient(160deg, rgba(211,53,42,0.16) 0%, var(--bg-2) 55%);
   border-color: var(--wine);
-  box-shadow: inset 0 0 0 1px var(--wine), 0 6px 22px -8px rgba(200,51,75,0.5);
+  box-shadow: inset 0 0 0 1px var(--wine), 0 6px 22px -8px rgba(211,53,42,0.5);
 }
 .day-pill.active .day-pill-num { color: var(--cream); }
 .day-pill-num {
@@ -444,7 +444,7 @@ main {
   text-transform: none;
 }
 /* Done-this-week + next-up markers on the day pills */
-.day-pill.done { border-color: var(--wine); background: rgba(200,51,75,0.06); }
+.day-pill.done { border-color: var(--wine); background: rgba(211,53,42,0.06); }
 .day-pill.done .day-pill-name { color: var(--text-dim); }
 .day-pill-check {
   display: inline-block; margin-left: 6px; color: var(--wine-bright); font-weight: 700;
@@ -519,7 +519,7 @@ main {
   color: var(--cream);
   letter-spacing: 0.05em;
   font-weight: 500;
-  background: rgba(225,29,44,0.14);
+  background: rgba(211,53,42,0.14);
   padding: 3px 7px;
   border-radius: 4px;
 }
@@ -655,7 +655,7 @@ main {
   transition: border-color 0.18s, background 0.18s;
 }
 .ms-set.done {
-  background: rgba(232,73,102,0.08);
+  background: rgba(230,74,58,0.08);
   border-color: var(--wine-dim);
 }
 .ms-set-label {
@@ -706,7 +706,7 @@ main {
   padding: 9px 0;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
-.ms-inputs input:focus { box-shadow: 0 0 0 3px rgba(200,51,75,0.15); }
+.ms-inputs input:focus { box-shadow: 0 0 0 3px rgba(211,53,42,0.15); }
 .ms-inputs input::placeholder { color: var(--text-faint); font-weight: 400; }
 .ms-inputs input:focus { border-color: var(--wine); }
 .ms-inputs span {
@@ -784,7 +784,7 @@ main {
 .exercise-prev.beaten {
   color: var(--brass-bright);
   border-color: var(--brass-dim);
-  background: rgba(225,29,44,0.20);
+  background: rgba(211,53,42,0.20);
 }
 .exercise-prev.beaten::before {
   content: '↑';
@@ -866,12 +866,12 @@ main {
   border-radius: 8px;
   border: 1px solid var(--wine-bright);
   cursor: pointer;
-  box-shadow: 0 0 12px rgba(200,51,75,0.25);
+  box-shadow: 0 0 12px rgba(211,53,42,0.25);
   transition: background 0.18s, box-shadow 0.18s;
 }
 .timed-go:hover {
   background: var(--wine-bright);
-  box-shadow: 0 0 18px rgba(224,73,102,0.45);
+  box-shadow: 0 0 18px rgba(230,74,58,0.45);
 }
 .timed-go:active { transform: scale(0.97); }
 
@@ -883,7 +883,7 @@ main {
   color: var(--text-dim);
   font-weight: 500;
   line-height: 1.5;
-  background: rgba(200,51,75,0.05);
+  background: rgba(211,53,42,0.05);
 }
 .workout-warmup::before {
   content: 'Warm-up · ';
@@ -898,7 +898,7 @@ main {
   color: var(--text-dim);
   font-weight: 500;
   line-height: 1.5;
-  background: rgba(56,85,232,0.06);
+  background: rgba(70,100,180,0.06);
 }
 .workout-gated-note::before {
   content: 'Your hips · ';
@@ -949,7 +949,7 @@ main {
   gap: 12px;
   padding: 14px 22px;
   border-bottom: 1px solid var(--line);
-  background: rgba(200,51,75,0.05);
+  background: rgba(211,53,42,0.05);
 }
 .office-next { flex: 1; min-width: 0; }
 .office-next-label {
@@ -1133,7 +1133,7 @@ main {
 }
 .set-input:focus-within {
   border-color: var(--wine);
-  box-shadow: 0 0 0 3px rgba(200,51,75,0.15);
+  box-shadow: 0 0 0 3px rgba(211,53,42,0.15);
 }
 .set-input span {
   font-family: 'JetBrains Mono', monospace;
@@ -1165,7 +1165,7 @@ main {
 }
 .set-input.done .set-bar-total { color: var(--wine-bright); }
 .set-input.done {
-  background: rgba(232,73,102,0.14);
+  background: rgba(230,74,58,0.14);
   border-color: var(--wine-bright);
 }
 .set-input.done span { color: var(--wine-bright); }
@@ -1188,12 +1188,12 @@ main {
 }
 .btn-primary {
   background: linear-gradient(180deg, var(--wine-bright) 0%, var(--wine) 100%);
-  box-shadow: 0 6px 18px -6px rgba(200,51,75,0.6), 0 1px 0 rgba(255,255,255,0.12) inset;
+  box-shadow: 0 6px 18px -6px rgba(211,53,42,0.6), 0 1px 0 rgba(255,255,255,0.12) inset;
   transition: filter 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
 }
 .btn-primary:hover {
   filter: brightness(1.08);
-  box-shadow: 0 8px 24px -6px rgba(224,58,96,0.7), 0 1px 0 rgba(255,255,255,0.14) inset;
+  box-shadow: 0 8px 24px -6px rgba(230,74,58,0.7), 0 1px 0 rgba(255,255,255,0.14) inset;
 }
 .btn-primary:active { transform: translateY(1px) scale(0.99); }
 .btn-primary.done {
@@ -1209,14 +1209,14 @@ main {
   padding: 13px;
   background: transparent;
   color: var(--red);
-  border: 1px solid rgba(229,72,58,0.4);
+  border: 1px solid rgba(230,74,58,0.4);
   border-radius: 10px;
   font-family: 'Hanken Grotesk', system-ui, sans-serif;
   font-weight: 600;
   font-size: 12px;
   letter-spacing: 0.05em;
 }
-.btn-ghost:hover { background: rgba(229,72,58,0.08); }
+.btn-ghost:hover { background: rgba(230,74,58,0.08); }
 
 /* ========== WORKOUTS ALL ========== */
 .workout-block {
@@ -1377,12 +1377,12 @@ main {
 .week-cell.deload {
   background: var(--bg-3);
   color: var(--cream);
-  border-color: rgba(225,29,44,0.55);
+  border-color: rgba(211,53,42,0.55);
 }
 .week-cell.current {
   border-color: var(--wine);
   color: var(--wine-bright);
-  box-shadow: 0 0 0 2px rgba(176,49,74,0.28);
+  box-shadow: 0 0 0 2px rgba(194,46,34,0.28);
 }
 
 /* ========== HISTORY ========== */
@@ -1563,7 +1563,7 @@ main {
   line-height: 1.55;
 }
 
-.danger-zone { border-color: rgba(229,72,58,0.25); }
+.danger-zone { border-color: rgba(230,74,58,0.25); }
 .warn {
   padding: 16px 22px;
   color: var(--text-dim);
@@ -1598,11 +1598,11 @@ main {
   right: 0;
   bottom: 0;
   z-index: 90;
-  background: rgba(24,24,31,0.93);
+  background: rgba(14,22,40,0.93);
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
   border-top: 1px solid var(--wine-dim);
-  box-shadow: 0 -10px 40px rgba(200,51,75,0.20);
+  box-shadow: 0 -10px 40px rgba(211,53,42,0.20);
   padding-bottom: env(safe-area-inset-bottom);
   transition: opacity 0.25s, transform 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
   animation: restBarSlide 0.32s cubic-bezier(0.2, 0.9, 0.2, 1);
@@ -1614,7 +1614,7 @@ main {
 .rest-bar.done {
   border-top-color: var(--crimson);
   background: rgba(28,8,12,0.94);
-  box-shadow: 0 -10px 40px rgba(225,29,44,0.32);
+  box-shadow: 0 -10px 40px rgba(211,53,42,0.32);
 }
 .rest-bar-fill {
   position: absolute;
@@ -1622,11 +1622,11 @@ main {
   height: 2px;
   background: linear-gradient(90deg, var(--wine), var(--crimson-bright));
   transition: width 1s linear;
-  box-shadow: 0 0 10px rgba(200,51,75,0.55);
+  box-shadow: 0 0 10px rgba(211,53,42,0.55);
 }
 .rest-bar.done .rest-bar-fill {
   background: var(--crimson);
-  box-shadow: 0 0 12px rgba(225,29,44,0.6);
+  box-shadow: 0 0 12px rgba(211,53,42,0.6);
 }
 .rest-bar-content {
   max-width: 1100px;
@@ -1674,7 +1674,7 @@ main {
   border-color: var(--wine);
 }
 .rest-bar-skip { color: var(--crimson); border-color: var(--crimson-dim); }
-.rest-bar-skip:hover { background: rgba(225,29,44,0.10); color: var(--crimson-bright); border-color: var(--crimson); }
+.rest-bar-skip:hover { background: rgba(211,53,42,0.10); color: var(--crimson-bright); border-color: var(--crimson); }
 
 /* ========== ACTIVE / COMPLETED EXERCISE ========== */
 .exercise {
@@ -1683,7 +1683,7 @@ main {
 }
 .exercise.completed { opacity: 0.42; }
 .exercise.active {
-  background: linear-gradient(90deg, rgba(225,29,44,0.07), transparent 60%);
+  background: linear-gradient(90deg, rgba(211,53,42,0.07), transparent 60%);
 }
 .exercise.active::before {
   content: '';
@@ -1694,14 +1694,14 @@ main {
   width: 2px;
   background: var(--crimson);
   border-radius: 2px;
-  box-shadow: 0 0 12px rgba(225,29,44,0.55);
+  box-shadow: 0 0 12px rgba(211,53,42,0.55);
 }
 
 /* PR flash */
 @keyframes prFlash {
-  0%   { box-shadow: 0 0 0 0 rgba(225,29,44,0.6); transform: scale(1); }
-  35%  { box-shadow: 0 0 0 6px rgba(225,29,44,0.35); transform: scale(1.02); }
-  100% { box-shadow: 0 0 0 0 rgba(225,29,44,0); transform: scale(1); }
+  0%   { box-shadow: 0 0 0 0 rgba(211,53,42,0.6); transform: scale(1); }
+  35%  { box-shadow: 0 0 0 6px rgba(211,53,42,0.35); transform: scale(1.02); }
+  100% { box-shadow: 0 0 0 0 rgba(211,53,42,0); transform: scale(1); }
 }
 .set-input.pr-flash, .ms-set.pr-flash {
   animation: prFlash 1.4s cubic-bezier(0.2, 0.9, 0.2, 1);
@@ -1794,11 +1794,11 @@ body.rest-active main { padding-bottom: 180px; }
   border: 1px solid var(--line-bright);
 }
 .mode-banner.deload {
-  background: linear-gradient(160deg, rgba(56,85,232,0.14), rgba(20,16,25,0.4));
+  background: linear-gradient(160deg, rgba(70,100,180,0.14), rgba(11,18,34,0.4));
   border-color: var(--cobalt-dim);
 }
 .mode-banner.paused {
-  background: linear-gradient(160deg, rgba(200,51,75,0.16), rgba(20,16,25,0.5));
+  background: linear-gradient(160deg, rgba(211,53,42,0.16), rgba(11,18,34,0.5));
   border-color: var(--wine);
 }
 .mode-banner-title {
@@ -1874,7 +1874,7 @@ body.rest-active main { padding-bottom: 180px; }
 .plate-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .plate-chip {
   font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;
-  background: rgba(200,51,75,0.12); border: 1px solid var(--wine-dim); color: var(--text);
+  background: rgba(211,53,42,0.12); border: 1px solid var(--wine-dim); color: var(--text);
   padding: 5px 10px; border-radius: 8px;
 }
 .plate-hint { font-size: 12px; color: var(--text-dim); }
@@ -1882,7 +1882,7 @@ body.rest-active main { padding-bottom: 180px; }
 /* ===== ONBOARDING ===== */
 .onboard {
   position: fixed; inset: 0; z-index: 200;
-  background: rgba(10,8,14,0.82);
+  background: rgba(8,13,24,0.82);
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   display: flex; align-items: flex-start; justify-content: center;
   overflow-y: auto; padding: 24px 16px 60px;
@@ -1916,7 +1916,7 @@ body.rest-active main { padding-bottom: 180px; }
   flex: 1; padding: 11px; border-radius: 10px; border: 1px solid var(--line);
   background: var(--bg-3); color: var(--text-dim); font-family: 'Hanken Grotesk', sans-serif; font-weight: 600; font-size: 13px;
 }
-.onboard-seg button.on { border-color: var(--wine); color: var(--text); background: rgba(200,51,75,0.14); }
+.onboard-seg button.on { border-color: var(--wine); color: var(--text); background: rgba(211,53,42,0.14); }
 #obStart { margin-top: 22px; }
 .onboard-skip { display: block; width: 100%; margin-top: 10px; padding: 10px; background: none; color: var(--text-dim); font-family: 'Hanken Grotesk', sans-serif; font-size: 13px; font-weight: 500; }
 .onboard-skip:hover { color: var(--text); }
@@ -1953,7 +1953,7 @@ body.rest-active main { padding-bottom: 180px; }
   margin-top: 8px;
   padding: 8px 11px;
   border-radius: 8px;
-  background: rgba(56,85,232,0.12);
+  background: rgba(70,100,180,0.12);
   border: 1px solid var(--cobalt-dim);
   color: var(--cobalt-bright);
   font-size: 12px;
@@ -2234,7 +2234,7 @@ html { scroll-behavior: smooth; }
 body { overscroll-behavior-y: none; overflow-x: clip; }
 
 /* On-brand text selection (wine, not the browser default blue). */
-::selection { background: rgba(232,73,102,0.28); color: var(--text); }
+::selection { background: rgba(230,74,58,0.28); color: var(--text); }
 
 /* Lock digit width so numbers don't shuffle as they update. */
 .stat-value, .day-pill-num, .exercise-spec, .set-input input, .ms-inputs input,
@@ -2338,7 +2338,7 @@ body.rest-active .session-progress.pinned-done { bottom: calc(96px + env(safe-ar
 
 /* Bottom sheet: check-in, Day 0, lift picks */
 .ci-wrap {
-  position: fixed; inset: 0; z-index: 100; background: rgba(8,8,12,.72);
+  position: fixed; inset: 0; z-index: 100; background: rgba(7,12,22,.72);
   display: flex; align-items: flex-end; justify-content: center;
 }
 .ci-sheet {
@@ -2396,7 +2396,7 @@ body.sheet-open { overflow: hidden; }
   min-height: 40px; padding: 8px 14px; border-radius: 999px; font-size: 13px;
   background: transparent; border: 1px dashed var(--line-bright); color: var(--text-dim);
 }
-.extra-chip.active { border: 1px solid var(--wine); color: var(--text); background: rgba(200,51,75,0.08); }
+.extra-chip.active { border: 1px solid var(--wine); color: var(--text); background: rgba(211,53,42,0.08); }
 .extra-chip.done { color: var(--text); border-style: solid; }
 .extras-note { flex-basis: 100%; font-size: 12px; color: var(--text-faint); }
 .finetune { margin-top: 4px; }
@@ -2447,3 +2447,74 @@ body.sheet-open { overflow: hidden; }
 .backfill .db-log input[type="date"] { width: 160px; }
 
 .history-remove { margin-top: 10px; font-size: 13px; min-height: 44px; }
+
+
+/* =====================================================================
+   PALETTE · two base colours + one accent
+   Deep base: Nightwing indigo. Light base: bone. Accent: Red Hood red —
+   used only for actions, active states and progress. Everything else is
+   a tint of the two bases, so the accent stays the one thing that pops.
+   ===================================================================== */
+:root {
+  --bg: #0E1830;
+  --bg-1: #16223D;
+  --bg-2: #1E2C4B;
+  --bg-3: #283859;
+  --line: #2D3D5E;
+  --line-bright: #3E5076;
+
+  --text: #EFE8D8;
+  --text-dim: #BFB8A8;
+  --text-faint: #8C8779;
+
+  --wine: #D3352A;
+  --wine-bright: #E84A3A;
+  --wine-dim: #8E2219;
+
+  --cobalt: #6F7FA3;
+  --cobalt-bright: #9AA7C4;
+  --cobalt-dim: #3A4A6C;
+  --slate: #6F7FA3;
+
+  /* numerals read in bone now — red is saved for what you tap */
+  --crimson: #EFE8D8;
+  --crimson-bright: #FFFFFF;
+  --crimson-dim: #BFB8A8;
+
+  --rust: #E84A3A;
+  --shadow: 0 12px 40px rgba(4,8,18,0.55);
+  --on-accent: #F6F1E6;
+}
+:root.light {
+  --bg: #EFE9DC;
+  --bg-1: #FBF8F1;
+  --bg-2: #F4EFE4;
+  --bg-3: #E8E1D2;
+  --line: #DCD3C2;
+  --line-bright: #C7BCA7;
+
+  --text: #13203B;
+  --text-dim: #4A5672;
+  --text-faint: #858C9F;
+
+  --wine: #C22E22;
+  --wine-bright: #D3352A;
+  --wine-dim: #8E2219;
+
+  --cobalt: #4A5A7E;
+  --cobalt-bright: #34436A;
+  --cobalt-dim: #6E7C9C;
+  --slate: #4A5A7E;
+
+  --crimson: #13203B;
+  --crimson-bright: #22335A;
+  --crimson-dim: #4A5672;
+
+  --rust: #C22E22;
+  --shadow: 0 8px 28px rgba(19,32,59,0.12);
+  --on-accent: #FBF8F1;
+}
+.btn-primary { color: var(--on-accent); }
+
+/* Light mode sits on plain bone — no dark-mode vignette underneath */
+html.light, html.light body { background-image: none; background-color: var(--bg); }
