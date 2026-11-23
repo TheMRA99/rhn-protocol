@@ -65,32 +65,6 @@
 }
 
 /* ===== LIGHT THEME (default) — legible in a bright office, no brightness cranking ===== */
-:root.light {
-  --bg: #ECEAE3;          /* warm off-white canvas */
-  --bg-1: #FFFFFF;        /* card surface — clean white */
-  --bg-2: #F4F2EC;        /* subtle raised */
-  --bg-3: #E7E4DB;
-  --line: #D8D4CA;
-  --line-bright: #C2BDB1;
-
-  --text: #1B1B22;        /* near-black ink */
-  --text-dim: #6A655C;
-  --text-faint: #9C968B;
-
-  --wine: #B02A42;        /* deeper for contrast on light */
-  --wine-bright: #C8334B;
-  --wine-dim: #8A1F33;
-
-  --cobalt: #5A5F75;
-  --cobalt-bright: #474C60;
-  --cobalt-dim: #6E7388;
-
-  --crimson: #C81824;
-  --crimson-bright: #E11D2C;
-  --crimson-dim: #9A1422;
-
-  --shadow: 0 8px 28px rgba(40,30,30,0.12);
-}
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -135,16 +109,7 @@ body::after {
   z-index: 0;
 }
 /* Light theme: kill the dark moodlight, soften the dots to a faint warm tint */
-:root.light body::before { opacity: 0.5; background-image: radial-gradient(rgba(150,150,158,0.06) 1px, transparent 1.4px); }
-:root.light body::after {
-  background:
-    radial-gradient(ellipse 90% 60% at 0% 0%, rgba(150,150,158,0.06), transparent 60%),
-    radial-gradient(ellipse 70% 55% at 100% 100%, rgba(150,150,158,0.04), transparent 65%);
-}
 /* Light theme: flip the hardcoded translucent dark surfaces */
-:root.light .topbar { background: rgba(236,234,227,0.88); }
-:root.light .tabs { background: rgba(236,234,227,0.88); }
-:root.light .rest-bar { background: rgba(255,255,255,0.94); }
 
 /* Theme toggle button in the topbar */
 .theme-toggle {
@@ -2431,7 +2396,7 @@ body.sheet-open { overflow: hidden; }
 
 /* Under the hood (screening markers) */
 .mk-msg { font-size: 13px; color: var(--text-dim); margin: 4px 0 8px; line-height: 1.45; }
-.mk-better { color: #3fa66b; font-weight: 600; }
+.mk-better { color: var(--text); font-weight: 800; }
 .mk-form input[type="date"] { width: 150px; }
 .mk-form label { min-width: 70px; }
 
@@ -2467,9 +2432,9 @@ body.sheet-open { overflow: hidden; }
   --text-dim: #C2C7D4;
   --text-faint: #888FA3;
 
-  --wine: #D3352A;
-  --wine-bright: #E84A3A;
-  --wine-dim: #8E2219;
+  --wine: #D7262E;
+  --wine-bright: #F2595F;
+  --wine-dim: #8F1A20;
 
   --cobalt: #5A5F75;
   --cobalt-bright: #828699;
@@ -2481,43 +2446,13 @@ body.sheet-open { overflow: hidden; }
   --crimson-bright: #FFFFFF;
   --crimson-dim: #C2C7D4;
 
-  --rust: #E84A3A;
+  --rust: #F2595F;
   --shadow: 0 12px 40px rgba(0,0,0,0.55);
   --on-accent: #FCFDFF;
-}
-:root.light {
-  --bg: #ECEAE3;
-  --bg-1: #FFFFFF;
-  --bg-2: #F4F2EC;
-  --bg-3: #E7E4DB;
-  --line: #D8D4CA;
-  --line-bright: #C2BDB1;
-
-  --text: #1B1B22;
-  --text-dim: #6A655C;
-  --text-faint: #9C968B;
-
-  --wine: #C22E22;
-  --wine-bright: #D3352A;
-  --wine-dim: #8E2219;
-
-  --cobalt: #5A5F75;
-  --cobalt-bright: #474C60;
-  --cobalt-dim: #6E7388;
-  --slate: #5A5F75;
-
-  --crimson: #1B1B22;
-  --crimson-bright: #2D2D3A;
-  --crimson-dim: #6A655C;
-
-  --rust: #C22E22;
-  --shadow: 0 8px 28px rgba(40,30,30,0.12);
-  --on-accent: #FFFFFF;
 }
 .btn-primary { color: var(--on-accent); }
 
 /* Light mode sits on plain bone — no dark-mode vignette underneath */
-html.light, html.light body { background-image: none; background-color: var(--bg); }
 
 /* =====================================================================
    PAIR AND POP (D:\Code\COLOR-RULES.md) · grey + off-white + ONE red
@@ -2526,18 +2461,6 @@ html.light, html.light body { background-image: none; background-color: var(--bg
    Whites and blacks are tinted (cool, to match the charcoal); text passes AA.
    ===================================================================== */
 :root { --text: #F2F3F7; --on-accent: #FCFDFF; }
-:root.light {
-  --bg: #ECECEF;          /* porcelain — cool, so the red pops from the opposite side */
-  --bg-1: #FAFAF8;        /* no pure white */
-  --bg-2: #F2F2F4;
-  --bg-3: #E4E4E8;
-  --line: #D6D6DC;
-  --line-bright: #BDBDC5;
-  --text-dim: #55545B;
-  --text-faint: #68676D;  /* was 2.4:1 — now ≥ 4.7:1 */
-  --on-accent: #FCFDFF;
-}
-:root.light .topbar, :root.light .tabs { background: rgba(236,236,239,0.9); }
 
 /* progress = the pop */
 .session-progress-fill, .session-progress-fill.complete { background: var(--wine); }
