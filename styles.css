@@ -1,26 +1,26 @@
 /* RHN Protocol — refined */
 :root {
   /* canvas — neutral dark with faint purple lean, not blue */
-  --bg: #18181F;
-  --bg-1: #23232E;
-  --bg-2: #2D2D3A;
-  --bg-3: #383846;
-  --line: #424256;
-  --line-bright: #555570;
+  --bg: #141416;
+  --bg-1: #1D1D20;
+  --bg-2: #26262A;
+  --bg-3: #303035;
+  --line: #34343A;
+  --line-bright: #4A4A52;
 
   /* text — high contrast so it reads at LOW screen brightness */
-  --text: #FCFDFF;
-  --text-dim: #C2C7D4;
-  --text-faint: #888FA3;
+  --text: #F7F7F8;
+  --text-dim: #C4C4CA;
+  --text-faint: #9A9AA2;
 
   /* Spider-Verse / Bat Cave neon set */
   --wine: #C8334B;          /* primary · saturated wine, pops on neutral bg */
   --wine-bright: #E84966;
   --wine-dim: #80152B;
 
-  --cobalt: #5A5F75;        /* dim cool slate · only for quiet accents */
-  --cobalt-bright: #828699;
-  --cobalt-dim: #3A3F50;
+  --cobalt: #6A6A72;        /* dim cool slate · only for quiet accents */
+  --cobalt-bright: #96969E;
+  --cobalt-dim: #3E3E45;
 
   --crimson: #E11D2C;       /* numerals · Miguel O'Hara suit-crimson */
   --crimson-bright: #FF3848;
@@ -31,7 +31,7 @@
   --pink-bright: var(--crimson-bright);
   --pink-dim: var(--crimson-dim);
 
-  --slate: #5A5E72;         /* secondary · cold cave slate */
+  --slate: #6A6A72;         /* secondary · cold cave slate */
   --rust: #FF3838;          /* danger only */
 
   /* legacy var names */
@@ -2421,34 +2421,34 @@ body.sheet-open { overflow: hidden; }
    a shade of the two bases, so the accent stays the one thing that pops.
    ===================================================================== */
 :root {
-  --bg: #18181F;
-  --bg-1: #23232E;
-  --bg-2: #2D2D3A;
-  --bg-3: #383846;
-  --line: #424256;
-  --line-bright: #555570;
+  --bg: #141416;
+  --bg-1: #1D1D20;
+  --bg-2: #26262A;
+  --bg-3: #303035;
+  --line: #34343A;
+  --line-bright: #4A4A52;
 
-  --text: #FCFDFF;
-  --text-dim: #C2C7D4;
-  --text-faint: #888FA3;
+  --text: #F7F7F8;
+  --text-dim: #C4C4CA;
+  --text-faint: #9A9AA2;
 
   --wine: #D7262E;
   --wine-bright: #F2595F;
   --wine-dim: #8F1A20;
 
-  --cobalt: #5A5F75;
-  --cobalt-bright: #828699;
-  --cobalt-dim: #3A3F50;
-  --slate: #5A5E72;
+  --cobalt: #6A6A72;
+  --cobalt-bright: #96969E;
+  --cobalt-dim: #3E3E45;
+  --slate: #6A6A72;
 
   /* numerals read in off-white — red is saved for what you tap */
-  --crimson: #FCFDFF;
+  --crimson: #F7F7F8;
   --crimson-bright: #FFFFFF;
-  --crimson-dim: #C2C7D4;
+  --crimson-dim: #C4C4CA;
 
   --rust: #F2595F;
   --shadow: 0 12px 40px rgba(0,0,0,0.55);
-  --on-accent: #FCFDFF;
+  --on-accent: #F7F7F8;
 }
 .btn-primary { color: var(--on-accent); }
 
@@ -2460,7 +2460,7 @@ body.sheet-open { overflow: hidden; }
    session, progress, the rest bar, focus. Everything decorative is neutral.
    Whites and blacks are tinted (cool, to match the charcoal); text passes AA.
    ===================================================================== */
-:root { --text: #F2F3F7; --on-accent: #FCFDFF; }
+:root { --text: #F2F2F4; --on-accent: #F7F7F8; }
 
 /* progress = the pop */
 .session-progress-fill, .session-progress-fill.complete { background: var(--wine); }
@@ -2529,3 +2529,41 @@ body.sheet-open { overflow: hidden; }
   --on-accent: #F7F7F8;
 }
 .theme-toggle { display: none !important; }
+
+/* =====================================================================
+   COOL PASS · graphite + oxblood atmosphere + scarlet glow + silver
+   Still one accent family (red, hue 350–360°). No orange, green or blue.
+   ===================================================================== */
+body::before { background-image: radial-gradient(rgba(255,255,255,0.028) 1px, transparent 1.4px); opacity: 1; }
+body::after {
+  background:
+    radial-gradient(ellipse 95% 55% at 12% -8%, rgba(140,18,30,0.30), transparent 62%),
+    radial-gradient(ellipse 70% 50% at 105% 105%, rgba(90,12,20,0.22), transparent 70%);
+}
+.card {
+  background: linear-gradient(180deg, #232327 0%, #1B1B1E 70%);
+  border-color: rgba(255,255,255,0.06);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 14px 34px -14px rgba(0,0,0,0.75);
+}
+/* silver numerals + titles */
+.stat-value, .progress-stat-value, .hero-title {
+  background: linear-gradient(180deg, #FFFFFF 0%, #C6C6CE 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+/* scarlet with depth */
+.btn-primary {
+  background: linear-gradient(180deg, #E0303A 0%, #B81E27 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 10px 26px -10px rgba(215,38,46,0.7);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.btn-primary.done { background: transparent; box-shadow: none; }
+.session-progress-fill, .session-progress-fill.complete {
+  background: linear-gradient(90deg, #A61A23 0%, #D7262E 60%, #F2595F 100%);
+  box-shadow: 0 0 12px rgba(215,38,46,0.55);
+}
+.tab.active { text-shadow: 0 0 14px rgba(242,89,95,0.35); }
+.day-pill.active {
+  background: linear-gradient(160deg, rgba(215,38,46,0.26) 0%, rgba(90,12,20,0.20) 45%, var(--bg-2) 100%);
+  box-shadow: inset 0 0 0 1px var(--wine), 0 10px 28px -10px rgba(215,38,46,0.6);
+}
+.extras-toggle:hover, .extra-chip:hover { color: var(--text); }

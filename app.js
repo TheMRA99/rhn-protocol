@@ -2699,16 +2699,16 @@ function renderWeightChart() {
     <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
       <defs>
         <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#E03A60" stop-opacity="0.28"/>
-          <stop offset="100%" stop-color="#E03A60" stop-opacity="0"/>
+          <stop offset="0%" stop-color="#F2595F" stop-opacity="0.28"/>
+          <stop offset="100%" stop-color="#F2595F" stop-opacity="0"/>
         </linearGradient>
       </defs>
-      <line x1="${P}" y1="${targetY}" x2="${W - P}" y2="${targetY}" stroke="#3D4258" stroke-dasharray="4 6" />
-      <text x="${W - P - 4}" y="${targetY - 6}" text-anchor="end" fill="#E11D2C" font-family="JetBrains Mono" font-size="11">target ${target}</text>
+      <line x1="${P}" y1="${targetY}" x2="${W - P}" y2="${targetY}" stroke="#46464E" stroke-dasharray="4 6" />
+      <text x="${W - P - 4}" y="${targetY - 6}" text-anchor="end" fill="#D7262E" font-family="JetBrains Mono" font-size="11">target ${target}</text>
       <path d="${area}" fill="url(#grad)" />
-      <polyline points="${avgPts}" fill="none" stroke="#E03A60" stroke-width="3" stroke-linejoin="round" filter="drop-shadow(0 0 7px rgba(225,29,44,0.55))" />
-      <path d="${path}" stroke="#6E747A" stroke-width="1.2" fill="none" opacity="0.55" />
-      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="2.5" fill="#6E747A"/>`).join('')}
+      <polyline points="${avgPts}" fill="none" stroke="#F2595F" stroke-width="3" stroke-linejoin="round" filter="drop-shadow(0 0 7px rgba(225,29,44,0.55))" />
+      <path d="${path}" stroke="#7A7A82" stroke-width="1.2" fill="none" opacity="0.55" />
+      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="2.5" fill="#7A7A82"/>`).join('')}
     </svg>
   `;
 }
@@ -3480,8 +3480,8 @@ function renderWaist() {
 
   chartEl.innerHTML = `
     <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
-      <path d="${path}" stroke="#828699" stroke-width="2.2" fill="none" />
-      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#828699" stroke="#18181F" stroke-width="2"/>`).join('')}
+      <path d="${path}" stroke="#96969E" stroke-width="2.2" fill="none" />
+      ${points.map(p => `<circle cx="${p.x}" cy="${p.y}" r="4" fill="#96969E" stroke="#141416" stroke-width="2"/>`).join('')}
     </svg>
   `;
 
