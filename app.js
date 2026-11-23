@@ -4293,9 +4293,10 @@ function applyTheme(theme) {
   const btn = document.getElementById('themeToggle');
   if (btn) btn.textContent = isLight ? '☾' : '☀';
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', isLight ? '#ECECEF' : '#18181F');
+  if (meta) meta.setAttribute('content', isLight ? '#ECECEF' : '#141416');
 }
-applyTheme(localStorage.getItem(THEME_KEY) || 'dark');
+applyTheme('dark'); // dark only — light mode retired
+try { localStorage.removeItem(THEME_KEY); } catch (_) {}
 document.getElementById('themeToggle')?.addEventListener('click', () => {
   const next = document.documentElement.classList.contains('light') ? 'dark' : 'light';
   localStorage.setItem(THEME_KEY, next);
